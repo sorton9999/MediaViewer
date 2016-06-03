@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaViewer", "MediaViewer\MediaViewer.csproj", "{20619FC1-C6BE-4899-A580-9BFF919D6198}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CCA89D95-4F38-406B-9F86-9E56EADBAB1B} = {CCA89D95-4F38-406B-9F86-9E56EADBAB1B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLib", "DataAccessLib\DataAccessLib.csproj", "{CCA89D95-4F38-406B-9F86-9E56EADBAB1B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20619FC1-C6BE-4899-A580-9BFF919D6198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20619FC1-C6BE-4899-A580-9BFF919D6198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20619FC1-C6BE-4899-A580-9BFF919D6198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20619FC1-C6BE-4899-A580-9BFF919D6198}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCA89D95-4F38-406B-9F86-9E56EADBAB1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCA89D95-4F38-406B-9F86-9E56EADBAB1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCA89D95-4F38-406B-9F86-9E56EADBAB1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCA89D95-4F38-406B-9F86-9E56EADBAB1B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

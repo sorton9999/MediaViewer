@@ -1,0 +1,20 @@
+﻿<Window x:Class="MediaViewer.LibraryListView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Music Library" Height="300" Width="500">
+    <Grid>
+        <ScrollViewer HorizontalAlignment="Left" Height="250" Margin="152,10,0,0" VerticalAlignment="Top" Width="330">
+            <ListView x:Name="libraryPathListView" Height="229" Width="284">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </ScrollViewer>
+        <Button Content="Add" HorizontalAlignment="Left" Margin="32,34,0,0" VerticalAlignment="Top" Width="75" Click="AddButton_Click"/>
+        <Button Content="Remove" HorizontalAlignment="Left" Margin="32,83,0,0" VerticalAlignment="Top" Width="75" Click="RemoveButton_Click"/>
+        <Button Content="Close" HorizontalAlignment="Left" Margin="32,131,0,0" VerticalAlignment="Top" Width="75" Click="CloseButton_Click"/>
+
+    </Grid>
+</Window>
