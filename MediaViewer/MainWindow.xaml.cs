@@ -57,7 +57,7 @@ namespace MediaViewer
         /// The configuration view window.  Create this immediately because
         /// its viewmodel holds needed data from the DB.
         /// </summary>
-        private ConfigView configView = new ConfigView();
+        private ConfigView configView;
 
         /// <summary>
         /// The database operation thread
@@ -92,6 +92,8 @@ namespace MediaViewer
             TreeViewModel.TreeViewItemViewModel.OnItemSelected += TreeViewItemViewModel_OnItemSelected;
             // Set the item source for the DB operation error window to the error string list
             errorView.ErrorList.ItemsSource = errorList;
+            // Config View send parent in
+            configView = new ConfigView(this);
             // Set the Max value from ProgressBar Maximum value
             progressBarMax = workProgressBar.Maximum;
         }
@@ -103,6 +105,15 @@ namespace MediaViewer
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Indicates if the main window is exiting
+        /// </summary>
+        public bool Exiting
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -337,8 +348,12 @@ namespace MediaViewer
         /// <param name="e"></param>
         private void Exit_Button_Click(object sender, RoutedEventArgs e)
         {
-            this.errorView.Close();   
-            this.Close();
+            Exiting = true;
+            errorView.Close();
+            configView.Close();
+            if (libView != null)
+                libView.Close();
+            Close();
         }
 
         /// <summary>
@@ -368,6 +383,15 @@ namespace MediaViewer
                 return;
             }
             configView.Show();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Exiting = true;
+            errorView.Close();
+            configView.Close();
+            if (libView != null)
+                libView.Close();
         }
     }
 }

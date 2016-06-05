@@ -44,13 +44,19 @@ namespace MediaViewer
         /// </summary>
         private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
 
+        /// <summary>
+        /// Main Window parent set in the constructor
+        /// </summary>
+        private MainWindow parent;
+
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public ConfigView()
+        public ConfigView(MainWindow _parent)
         {
             InitializeComponent();
+            parent = _parent;
             // Set the Data Context to the View Model
             this.DataContext = viewModel;
             // Create the DAO using the resultset and get the config items from the DB
@@ -129,6 +135,10 @@ namespace MediaViewer
         /// <param name="e"></param>
         private void configViewWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (!parent.Exiting)
+                e.Cancel = true;
+            else
+                e.Cancel = false;
             Hide();
         }
     }

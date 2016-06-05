@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaViewer"
         mc:Ignorable="d"
-        Title="Configuration" Height="200" Width="435" ResizeMode="NoResize" Closing="configViewWindow_Closing" Visibility="Visible">
+        Title="Configuration" Height="200" Width="435" ResizeMode="NoResize" Closing="configViewWindow_Closing" Visibility="Hidden">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="29*"/>
