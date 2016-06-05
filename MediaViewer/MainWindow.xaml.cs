@@ -1,23 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Threading;
 using DataAccessLib;
-using Microsoft.Win32;
-
-using TagLib.Id3v2;
-using TagLib.Mpeg;
 
 
 namespace MediaViewer
@@ -68,14 +54,29 @@ namespace MediaViewer
         private LibraryListView libView = null;
 
         /// <summary>
+        /// The configuration view window.  Create this immediately because
+        /// its viewmodel holds needed data from the DB.
+        /// </summary>
+        private ConfigView configView = new ConfigView();
+
+        /// <summary>
         /// The database operation thread
         /// </summary>
         private Thread insertThread = null;
 
+        /// <summary>
+        /// Progress Bar Max value
+        /// </summary>
         private double progressBarMax = 0.0;
 
+        /// <summary>
+        /// Progress Bar next step advance value 
+        /// </summary>
         private double progressBarStep = 0.0;
 
+        /// <summary>
+        /// Progress Bar current value
+        /// </summary>
         private double progressBarValue = 0.0;
 
 
@@ -91,7 +92,7 @@ namespace MediaViewer
             TreeViewModel.TreeViewItemViewModel.OnItemSelected += TreeViewItemViewModel_OnItemSelected;
             // Set the item source for the DB operation error window to the error string list
             errorView.ErrorList.ItemsSource = errorList;
-
+            // Set the Max value from ProgressBar Maximum value
             progressBarMax = workProgressBar.Maximum;
         }
 
@@ -348,9 +349,25 @@ namespace MediaViewer
         private void Library_Button_Click(object sender, RoutedEventArgs e)
         {
             if ((libView != null) && libView.IsVisible)
+            {
                 return;
+            }
             libView = new LibraryListView(this);
             libView.Show();
+        }
+
+        /// <summary>
+        /// The Config button Click handler which calls up the Config window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Config_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (configView.IsVisible)
+            {
+                return;
+            }
+            configView.Show();
         }
     }
 }

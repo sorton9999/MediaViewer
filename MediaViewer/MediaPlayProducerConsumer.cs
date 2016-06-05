@@ -50,7 +50,8 @@ namespace MediaViewer
         private Process GetPlayProcess(string file)
         {
             Process process = new Process();
-            process.StartInfo.FileName = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
+            process.StartInfo.FileName = ConfigView.ConfigViewModel.VlcPath;
+            //process.StartInfo.FileName = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
             process.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
             string args = String.Empty;
             if (EnqueueOnce)

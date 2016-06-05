@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace DataAccessLib
 {
+    /// <summary>
+    /// The resultset which stores rows of values stored in the
+    /// MusicMediaTable table in the database.
+    /// </summary>
     public class MusicMediaResultSet
     {
+        #region Row Properties
+        // Properties matching table columns in the MusicMediaTable table
         public string ID { get; set; }
         public string FilePath { get; set; }
         public string FileName { get; set; }
@@ -15,10 +21,19 @@ namespace DataAccessLib
         public string Artist { get; set; }
         public string Album { get; set; }
         public string FilePathID { get; set; }
+        #endregion
 
+        #region Table Name
+        /// <summary>
+        /// The table name in the database
+        /// </summary>
         public string TableName;
+        #endregion
 
-       
+        #region Constructors
+        /// <summary>
+        /// Constructor -- Creates an empty resultset object
+        /// </summary>
         public MusicMediaResultSet()
             : base()
         {
@@ -33,6 +48,10 @@ namespace DataAccessLib
             TableName = "MusicMediaTable";
         }
 
+        /// <summary>
+        /// Constructor -- copy
+        /// </summary>
+        /// <param name="rsIn">The resultset to copy</param>
         public MusicMediaResultSet(MusicMediaResultSet rsIn)
         {
             ID = rsIn.ID;
@@ -46,6 +65,16 @@ namespace DataAccessLib
             TableName = "MusicMediaTable";
         }
 
+        /// <summary>
+        /// Constructor -- Creates a new resultset with the values as arguments
+        /// </summary>
+        /// <param name="id">Table column ID value</param>
+        /// <param name="filePath">Table column FilePath value</param>
+        /// <param name="fileName">Table column FileName value</param>
+        /// <param name="title">Table column title value</param>
+        /// <param name="artist">Table column Artist value</param>
+        /// <param name="album">Table column Album value</param>
+        /// <param name="filePathId">Table column FilePathID value</param>
         public MusicMediaResultSet(string id, string filePath, string fileName, string title, string artist, string album, string filePathId)
         {
             this.ID = id;
@@ -58,5 +87,6 @@ namespace DataAccessLib
 
             TableName = "MusicMediaTable";
         }
+        #endregion
     }
 }
