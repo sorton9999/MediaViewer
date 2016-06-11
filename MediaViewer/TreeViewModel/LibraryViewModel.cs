@@ -20,7 +20,8 @@ namespace MediaViewer.TreeViewModel
             _artists = new ReadOnlyCollection<ArtistViewModel>(
                 (from artist in artists
                  select new ArtistViewModel(artist))
-                 .ToList());
+                 .OrderBy(s => s.ArtistName)
+                 .ToList());     
         }
 
         public ReadOnlyCollection<ArtistViewModel> Artists
