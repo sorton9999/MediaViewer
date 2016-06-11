@@ -15,6 +15,11 @@ namespace MediaViewer
     public partial class ConfigView : Window
     {
         /// <summary>
+        /// A default location path for the VLC media player
+        /// </summary>
+        public const string defaultVlcPath = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
+
+        /// <summary>
         /// The view model of configuration items to set
         /// </summary>
         public static ConfigItemsViewModel viewModel = new ConfigItemsViewModel();
@@ -83,9 +88,15 @@ namespace MediaViewer
         /// </summary>
         private void LoadConfigItems()
         {
-            if (configList.Count > 0)
+            if (configList.Count > 0 && !String.IsNullOrEmpty(configList[0].VlcPath))
             {
                 viewModel.VlcPath = configList[0].VlcPath;
+            }
+            else
+            {
+                viewModel.VlcPath = defaultVlcPath;
+                VlcLocation_TextBox.Text = defaultVlcPath;
+                Submit_Button_Click(null, null);
             }
         }
 
@@ -96,6 +107,9 @@ namespace MediaViewer
         /// <param name="e"></param>
         private void Submit_Button_Click(object sender, RoutedEventArgs e)
         {
+            // Clear any other entries out first
+            dao.ClearTable();
+            // Grab the entry and insert into DB
             string path = VlcLocation_TextBox.Text;
             if (!string.IsNullOrEmpty(path))
             {
