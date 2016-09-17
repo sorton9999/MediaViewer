@@ -47,8 +47,9 @@ namespace DataAccessLib.DataModel
             // grab the Albums stored in the DB under the given Artist's name
             try
             {
+                String escapedArtist = dataAccess.EscapeString(artist.ArtistName);
                 using (DataTable albums = dataAccess.GetDataTable(@"SELECT DISTINCT Album FROM MusicMediaTable WHERE Artist ='" +
-                        artist.ArtistName + "'"))
+                        escapedArtist + "'"))
                 {
                     // Go through each row of the Album table to create a list of Album names.  We add these to a
                     // List object.
@@ -115,8 +116,9 @@ namespace DataAccessLib.DataModel
             // grab the Titles stored in the DB.
             try
             {
+                String escapedAlbum = dataAccess.EscapeString(album.AlbumName);
                 using (DataTable titles = dataAccess.GetDataTable(@"SELECT FilePath, FileName, Title FROM MusicMediaTable WHERE Album ='" +
-                        album.AlbumName + "'"))
+                        escapedAlbum + "'"))
                 {
                     // Go through each row of the Titles table to create a list of Title names.  We add these to a
                     // List object.

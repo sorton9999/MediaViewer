@@ -250,72 +250,17 @@ namespace DataAccessLib
         }
 
         /// <summary>
-        /// Validate and remove disallowed characters from the input string.  Certain characters are disallowed when
-        /// an DB insert operation is done on the given string such as "," or single quotes.
+        /// Escapes the quote for compatability with database inserts
         /// </summary>
-        /// <param name="inputStr">The string to validate</param>
-        /// <returns>The changed string with disallowed characters removed</returns>
-        private String ValidateString(String inputStr)
+        /// <param name="inputStr">The string to alter</param>
+        /// <returns>The altered string if quotes appear in string</returns>
+        public String EscapeString(String inputStr)
         {
             String outStr = String.Empty;
-            if (!String.IsNullOrEmpty(inputStr))
-            {
-                String[] tmp = inputStr.Split(new char[] { ',', '\'' });
-                if (tmp != null)
-                {
-                    outStr = String.Concat(tmp);
-                }
-                else
-                {
-                    outStr = inputStr;
-                }
-            }
-            return outStr;
-        }
-
-        private String EscapeString(String inputStr)
-        {
-            // ToDo: Make this much quicker.  Iterating  through all chars is too slow!!
-            String outStr = String.Empty;
-            if (!String.IsNullOrEmpty(inputStr))
-            {
-                
-                foreach (char c in inputStr)
-                {
-                    outStr = String.Concat(outStr, c);
-                    if (c == (char)39)
-                    {
-                        outStr = String.Concat(outStr, (char)39);
-                    }
-                }
-       
-                /*
-                char[] delimiter = new char[] { '\'' };
-                String[] tmp = inputStr.Split(delimiter);
-                if (tmp != null)
-                {
-                    if (tmp.Length == 1)
-                    {
-                        return tmp[0];
-                    }
-                    foreach (var item in tmp.OfType<object>().Select((x, i) => new { x, i }))
-                    {
-                        if ((item.i + 1) % 2 == 1)
-                        {
-                            outStr = String.Concat(outStr, (item.x as string + delimiter[0]));
-                        }
-                        else
-                        {
-                            outStr = String.Concat(outStr, (delimiter[0] + (item.x as string)));
-                        }
-                    }
-                }
-                else
-                {
-                    outStr = inputStr;
-                }
-                 * */
-            }
+            if (!String.IsNullOrEmpty(inputStr) && inputStr.Contains('\''))
+                outStr = inputStr.Replace("'", "''");
+            else
+                outStr = inputStr;
             return outStr;
         }
 

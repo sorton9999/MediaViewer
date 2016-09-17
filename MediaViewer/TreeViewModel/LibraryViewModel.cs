@@ -11,10 +11,22 @@ using System.Windows;
 
 namespace MediaViewer.TreeViewModel
 {
+    /// <summary>
+    /// This class provides storage and access for the root of the tree, the artists.
+    /// The artist view models are created and put into a collection.
+    /// </summary>
     public class LibraryViewModel : DependencyObject
     {
+        /// <summary>
+        /// The collection of artist view models
+        /// </summary>
         readonly ReadOnlyCollection<ArtistViewModel> _artists;
 
+        /// <summary>
+        /// Constructor -- The artis view models are created and put into
+        /// the collection in alpha order.
+        /// </summary>
+        /// <param name="artists"></param>
         public LibraryViewModel(Artist[] artists)
         {
             _artists = new ReadOnlyCollection<ArtistViewModel>(
@@ -24,6 +36,9 @@ namespace MediaViewer.TreeViewModel
                  .ToList());     
         }
 
+        /// <summary>
+        /// Public Artist collection property
+        /// </summary>
         public ReadOnlyCollection<ArtistViewModel> Artists
         {
             get { return _artists; }

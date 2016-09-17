@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
 using System.Threading;
 using DataAccessLib;
 
@@ -79,6 +80,8 @@ namespace MediaViewer
         /// </summary>
         private double progressBarValue = 0.0;
 
+        private Object syncLock = new object();
+
 
         /// <summary>
         /// Constructor
@@ -96,6 +99,8 @@ namespace MediaViewer
             configView = new ConfigView(this);
             // Set the Max value from ProgressBar Maximum value
             progressBarMax = workProgressBar.Maximum;
+
+            BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
         }
 
         /// <summary>
@@ -203,7 +208,8 @@ namespace MediaViewer
                     {
                         List<System.IO.FileInfo> fileList = fileDirInfo.EnumerateFiles(filterType, System.IO.SearchOption.AllDirectories).ToList();
                         int val = fileList.Count();
-                        progressBarStep = (progressBarMax - progressBarValue) / (dirList.Count + filterList.Count + val);
+                        //progressBarStep = (progressBarMax - progressBarValue) / ((filterList.Count + val) / dirList.Count);
+                        progressBarStep = (progressBarMax - progressBarValue) / val;
 
                         // Filter out the desired files in the directory and iterate through each one
                         foreach (var file in fileList)
@@ -252,8 +258,11 @@ namespace MediaViewer
                         }
 
                     }
+                    progressBarStep = (progressBarMax / dirList.Count) / filterList.Count;
+                    CheckAndInvoke(new Action(AdvanceProgressBar));
                 }
-
+                progressBarStep = progressBarMax / dirList.Count;
+                CheckAndInvoke(new Action(AdvanceProgressBar));
             }
             // Advance progress bar to max if needed
             CheckAndInvoke(new Action(ProgressBarStop));
@@ -297,6 +306,20 @@ namespace MediaViewer
         {
             workProgressBar.Value = workProgressBar.Maximum;
         }
+
+        /// <summary>
+        /// Ensure the given value is within the range Min - Max
+        /// </summary>
+        /// <param name="value">The incoming value</param>
+        /// <param name="step">The value to step the incoming value to</param>
+        /// <param name="min">The minimum the value should equal</param>
+        /// <param name="max">The maximum the value should equal</param>
+        /// <returns></returns>
+        double EnsureStepRange(double value, double step, double min, double max)
+        {
+            return Math.Min(Math.Max(value + step, min), max);
+        }
+
 
         /// <summary>
         /// As a separate operation, the user can add directories that will be searched for media files

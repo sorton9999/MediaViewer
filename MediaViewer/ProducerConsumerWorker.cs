@@ -110,7 +110,7 @@ namespace MediaViewer
         protected void Consume(Object obj)
         {
             WorkItem item = obj as WorkItem;
-            if (obj != null)
+            if (item != null)
             {
                 WorkDelegate localEvent = workEvent;
                 if (localEvent != null)

@@ -22,9 +22,18 @@ namespace MediaViewer
     /// </summary>
     public partial class UserControl1 : UserControl
     {
+        /// <summary>
+        /// File Dialog window to choose files
+        /// </summary>
         private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
+        /// <summary>
+        /// View model for file info
+        /// </summary>
         private ViewModel viewModel = new ViewModel();
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public UserControl1()
         {
             InitializeComponent();
@@ -36,6 +45,10 @@ namespace MediaViewer
             openFileDialog.Filter = "*.mp3;*.flac|*.mp3;*.flac";
         }
 
+        /// <summary>
+        /// Public method to load the file info into the view model
+        /// </summary>
+        /// <param name="fileName"></param>
         public void LoadViewModel(string fileName)
         {
             if (viewModel != null)
@@ -44,6 +57,11 @@ namespace MediaViewer
             }
         }
 
+        /// <summary>
+        /// The Browse button click event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void browse_ButtonClick(object sender, RoutedEventArgs e)
         {
             if (openFileDialog.ShowDialog() != true)

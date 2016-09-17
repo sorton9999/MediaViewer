@@ -9,10 +9,18 @@ using System.Windows.Controls;
 
 namespace MediaViewer.TreeViewModel
 {
+    /// <summary>
+    /// The parent class of the Tree View Model that provides the tree handling
+    /// methods and data structures as well as a lazy loading mechanism.  This
+    /// class is a subclass of ViewModelBase which provides the Property
+    /// notification functionality.
+    /// </summary>
     public class TreeViewItemViewModel : ViewModelBase
     {
+        #region Selected Item Delegate/Event
         public delegate void SelectedItemDelegateHandler(TreeViewItemViewModel item);
         public static event SelectedItemDelegateHandler OnItemSelected = delegate { };
+        #endregion
 
         #region Data
         static readonly TreeViewItemViewModel DummyChild = new TreeViewItemViewModel();
@@ -149,6 +157,8 @@ namespace MediaViewer.TreeViewModel
 
         #endregion // Presentation Members
 
+        #region Selected Item
+
         public TreeViewItemViewModel SelectedItem
         {
             get { return _selectedItem; }
@@ -167,5 +177,6 @@ namespace MediaViewer.TreeViewModel
             OnItemSelected(_selectedItem);
         }
 
+        #endregion
     }
 }
