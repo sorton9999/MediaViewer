@@ -22,6 +22,11 @@ namespace MediaViewer.TreeViewModel
         readonly Album _album;
 
         /// <summary>
+        /// Allows external calls to load the children of Album items
+        /// </summary>
+        public Action LoadAction;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="album">The album data to store</param>
@@ -30,6 +35,8 @@ namespace MediaViewer.TreeViewModel
             : base(parentArtist, true)
         {
             _album = album;
+            // Add the LoadChildren call to the LoadAction Action
+            LoadAction = new Action(LoadChildren);
         }
 
         /// <summary>

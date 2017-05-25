@@ -278,7 +278,7 @@ namespace MediaViewer
         /// A thread safe means to calling the given action
         /// </summary>
         /// <param name="action">The action to invoke</param>
-        private void CheckAndInvoke(Action action)
+        public void CheckAndInvoke(Action action)
         {
             if (!this.Dispatcher.CheckAccess())
             {
