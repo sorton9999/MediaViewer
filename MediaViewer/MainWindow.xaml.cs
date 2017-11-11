@@ -5,7 +5,11 @@ using System.Windows;
 using System.Windows.Data;
 using System.Threading;
 using DataAccessLib;
-
+using System.Windows.Controls;
+using System.Reflection;
+using System.IO;
+using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace MediaViewer
 {
@@ -80,6 +84,9 @@ namespace MediaViewer
         /// </summary>
         private double progressBarValue = 0.0;
 
+        private System.Threading.Timer setupTimer;
+        private bool isVlcPathSet = false;
+
         private Object syncLock = new object();
 
 
@@ -93,14 +100,96 @@ namespace MediaViewer
             data.InsertErrorEvent += data_InsertErrorEventHandler;
             // Register for the item tree control selected item event
             TreeViewModel.TreeViewItemViewModel.OnItemSelected += TreeViewItemViewModel_OnItemSelected;
+
+            MediaPlayProcess.AddPlayListEvent += MediaPlayProcess_AddPlayListEvent;
+            //PlayListItemsModel playListModel = new PlayListItemsModel();
+            //playListView.DataContext = playListModel;
+
             // Set the item source for the DB operation error window to the error string list
             errorView.ErrorList.ItemsSource = errorList;
             // Config View send parent in
-            configView = new ConfigView(this);
+            //configView = new ConfigView(this);
             // Set the Max value from ProgressBar Maximum value
-            progressBarMax = workProgressBar.Maximum;
+            progressBarMax = 100.0;
+
+            setupTimer = new Timer(new TimerCallback(OnSetup), null, 0, 200);
+
+            myControl.MediaPlayer.VlcLibDirectoryNeeded += MediaPlayer_VlcLibDirectoryNeeded;
+            myControl.MediaPlayer.EndInit();
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
+        }
+
+        private void MediaPlayProcess_AddPlayListEvent(string song, string length, bool playNow)
+        {
+            // We only need the song name out of this path.
+            // So cut out everything up to and including the last \ and
+            // cut off the file extension.
+            int len = song.Length;
+            int slashIdx = song.LastIndexOf('\\');
+            int dotIdx = song.LastIndexOf('.');
+            string title = song.Substring((slashIdx + 1), (len - (slashIdx + 1) - (len - dotIdx)));
+            // add to the list view the title of the song w/o the path and extension and the song length
+            PlayListItemsModel temp = new PlayListItemsModel() { Song = title, Length = length };
+            playListView.Items.Add(temp);
+            // Depending on what the right-click selection is, play the song
+            if (playNow)
+            {
+                myControl.MediaPlayer.Play(new FileInfo(song));
+            }
+        }
+
+        /// <summary>
+        /// Timer callback which checks for configuration item set.
+        /// </summary>
+        /// <param name="state"></param>
+        private void OnSetup(object state)
+        {
+            isVlcPathSet = ((configView != null) && configView.IsPathConfigured());
+        }
+
+        private void MediaPlayer_VlcLibDirectoryNeeded(object sender, Vlc.DotNet.Forms.VlcLibDirectoryNeededEventArgs e)
+        {
+            /*
+            var currentAssembly = Assembly.GetEntryAssembly();
+            var currentDirectory = new FileInfo(@"C:\\Users\\Orton\\src\\lib\\Vlc.DotNet - master\\lib").DirectoryName;
+            if (currentDirectory == null)
+            {
+                return;
+            }
+            if (AssemblyName.GetAssemblyName(currentAssembly.Location).ProcessorArchitecture == ProcessorArchitecture.X86)
+            {
+                e.VlcLibDirectory = new DirectoryInfo(currentDirectory + @"\lib\x86\");
+                //e.VlcLibDirectory = new DirectoryInfo(Path.Combine(currentDirectory, @"\lib\x86\"));
+            }
+            else
+            {
+                e.VlcLibDirectory = new DirectoryInfo(currentDirectory + @"\lib\x64\");
+                //e.VlcLibDirectory = new DirectoryInfo(Path.Combine(currentDirectory, @"\lib\x64\"));
+            }
+            */
+            //e.VlcLibDirectory = new DirectoryInfo(@"C:\Users\Orton\src\lib\Vlc.DotNet-master\lib\x64");
+            bool alreadyConfigured = false;
+            if (configView == null)
+            {
+                configView = new ConfigView(this);
+            }
+            if (configView.IsPathConfigured())
+            {
+                e.VlcLibDirectory = new DirectoryInfo(ConfigView.ConfigViewModel.VlcPath);
+                alreadyConfigured = true;
+            }
+            else
+            {
+                configView.ShowDialog();
+            }
+
+            if (!alreadyConfigured && isVlcPathSet)
+            {
+                e.VlcLibDirectory = new DirectoryInfo(ConfigView.ConfigViewModel.VlcPath);
+            }
+            //e.VlcLibDirectory = new DirectoryInfo(@"C:\Program Files (x86)\VideoLAN\VLC");
+            //e.VlcLibDirectory = new DirectoryInfo(@"C:\Users\Orton\src\lib\x64");
         }
 
         /// <summary>
@@ -119,6 +208,14 @@ namespace MediaViewer
         {
             get;
             private set;
+        }
+
+        public ProgressBar GetProgressBar
+        {
+            get
+            {
+                return (ProgressBar)Media_Button.Template.FindName("WorkProgressBar", Media_Button);
+            }
         }
 
         /// <summary>
@@ -168,11 +265,11 @@ namespace MediaViewer
                 return;
             }
             // Make media search progress bar visible and set progress to zero
-            if (workProgressBar.Visibility != System.Windows.Visibility.Visible)
+            if (GetProgressBar.Visibility != System.Windows.Visibility.Visible)
             {
-                workProgressBar.Visibility = System.Windows.Visibility.Visible;
+                GetProgressBar.Visibility = System.Windows.Visibility.Visible;
             }
-            workProgressBar.Value = 0.0;
+            GetProgressBar.Value = 0.0;
             // Create the DB insert thread
             insertThread = new Thread(new ThreadStart(InsertThreadHandler));
             // Clear out any old data
@@ -241,6 +338,7 @@ namespace MediaViewer
                                 rs.Artist = mediaInfo.Tag.FirstPerformer;
                                 rs.Title = mediaInfo.Tag.Title;
                                 rs.Album = mediaInfo.Tag.Album;
+                                rs.SongLength = mediaInfo.Properties.Duration.ToString(@"mm\:ss");
                                 // Database table foreign key
                                 rs.FilePathID = dir.ID;
 
@@ -295,8 +393,8 @@ namespace MediaViewer
         /// </summary>
         private void AdvanceProgressBar()
         {
-            workProgressBar.Value += progressBarStep;
-            progressBarValue = workProgressBar.Value;
+            GetProgressBar.Value += progressBarStep;
+            progressBarValue = GetProgressBar.Value;
         }
 
         /// <summary>
@@ -304,7 +402,7 @@ namespace MediaViewer
         /// </summary>
         private void ProgressBarStop()
         {
-            workProgressBar.Value = workProgressBar.Maximum;
+            GetProgressBar.Value = GetProgressBar.Maximum;
         }
 
         /// <summary>
@@ -408,8 +506,52 @@ namespace MediaViewer
             configView.Show();
         }
 
+        private void OnPauseButtonClick(object sender, RoutedEventArgs e)
+        {
+            myControl.MediaPlayer.Pause();
+        }
+
+        private void OnPlayButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (myControl.MediaPlayer.Rate > 1.0F)
+            {
+                myControl.MediaPlayer.Rate = 1.0F;
+                return;
+            }
+            if (myControl.MediaPlayer.IsPlaying)
+            {
+                return;
+            }
+            if (myControl.MediaPlayer.State == Vlc.DotNet.Core.Interops.Signatures.MediaStates.Paused)
+            {
+                myControl.MediaPlayer.Pause();
+                return;
+            }
+            String fileStr = MediaPlayProcess.PlayNext();
+            if (!String.IsNullOrEmpty(fileStr))
+            {
+                myControl.MediaPlayer.Play(new System.IO.FileInfo(fileStr));
+            }
+        }
+
+        private void OnStopButtonClick(object sender, RoutedEventArgs e)
+        {
+            myControl.MediaPlayer.Stop();
+        }
+
+        private void OnFastForwardButtonClick(object sender, RoutedEventArgs e)
+        {
+            myControl.MediaPlayer.Rate = 2.0F;
+        }
+
+        private void OnRewindButtonClick(object sender, RoutedEventArgs e)
+        {
+            myControl.MediaPlayer.Rate = -2.0F;
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            myControl.MediaPlayer.Stop();
             Exiting = true;
             errorView.Close();
             configView.Close();

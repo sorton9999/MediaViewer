@@ -17,7 +17,7 @@ namespace MediaViewer
         /// <summary>
         /// A default location path for the VLC media player
         /// </summary>
-        public const string defaultVlcPath = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
+        public const string defaultVlcPath = "C:\\Program Files\\VideoLAN\\VLC\\";
 
         /// <summary>
         /// The view model of configuration items to set
@@ -70,6 +70,14 @@ namespace MediaViewer
             // Set some File Dialog properties
             openFileDialog.RestoreDirectory = true;
             openFileDialog.Filter = "*.exe|*.exe";
+            openFileDialog.FileName = "IGNORE";
+            openFileDialog.CheckPathExists = true;
+            openFileDialog.ShowReadOnly = false;
+            openFileDialog.ReadOnlyChecked = true;
+            openFileDialog.CheckFileExists = false;
+            openFileDialog.ValidateNames = false;
+
+
             // Load up the view model
             LoadConfigItems();
         }
@@ -81,6 +89,25 @@ namespace MediaViewer
         {
             get { return viewModel; }
             private set { viewModel = value; }
+        }
+
+        /// <summary>
+        /// Returns if the VLC configuration path has been set.  If it's been set,
+        /// the database should have it stored.
+        /// </summary>
+        /// <returns>Whether or not the path has been stored in the DB and configured</returns>
+        public bool IsPathConfigured()
+        {
+            if (configList == null)
+            {
+                return false;
+            }
+            string path = configList[0].VlcPath;
+            if (String.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -117,8 +144,10 @@ namespace MediaViewer
                 if (!dao.InsertResultSet(rs))
                 {
                     Console.WriteLine("Unsuccessful Data Insert");
+                    e.Handled = false;
                 }
             }
+            e.Handled = true;
         }
 
         /// <summary>
@@ -135,9 +164,11 @@ namespace MediaViewer
                 return;
             }
             string fileName = openFileDialog.FileName;
-            if (!String.IsNullOrEmpty(fileName))
+            int lastIdx = fileName.LastIndexOf('\\');
+            string dirPath = fileName.Substring(0, (lastIdx));
+            if (!String.IsNullOrEmpty(dirPath))
             {
-                VlcLocation_TextBox.Text = fileName;
+                VlcLocation_TextBox.Text = dirPath;
             }
             e.Handled = true;
         }

@@ -9,10 +9,13 @@ namespace MediaViewer
 {
     public static class MediaPlayProcess
     {
-        private static List<string> playList = new List<string>();
+        public static List<string> playList = new List<string>();
         public static Action playAction = new Action(PlayMedia);
         private static Process playProcess = new Process();
         private static bool isInitialized = false;
+        private static String nowPlaying = String.Empty;
+        public delegate void AddToPlayListDelegate(string song, string length, bool playNow);
+        public static event AddToPlayListDelegate AddPlayListEvent;
 
         public static void Initialize()
         {
@@ -21,12 +24,26 @@ namespace MediaViewer
             isInitialized = true;
         }
 
-        public static void AddFileToPlay(string file)
+        public static List<string> PlayList
+        {
+            get;
+        }
+
+        public static void AddFileToPlay(string file, string length, bool playNow)
         {
             if (playList != null)
             {
                 playList.Add(file);
+                // Invoke the Add PlayList event with the song title and length of song time
+                AddPlayListEvent?.Invoke(file, length, playNow);
             }
+        }
+
+        public static String PlayNext()
+        {
+            String ret = playList.FirstOrDefault();
+            playList.Remove(ret);
+            return ret;
         }
 
         private static String PlayArguments()
