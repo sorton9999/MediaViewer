@@ -89,6 +89,14 @@ namespace MediaViewer
 
         private Object syncLock = new object();
 
+        /// <summary>
+        /// The length of song time string
+        /// </summary>
+        private object timeLengthStr;
+        private int songIndicatorPercent;
+
+        public static Action stopMusicPlaying;
+
 
         /// <summary>
         /// Constructor
@@ -114,10 +122,143 @@ namespace MediaViewer
 
             setupTimer = new Timer(new TimerCallback(OnSetup), null, 0, 200);
 
+            stopMusicPlaying = new Action(StopMusic);
+
+            // Set up media player events
+            myControl.MediaPlayer.Backward += MediaPlayer_Backward;
+            myControl.MediaPlayer.Buffering += MediaPlayer_Buffering;
+            myControl.MediaPlayer.EncounteredError += MediaPlayer_EncounteredError;
+            myControl.MediaPlayer.EndReached += MediaPlayer_EndReached;
+            myControl.MediaPlayer.Forward += MediaPlayer_Forward;
+            myControl.MediaPlayer.LengthChanged += MediaPlayer_LengthChanged;
+            myControl.MediaPlayer.MediaChanged += MediaPlayer_MediaChanged;
+            myControl.MediaPlayer.Opening += MediaPlayer_Opening;
+            myControl.MediaPlayer.PausableChanged += MediaPlayer_PausableChanged;
+            myControl.MediaPlayer.Paused += MediaPlayer_Paused;
+            myControl.MediaPlayer.Playing += MediaPlayer_Playing;
+            myControl.MediaPlayer.PositionChanged += MediaPlayer_PositionChanged;
+            myControl.MediaPlayer.ScrambledChanged += MediaPlayer_ScrambledChanged;
+            myControl.MediaPlayer.SeekableChanged += MediaPlayer_SeekableChanged;
+            myControl.MediaPlayer.SnapshotTaken += MediaPlayer_SnapshotTaken;
+            myControl.MediaPlayer.Stopped += MediaPlayer_Stopped;
+            myControl.MediaPlayer.TimeChanged += MediaPlayer_TimeChanged;
+            myControl.MediaPlayer.TitleChanged += MediaPlayer_TitleChanged;
+            myControl.MediaPlayer.VideoOutChanged += MediaPlayer_VideoOutChanged;
+
             myControl.MediaPlayer.VlcLibDirectoryNeeded += MediaPlayer_VlcLibDirectoryNeeded;
             myControl.MediaPlayer.EndInit();
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
+        }
+
+        private void StopMusic()
+        {
+            myControl.MediaPlayer.Stop();
+        }
+
+        private void MediaPlayer_VideoOutChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerVideoOutChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_VideoOutChanged");
+        }
+
+        private void MediaPlayer_TitleChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerTitleChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_TitleChanged");
+        }
+
+        private void MediaPlayer_TimeChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerTimeChangedEventArgs e)
+        {
+            long timeDigit = e.NewTime / 1000L;
+            string secs = (timeDigit % 60).ToString("00");
+            string mins = ((timeDigit / 60) % 60).ToString("00");
+            string hrs = ((timeDigit / 3600) % 60).ToString("00");
+            timeLengthStr = hrs + ":" + mins + ":" + secs;
+            CheckAndInvoke(new Action(AdvanceSongTimeLabel));
+        }
+
+        private void MediaPlayer_Stopped(object sender, Vlc.DotNet.Core.VlcMediaPlayerStoppedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_Stopped");
+        }
+
+        private void MediaPlayer_SnapshotTaken(object sender, Vlc.DotNet.Core.VlcMediaPlayerSnapshotTakenEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_SnapshotTaken");
+        }
+
+        private void MediaPlayer_SeekableChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerSeekableChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_SeekableChanged");
+        }
+
+        private void MediaPlayer_ScrambledChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerScrambledChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_ScrambledChanged");
+        }
+
+        private void MediaPlayer_PositionChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerPositionChangedEventArgs e)
+        {
+            songIndicatorPercent = (int)(e.NewPosition * 100.0);
+            CheckAndInvoke(new Action(AdvanceNormalSliderTime));
+        }
+
+        private void MediaPlayer_Playing(object sender, Vlc.DotNet.Core.VlcMediaPlayerPlayingEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_Playing");
+        }
+
+        private void MediaPlayer_Paused(object sender, Vlc.DotNet.Core.VlcMediaPlayerPausedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_Paused");
+        }
+
+        private void MediaPlayer_PausableChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerPausableChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_PausableChanged");
+        }
+
+        private void MediaPlayer_Opening(object sender, Vlc.DotNet.Core.VlcMediaPlayerOpeningEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_Opening");
+        }
+
+        private void MediaPlayer_MediaChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerMediaChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_MediaChanged");
+        }
+
+        private void MediaPlayer_EncounteredError(object sender, Vlc.DotNet.Core.VlcMediaPlayerEncounteredErrorEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_EncounteredError");
+        }
+
+        private void MediaPlayer_Buffering(object sender, Vlc.DotNet.Core.VlcMediaPlayerBufferingEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_Buffering");
+        }
+
+        private void MediaPlayer_Backward(object sender, Vlc.DotNet.Core.VlcMediaPlayerBackwardEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_Backward");
+        }
+
+        private void MediaPlayer_LengthChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerLengthChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_LengthChanged");
+        }
+
+        private void MediaPlayer_Forward(object sender, Vlc.DotNet.Core.VlcMediaPlayerForwardEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_Forward");
+        }
+
+        private void MediaPlayer_EndReached(object sender, Vlc.DotNet.Core.VlcMediaPlayerEndReachedEventArgs e)
+        {
+            String song = MediaPlayProcess.PlayNext();
+            if (!String.IsNullOrEmpty(song))
+            {
+                myControl.MediaPlayer.Play(new FileInfo(song));
+            }
         }
 
         private void MediaPlayProcess_AddPlayListEvent(string song, string length, bool playNow)
@@ -418,6 +559,21 @@ namespace MediaViewer
             return Math.Min(Math.Max(value + step, min), max);
         }
 
+        /// <summary>
+        /// Advance the song label
+        /// </summary>
+        private void AdvanceSongTimeLabel()
+        {
+            Time_Label.Content = timeLengthStr;
+        }
+
+        /// <summary>
+        /// Advance the song indicator during normal playback
+        /// </summary>
+        private void AdvanceNormalSliderTime()
+        {
+            progressSlider.Value = songIndicatorPercent;
+        }
 
         /// <summary>
         /// As a separate operation, the user can add directories that will be searched for media files

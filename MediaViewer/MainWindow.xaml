@@ -54,8 +54,8 @@
                 <ImageBrush ImageSource="Images/stop_button.png"/>
             </Button.Background>
         </Button>
-        <Slider x:Name="progressSlider" HorizontalAlignment="Left" Margin="217,328,0,0" VerticalAlignment="Top" Width="256"/>
-        <Label x:Name="Time_Label" Content="9:99:59" HorizontalAlignment="Left" Margin="478,326,0,0" VerticalAlignment="Top" Width="47"/>
+        <Slider x:Name="progressSlider" HorizontalAlignment="Left" Margin="217,328,0,0" VerticalAlignment="Top" Width="242" Maximum="100"/>
+        <Label x:Name="Time_Label" Content="00:00:00" HorizontalAlignment="Left" Margin="464,326,0,0" VerticalAlignment="Top" Width="61" HorizontalContentAlignment="Right"/>
         <TabControl x:Name="tabControl" HorizontalAlignment="Left" Height="308" Margin="7,10,0,0" VerticalAlignment="Top" Width="509">
             <TabItem x:Name="mediaTab" Header="Media" AllowDrop="True">
                 <Grid Background="#FFE5E5E5">

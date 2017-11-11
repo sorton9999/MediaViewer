@@ -41,6 +41,14 @@ namespace MediaViewer
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
+            if (this.Dispatcher.CheckAccess())
+            {
+                this.Dispatcher.Invoke(MainWindow.stopMusicPlaying);
+            }
+            else
+            {
+                MainWindow.stopMusicPlaying.Invoke();
+            }
             AddItemsToPlay((sender as MenuItem).DataContext as TreeViewItemViewModel, true);
         }
 
