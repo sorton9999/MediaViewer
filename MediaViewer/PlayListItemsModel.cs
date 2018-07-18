@@ -10,5 +10,6 @@ namespace MediaViewer
     {
         public string Song { get; set; }
         public string Length { get; set; }
+        public string Path { get; set; }
     }
 }
