@@ -104,7 +104,7 @@ namespace DataAccessLib.DataModel
         /// </summary>
         /// <param name="album">The Album object that will be used to look up song titles in the DB</param>
         /// <returns></returns>
-        public static Title[] GetTitles(Album album)
+        public static Title[] GetTitles(Album album, String artistName)
         {
             // clear out what's there already
             if (titleStore != null && titleStore.Count > 0)
@@ -118,7 +118,7 @@ namespace DataAccessLib.DataModel
             {
                 String escapedAlbum = dataAccess.EscapeString(album.AlbumName);
                 using (DataTable titles = dataAccess.GetDataTable(@"SELECT FilePath, FileName, Title, SongLength FROM MusicMediaTable WHERE Album ='" +
-                        escapedAlbum + "'"))
+                        escapedAlbum + "' AND Artist = '" + artistName + "'"))
                 {
                     // Go through each row of the Titles table to create a list of Title names.  We add these to a
                     // List object.

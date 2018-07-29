@@ -26,14 +26,17 @@ namespace MediaViewer
 
         public static List<string> PlayList
         {
-            get;
+            get { return playList; }
         }
 
         public static void AddFileToPlay(string file, string length, bool playNow)
         {
             if (playList != null)
             {
-                playList.Add(file);
+                if (!playNow)
+                {
+                    playList.Add(file);
+                }
                 // Invoke the Add PlayList event with the song title and length of song time
                 AddPlayListEvent?.Invoke(file, length, playNow);
             }

@@ -22,6 +22,11 @@ namespace MediaViewer.TreeViewModel
         readonly Album _album;
 
         /// <summary>
+        /// Artist data
+        /// </summary>
+        readonly ArtistViewModel _artist;
+
+        /// <summary>
         /// Allows external calls to load the children of Album items
         /// </summary>
         public Action LoadAction;
@@ -35,6 +40,7 @@ namespace MediaViewer.TreeViewModel
             : base(parentArtist, true)
         {
             _album = album;
+            _artist = parentArtist;
             // Add the LoadChildren call to the LoadAction Action
             LoadAction = new Action(LoadChildren);
         }
@@ -53,7 +59,7 @@ namespace MediaViewer.TreeViewModel
         /// </summary>
         protected override void LoadChildren()
         {
-            foreach (Title title in DataStore.GetTitles(_album))
+            foreach (Title title in DataStore.GetTitles(_album, _artist.ArtistName))
             {
                 // For each title of the Album, load a suitable
                 // image and the child Title View Model
@@ -80,6 +86,24 @@ namespace MediaViewer.TreeViewModel
                         break;
                     case "flac":
                         imageName = "Images\\flacThumb.png";
+                        break;
+                    case "wma":
+                        imageName = "Images\\wmaThumb.png";
+                        break;
+                    case "aac":
+                        imageName = "Images\\aacThumb.png";
+                        break;
+                    case "ogg":
+                        imageName = "Images\\oggThumb.png";
+                        break;
+                    case "m4a":
+                        imageName = "Images\\m4aThumb.png";
+                        break;
+                    case "wav":
+                        imageName = "Images\\wavThumb.png";
+                        break;
+                    case "ape":
+                        imageName = "Images\\apeThumb.png";
                         break;
                     default:
                         imageName = "Images\\City.png";

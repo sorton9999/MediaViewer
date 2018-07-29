@@ -30,7 +30,8 @@ namespace MediaViewer
                             "*.m4a",
                             "*.mp3",
                             "*.ogg",
-                            "*.wav"
+                            "*.wav",
+                            "*.wma"
                         };
 
         /// <summary>
@@ -112,6 +113,7 @@ namespace MediaViewer
             MediaPlayProcess.AddPlayListEvent += MediaPlayProcess_AddPlayListEvent;
             //PlayListItemsModel playListModel = new PlayListItemsModel();
             //playListView.DataContext = playListModel;
+            playListView.MouseDoubleClick += PlayListView_MouseDoubleClick;
 
             // Set the item source for the DB operation error window to the error string list
             errorView.ErrorList.ItemsSource = errorList;
@@ -149,6 +151,16 @@ namespace MediaViewer
             myControl.MediaPlayer.EndInit();
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
+        }
+
+        private void PlayListView_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            PlayListItemsModel selected = playListView.SelectedItem as PlayListItemsModel;
+            if (selected != null)
+            {
+                System.Diagnostics.Debug.WriteLine("Playing Selected Song: " + selected.Path);
+                myControl.MediaPlayer.Play(new System.IO.FileInfo(selected.Path));
+            }
         }
 
         private void StopMusic()
@@ -200,6 +212,11 @@ namespace MediaViewer
         {
             songIndicatorPercent = (int)(e.NewPosition * 100.0);
             CheckAndInvoke(new Action(AdvanceNormalSliderTime));
+            if ((songIndicatorPercent >= 100) || (myControl.MediaPlayer.State == Vlc.DotNet.Core.Interops.Signatures.MediaStates.Ended))
+            {
+                myControl.MediaPlayer.OnEndReached();
+                //MediaPlayer_EndReached(this, new Vlc.DotNet.Core.VlcMediaPlayerEndReachedEventArgs());
+            }
         }
 
         private void MediaPlayer_Playing(object sender, Vlc.DotNet.Core.VlcMediaPlayerPlayingEventArgs e)
@@ -225,6 +242,13 @@ namespace MediaViewer
         private void MediaPlayer_MediaChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerMediaChangedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("MediaPlayer_MediaChanged");
+            Vlc.DotNet.Core.VlcMedia newSong = e.NewMedia;
+
+            if (newSong != null && !String.IsNullOrEmpty(newSong.NowPlaying) && newSong.Title != newSong.NowPlaying)
+            {
+                System.Diagnostics.Debug.WriteLine("Song Title: " + newSong.Title + "; Song MRL: " + newSong.Mrl + "; Duration: " + newSong.Duration);
+                myControl.MediaPlayer.Play(newSong.Mrl);
+            }
         }
 
         private void MediaPlayer_EncounteredError(object sender, Vlc.DotNet.Core.VlcMediaPlayerEncounteredErrorEventArgs e)
@@ -245,6 +269,7 @@ namespace MediaViewer
         private void MediaPlayer_LengthChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerLengthChangedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("MediaPlayer_LengthChanged");
+            CurrentSongLength = e.NewLength;
         }
 
         private void MediaPlayer_Forward(object sender, Vlc.DotNet.Core.VlcMediaPlayerForwardEventArgs e)
@@ -254,10 +279,17 @@ namespace MediaViewer
 
         private void MediaPlayer_EndReached(object sender, Vlc.DotNet.Core.VlcMediaPlayerEndReachedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("MediaPlayer_EndReached");
             String song = MediaPlayProcess.PlayNext();
             if (!String.IsNullOrEmpty(song))
             {
-                myControl.MediaPlayer.Play(new FileInfo(song));
+                System.Diagnostics.Debug.WriteLine("Next Song: " + song);
+                StopMusic();
+                myControl.MediaPlayer.SetMedia(new FileInfo(song));
+            }
+            else
+            {
+                StopMusic();
             }
         }
 
@@ -271,8 +303,9 @@ namespace MediaViewer
             int dotIdx = song.LastIndexOf('.');
             string title = song.Substring((slashIdx + 1), (len - (slashIdx + 1) - (len - dotIdx)));
             // add to the list view the title of the song w/o the path and extension and the song length
-            PlayListItemsModel temp = new PlayListItemsModel() { Song = title, Length = length };
+            PlayListItemsModel temp = new PlayListItemsModel() { Song = title, Length = length, Path = song };
             playListView.Items.Add(temp);
+            playListView.SelectedItem = temp;
             // Depending on what the right-click selection is, play the song
             if (playNow)
             {
@@ -358,6 +391,8 @@ namespace MediaViewer
                 return (ProgressBar)Media_Button.Template.FindName("WorkProgressBar", Media_Button);
             }
         }
+
+        public float CurrentSongLength { get; private set; }
 
         /// <summary>
         /// Event handler called when an item has been selected on the media tree.  The handler is always
