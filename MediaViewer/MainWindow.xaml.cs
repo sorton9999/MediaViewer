@@ -90,7 +90,7 @@ namespace MediaViewer
         {
             InitializeComponent();
             // Register for the database data operation error events
-            data.InsertErrorEvent += data_InsertErrorEventHandler;
+            data.InsertErrorEvent += Data_InsertErrorEventHandler;
             // Register for the item tree control selected item event
             TreeViewModel.TreeViewItemViewModel.OnItemSelected += TreeViewItemViewModel_OnItemSelected;
             // Set the item source for the DB operation error window to the error string list
@@ -133,10 +133,9 @@ namespace MediaViewer
             {
                 // Cast the base item coming in to a more specific title item.  If the
                 // cast is successful, continue.
-                TreeViewModel.TitleViewModel title = item as TreeViewModel.TitleViewModel;
-                if (title != null)
+                if (item is TreeViewModel.TitleViewModel title)
                 {
-                    // Load the view model for the detaile control using the path and file name
+                    // Load the view model for the details control using the path and file name
                     mediaDetailsControl.LoadViewModel(title.FilePath + "\\" + title.FileName);
                 }
             }
@@ -146,7 +145,7 @@ namespace MediaViewer
         /// The handler for the database operation error events
         /// </summary>
         /// <param name="message">The error message</param>
-        void data_InsertErrorEventHandler(string message)
+        void Data_InsertErrorEventHandler(string message)
         {
             // Add the incoming error message to the error message list
             errorList.Add(message);
