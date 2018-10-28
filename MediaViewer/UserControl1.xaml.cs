@@ -42,7 +42,7 @@ namespace MediaViewer
 
             this.DataContext = viewModel;
 
-            openFileDialog.Filter = "*.mp3;*.flac|*.mp3;*.flac";
+            openFileDialog.Filter = "*.mp3;*.flac;*.aac;*.wma;*.m4a;*.ape;*.wav;*.ogg|*.mp3;*.flac;*.aac;*.wma;*.m4a;*.ape;*.wav;*.ogg";
         }
 
         /// <summary>

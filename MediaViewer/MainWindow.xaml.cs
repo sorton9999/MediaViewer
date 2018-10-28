@@ -26,7 +26,8 @@ namespace MediaViewer
                             "*.m4a",
                             "*.mp3",
                             "*.ogg",
-                            "*.wav"
+                            "*.wav",
+                            "*.wma"
                         };
 
         /// <summary>
@@ -133,7 +134,8 @@ namespace MediaViewer
             {
                 // Cast the base item coming in to a more specific title item.  If the
                 // cast is successful, continue.
-                if (item is TreeViewModel.TitleViewModel title)
+                TreeViewModel.TitleViewModel title = item as TreeViewModel.TitleViewModel;
+                if (title != null)
                 {
                     // Load the view model for the details control using the path and file name
                     mediaDetailsControl.LoadViewModel(title.FilePath + "\\" + title.FileName);
@@ -195,74 +197,118 @@ namespace MediaViewer
             // the user.
             List<SearchPathResultSet> dirList = GetMediaPathList();
 
-            // Cycle through all the user set directories
-            foreach (var dir in dirList)
+            // Keep a running count of files processed
+            int runningFileCount = 0;
+
+            // The total files counted in first pass
+            int maxFileCount = 0;
+
+            // We make two passes, the first is to count the total files to process
+            bool firstPass = true;
+
+            // Did we start inserting songs
+            bool insertStarted = false;
+
+            bool done = false;
+
+            do
             {
-                // Cycle through each file type defined in the filerList class var.
-                foreach (var filterType in filterList)
+                // Cycle through all the user set directories
+                foreach (var dir in dirList)
                 {
-                    // Obtain the directory info for the current directory
-                    System.IO.DirectoryInfo fileDirInfo = new System.IO.DirectoryInfo(dir.DirPath);
-                    if (fileDirInfo != null)
+                    System.Diagnostics.Debug.WriteLine("{0} DIR \'{1}\'", (firstPass ? "COUNTING" : "PROCESSING"), dir.DirPath);
+                    // Cycle through each file type defined in the filerList class var.
+                    foreach (var filterType in filterList)
                     {
-                        List<System.IO.FileInfo> fileList = fileDirInfo.EnumerateFiles(filterType, System.IO.SearchOption.AllDirectories).ToList();
-                        int val = fileList.Count();
-                        //progressBarStep = (progressBarMax - progressBarValue) / ((filterList.Count + val) / dirList.Count);
-                        progressBarStep = (progressBarMax - progressBarValue) / val;
-
-                        // Filter out the desired files in the directory and iterate through each one
-                        foreach (var file in fileList)
+                        System.Diagnostics.Debug.WriteLine("{0} File Type: {1}", (firstPass ? "COUNTING" : "PROCESSING"), filterType);
+                        // Obtain the directory info for the current directory
+                        System.IO.DirectoryInfo fileDirInfo = new System.IO.DirectoryInfo(dir.DirPath);
+                        if (fileDirInfo != null)
                         {
-                            // Grab the directory path and file name to grab the imbedded data in the media file.
-                            // This uses the open source C# taglib library.
-                            string dirStr = file.DirectoryName;
-                            TagLib.File mediaInfo = null;
-                            try
-                            {
-                                mediaInfo = TagLib.File.Create(dirStr + "\\" + file);
-                            }
-                            catch (TagLib.UnsupportedFormatException ex)
-                            {
-                                Console.WriteLine("[[[EXCEPTION]]] -- Unsupported File: " + ex.Message);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine("[Non-specific Exception]: " + e.Message);
-                            }
-                            // If we get the media data object, grab the info then insert it into
-                            // the database.
-                            if (mediaInfo != null)
-                            {
-                                // File location info
-                                rs.FilePath = dirStr;
-                                rs.FileName = file.Name;
-                                // Media file info.  This is a small subset of the total available
-                                rs.Artist = mediaInfo.Tag.FirstPerformer;
-                                rs.Title = mediaInfo.Tag.Title;
-                                rs.Album = mediaInfo.Tag.Album;
-                                // Database table foreign key
-                                rs.FilePathID = dir.ID;
+                            List<System.IO.FileInfo> fileList = fileDirInfo.EnumerateFiles(filterType, System.IO.SearchOption.AllDirectories).ToList();
+                            //int val = fileList.Count();
+                            //progressBarStep = (progressBarMax - progressBarValue) / ((filterList.Count + val) / dirList.Count);
+                            //progressBarStep = (progressBarMax - progressBarValue) / val;
 
-                                // Insert the data for the media file.  If we get a failure, there should be an error
-                                // from the failed operation.  Start the error viewer so we can attempt to find the
-                                // cause.
-                                if (!data.InsertResultSet(rs))
+                            // Filter out the desired files in the directory and iterate through each one
+                            foreach (var file in fileList)
+                            {
+                                if (!firstPass)
                                 {
-                                    CheckAndInvoke(new Action(MakeErrorViewVisible));
+                                    insertStarted = true;
+                                    // Grab the directory path and file name to grab the imbedded data in the media file.
+                                    // This uses the open source C# taglib library.
+                                    string dirStr = file.DirectoryName;
+                                    TagLib.File mediaInfo = null;
+                                    try
+                                    {
+                                        mediaInfo = TagLib.File.Create(dirStr + "\\" + file);
+                                    }
+                                    catch (TagLib.UnsupportedFormatException ex)
+                                    {
+                                        Console.WriteLine("[[[EXCEPTION]]] -- Unsupported File: " + ex.Message);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine("[Non-specific Exception]: " + e.Message);
+                                    }
+                                    // If we get the media data object, grab the info then insert it into
+                                    // the database.
+                                    if (mediaInfo != null)
+                                    {
+                                        // File location info
+                                        rs.FilePath = dirStr;
+                                        rs.FileName = file.Name;
+                                        // Media file info.  This is a small subset of the total available
+                                        rs.Artist = mediaInfo.Tag.FirstPerformer;
+                                        rs.Title = mediaInfo.Tag.Title;
+                                        rs.Album = mediaInfo.Tag.Album;
+                                        // Database table foreign key
+                                        rs.FilePathID = dir.ID;
+
+                                        // Insert the data for the media file.  If we get a failure, there should be an error
+                                        // from the failed operation.  Start the error viewer so we can attempt to find the
+                                        // cause.
+                                        if (!data.InsertResultSet(rs))
+                                        {
+                                            CheckAndInvoke(new Action(MakeErrorViewVisible));
+                                        }
+                                    }
+
+                                    ++runningFileCount;
+
+                                    // Advance progress bar a bit after processing this file
+                                    progressBarStep = (runningFileCount % (maxFileCount / 100) == 0) ? 1 : 0;
+                                    CheckAndInvoke(new Action(AdvanceProgressBar));
+                                }
+                                else
+                                {
+                                    ++maxFileCount;
+                                    if ((maxFileCount %  10) == 0)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Found {0} Files to Insert", maxFileCount);
+                                    }
                                 }
                             }
 
-                            // Advance progress bar a bit after processing this file
-                            CheckAndInvoke(new Action(AdvanceProgressBar));
                         }
-
+                        //progressBarStep = (progressBarMax / dirList.Count) / filterList.Count;
+                        //CheckAndInvoke(new Action(AdvanceProgressBar));
                     }
-                    progressBarStep = (progressBarMax / dirList.Count) / filterList.Count;
-                    CheckAndInvoke(new Action(AdvanceProgressBar));
+                    //progressBarStep = progressBarMax / dirList.Count;
+                    //CheckAndInvoke(new Action(AdvanceProgressBar));
                 }
-                progressBarStep = progressBarMax / dirList.Count;
-                CheckAndInvoke(new Action(AdvanceProgressBar));
-            }
+                // First pass is done here.  Set to FALSE to start inserting songs
+                if (firstPass)
+                {
+                    firstPass = false;
+                    System.Diagnostics.Debug.WriteLine("FOUND {0} TOTAL FILES TO INSERT", maxFileCount);
+                }
+
+                done = ((firstPass == false) && (insertStarted == true));
+
+            } while (!done);
+
             // Advance progress bar to max if needed
             CheckAndInvoke(new Action(ProgressBarStop));
 

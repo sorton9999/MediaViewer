@@ -164,6 +164,24 @@
   <ItemGroup>
     <Resource Include="Images\mp3Thumb.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\aacThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\apeThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\m4aThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\oggThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wavThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wmaThumb.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
