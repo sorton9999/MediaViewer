@@ -38,7 +38,7 @@ namespace MediaViewer
             base.DataContext = viewModel;
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private async void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             List<string> playList = new List<string>();
             TitleViewModel vm = (sender as MenuItem).DataContext as TitleViewModel;
@@ -48,7 +48,7 @@ namespace MediaViewer
                 // clicked in the tree.
                 // Play the song.
                 playList.Add(vm.FilePath + "\\" + vm.FileName);
-                MediaPlayProducerConsumer.PlayFile(playList);
+                await MediaPlayWorker.PlayFileAsync(playList);
             }
             else
             {
@@ -76,7 +76,7 @@ namespace MediaViewer
                         }
                     }
                     // Send the list to the player
-                    MediaPlayProducerConsumer.PlayFile(playList);
+                    await MediaPlayWorker.PlayFileAsync(playList);
                 }
             }
         }

@@ -1,63 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
-
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MediaViewer
 {
     /// <summary>
-    /// A threading class that follows the Producer/Consumer pattern.  The producer
-    /// creates threads and pass items to the consumer handler to be acted upon
-    /// when each thread's handler is called.  This class also follows the
+    /// A class that provides the asynchronous Play method.  This class also follows the
     /// Singleton pattern.
     /// </summary>
-    public class MediaPlayProducerConsumer : ProducerConsumerWorker
+    public class MediaPlayWorker
     {
         /// <summary>
-        /// A static reference to the object of this class
+        /// The static instance
         /// </summary>
-        private static MediaPlayProducerConsumer _instance;
+        private static MediaPlayWorker _instance = null;
 
         /// <summary>
-        /// The public accessor to the static instance
+        /// The EnqueueOnce flag to indicate which argument to give the player
+        /// when starting the player for the first time vs. calling again when the
+        /// player is already started and you want to just add the song to the
+        /// play list.
         /// </summary>
-        /// <returns>The static reference</returns>
-        public static MediaPlayProducerConsumer Instance()
-        {
-            return _instance ?? ( _instance = new MediaPlayProducerConsumer() );
-        }
+        private bool EnqueueOnce = false;
 
         /// <summary>
-        /// Constructor -- A work handler is set up as well as a state based
-        /// on whether or not the media player is already running.
+        /// Constructor
+        /// Set the EnqueueOnce flag depending on if the player is already
+        /// started or not.
         /// </summary>
-        protected MediaPlayProducerConsumer()
+        protected MediaPlayWorker()
         {
-            WorkLength = 0;
-            workEvent += MediaPlayProducerConsumer_workEvent;
             EnqueueOnce = MainWindow.IsProcessRunning("vlc");
         }
 
         /// <summary>
-        /// The work handler each thread calls to do work.  The work is to
-        /// play the media file passed in as the work item.
+        /// The static instance caller for the Singleton
         /// </summary>
-        /// <param name="workItem">The passed item to do work on</param>
-        void MediaPlayProducerConsumer_workEvent(object workItem)
+        /// <returns></returns>
+        public static MediaPlayWorker Instance()
         {
-            // Grab the media file
-            string file = workItem as string;
-            if (file != null)
-            {
-                // Start playing the media file
-                GetPlayProcess(file).Start();
-            }
+            return (_instance ?? (_instance = new MediaPlayWorker()));
+        }
+
+        /// <summary>
+        /// Take the given process type and start it.
+        /// </summary>
+        /// <param name="proc"></param>
+        private void StartProcess(Process proc)
+        {
+            proc.Start();
         }
 
         /// <summary>
@@ -112,20 +107,22 @@ namespace MediaViewer
         /// A static method used to play the given list of files.
         /// </summary>
         /// <param name="filesToPlay">The list of files to play</param>
-        public static async Task PlayFile(List<string> filesToPlay)
+        public static async Task PlayFileAsync(List<string> filesToPlay)
         {
+            List<Task<Process>> tasks = new List<Task<Process>>();
+
             foreach (var file in filesToPlay)
             {
-                int id = MediaPlayProducerConsumer.Instance().WorkLength + 1;
-                MediaPlayProducerConsumer.Instance().Produce
-                    (
-                        new WorkItem
-                            (
-                                id, file
-                            )
-                    );
+                tasks.Add(Task.Run(() => Instance().GetPlayProcess(file)));
             }
-            MediaPlayProducerConsumer.Instance().Wait();
+
+            var results = await Task.WhenAll(tasks);
+
+            foreach (var item in results)
+            {
+                Instance().StartProcess(item);
+            }
         }
+
     }
 }

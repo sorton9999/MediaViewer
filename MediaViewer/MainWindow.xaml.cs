@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Threading;
+using System.Diagnostics;
 using DataAccessLib;
 
 
@@ -81,8 +82,20 @@ namespace MediaViewer
         /// </summary>
         private double progressBarValue = 0.0;
 
+        /// <summary>
+        /// Mutex Lock
+        /// </summary>
         private Object syncLock = new object();
 
+        /// <summary>
+        /// Play media with this object
+        /// </summary>
+        MediaPlayProcess mediaPlay = new MediaPlayProcess();
+
+        /// <summary>
+        /// The media is currently playing
+        /// </summary>
+        bool isPlaying = false;
 
         /// <summary>
         /// Constructor
@@ -209,6 +222,7 @@ namespace MediaViewer
             // Did we start inserting songs
             bool insertStarted = false;
 
+            // Is the insert operation finished
             bool done = false;
 
             do
@@ -225,10 +239,8 @@ namespace MediaViewer
                         System.IO.DirectoryInfo fileDirInfo = new System.IO.DirectoryInfo(dir.DirPath);
                         if (fileDirInfo != null)
                         {
+                            // Let's get all the files together into a list
                             List<System.IO.FileInfo> fileList = fileDirInfo.EnumerateFiles(filterType, System.IO.SearchOption.AllDirectories).ToList();
-                            //int val = fileList.Count();
-                            //progressBarStep = (progressBarMax - progressBarValue) / ((filterList.Count + val) / dirList.Count);
-                            //progressBarStep = (progressBarMax - progressBarValue) / val;
 
                             // Filter out the desired files in the directory and iterate through each one
                             foreach (var file in fileList)
@@ -236,7 +248,7 @@ namespace MediaViewer
                                 if (!firstPass)
                                 {
                                     insertStarted = true;
-                                    // Grab the directory path and file name to grab the imbedded data in the media file.
+                                    // Grab the directory path and file name to grab the embedded data in the media file.
                                     // This uses the open source C# taglib library.
                                     string dirStr = file.DirectoryName;
                                     TagLib.File mediaInfo = null;
@@ -292,11 +304,7 @@ namespace MediaViewer
                             }
 
                         }
-                        //progressBarStep = (progressBarMax / dirList.Count) / filterList.Count;
-                        //CheckAndInvoke(new Action(AdvanceProgressBar));
                     }
-                    //progressBarStep = progressBarMax / dirList.Count;
-                    //CheckAndInvoke(new Action(AdvanceProgressBar));
                 }
                 // First pass is done here.  Set to FALSE to start inserting songs
                 if (firstPass)
@@ -459,7 +467,52 @@ namespace MediaViewer
             errorView.Close();
             configView.Close();
             if (libView != null)
+            {
                 libView.Close();
+            }
+            if (mediaPlay != null)
+            {
+                mediaPlay.Dispose();
+            }
+        }
+
+        private void PlayBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Track Count: {0}", mediaPlay.TrackCount());
+            if (!mediaPlay.IsFastForward() && !mediaPlay.IsRewind())
+            {
+                isPlaying = !isPlaying;
+            }
+            mediaPlay.Play(isPlaying);
+        }
+
+        private void PauseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            isPlaying = false;
+            mediaPlay.Play(false);
+        }
+
+        private void RewindBtn_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void StopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            mediaPlay.Stop();
+        }
+
+        private void FastFwdBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay.SetRate(2.0F);
+            }
+        }
+
+        private void MediaDetailsControl_Loaded(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
