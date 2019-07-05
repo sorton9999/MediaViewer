@@ -23,7 +23,6 @@ namespace MediaViewer
         public event MediaAction FastForwardEvent;
         public event MediaAction PauseEvent;
 
-        //private List<string> playList = new List<string>();
         public Action playAction;
         private Process playProcess = new Process();
         private bool isInitialized = false;
@@ -35,14 +34,34 @@ namespace MediaViewer
         private MediaList _mediaList;
         const long OFFSET = 5000;
 
+        private MainWindow _parent = null;
+        private List<string> titlesToPlay = new List<string>();
 
-        public MediaPlayProcess()
+        public MediaPlayProcess(MainWindow parent)
         {
             Core.Initialize();
+            _parent = parent;
+
+            _libVLC = new LibVLC(new string[] { "--one-instance-when-started-from-file" });
+            _mediaPlayer = new MediaPlayer(_libVLC);
+            _mediaList = new MediaList(_libVLC);
+
+            _libVLC.Log += (sender, e) => System.Diagnostics.Debug.WriteLine($"[{e.Level}] {e.Module}:{e.Message}");
+
+            Initialize();
+        }
+
+        public MediaPlayProcess(MainWindow parent, List<string> items)
+        {
+            Core.Initialize();
+
+            _parent = parent;
 
             _libVLC = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVLC);
             _mediaList = new MediaList(_libVLC);
+
+            titlesToPlay = items;
 
             Initialize();
         }
@@ -60,13 +79,9 @@ namespace MediaViewer
             //playProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
 
             //_mediaPlayer.Media = new Media(_libVLC, "C:\\Users\\Orton\\Music\\05 Fly By Night.wav", Media.FromType.FromPath);
-            AddTrack("F:\\Music Archive\\The Beatles\\Let it be (2009) Digital Remaster\\05 Dig it.flac");
-            AddTrack("F:\\Music Archive\\The Beatles\\Let it be (2009) Digital Remaster\\07 Maggie Mae.flac");
+            //AddTrack("F:\\Music Archive\\Genesis\\Duke\\05 Misunderstanding.flac");
+            //AddTrack("F:\\Music Archive\\Genesis\\Abacab\\07 Man on the corner.flac");
 
-            _mediaList.Lock();
-            _mediaPlayer.Media = _mediaList[trackIdx];
-            _mediaPlayer.Media.AddOption(":no-video");
-            _mediaList.Unlock();
 
             _mediaPlayer.TimeChanged += _mediaPlayer_TimeChanged;
             _mediaPlayer.PositionChanged += _mediaPlayer_PositionChanged;
@@ -111,22 +126,26 @@ namespace MediaViewer
         public bool AddTrack(string mediaPath)
         {
             bool retVal = false;
-            _mediaList.Lock();
-            retVal = _mediaList.AddMedia(new Media(_libVLC, mediaPath, Media.FromType.FromPath));
-            _mediaList.Unlock();
+            retVal = _mediaList.AddMedia(new Media(_libVLC, mediaPath));
+            if (retVal && GetState() != MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                if (GetState() != MediaPlayStateEnum.MEDIA_PLAY)
+                {
+                    _mediaPlayer.Media = _mediaList[(_mediaList.Count - 1)];
+                    _mediaPlayer.Media.AddOption(":no-video");
+                }
+            }
             return retVal;
         }
 
         public bool RemoveTrack(string mediaPath)
         {
             bool retVal = false;
-            _mediaList.Lock();
-            int idx = _mediaList.IndexOf(new Media(_libVLC, mediaPath, Media.FromType.FromPath));
+            int idx = _mediaList.IndexOf(new Media(_libVLC, mediaPath));
             if (idx > -1)
             {
                 retVal = _mediaList.RemoveIndex(idx);
             }
-            _mediaList.Unlock();
             return retVal;
         }
 
@@ -175,11 +194,44 @@ namespace MediaViewer
             return state;
         }
 
+        private void MediaPlayerAdd(string file)
+        {
+            try
+            {
+                AddTrack(file);
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+            }
+        }
+
         private void MediaPlayerPlay()
         {
-            _mediaList.Lock();
-            _mediaPlayer.Play(_mediaList[trackIdx]);
-            _mediaList.Unlock();
+            try
+            {
+                if (_mediaList.Count > 0)
+                {
+                    _mediaPlayer.Play(_mediaList[trackIdx]);
+                }
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+            }
+        }
+
+        delegate bool Adder(string file);
+
+        public bool InvokeAdder(string file)
+        {
+            Adder adder = new Adder(AddTrack);
+            bool ret = false;
+            var res = adder.BeginInvoke(file, new AsyncCallback(result =>
+            {
+                ret = (result.AsyncState as Adder).EndInvoke(result);
+            }), adder);
+            return (res.IsCompleted && ret);
         }
 
         private void InvokePlayer()
@@ -202,7 +254,6 @@ namespace MediaViewer
                 }
                 else
                 {
-                    //_mediaPlayer.Play();
                     InvokePlayer();
                 }
             }
@@ -211,36 +262,6 @@ namespace MediaViewer
                 _mediaPlayer.Pause();
                 _mediaPlayer.SetRate(1F);
             }
-        }
-
-        /*
-        public void Play(string mediaPath)
-        {
-            if (String.IsNullOrEmpty(mediaPath))
-            {
-                return;
-            }
-            if (_mediaPlayer.IsPlaying)
-            {
-                _mediaPlayer.Stop();
-            }
-            Action secondFooAsync = new Action(MyPlay);
-
-            secondFooAsync.BeginInvoke(new AsyncCallback(result =>
-            {
-                (result.AsyncState as Action).EndInvoke(result);
-
-            }), secondFooAsync);
-            //_mediaPlayer.Play(new Media(_libVLC, mediaPath, Media.FromType.FromPath));
-            //Debug.WriteLine(GetState().ToString());
-        }
-        */
-
-        protected void MyPlay()
-        {
-            _mediaList.Lock();
-            _mediaPlayer.Play(_mediaList[trackIdx]);
-            _mediaList.Unlock();
         }
 
         public void Stop()
@@ -302,15 +323,16 @@ namespace MediaViewer
             Debug.WriteLine("End Reached");
             Debug.WriteLine(GetState().ToString());
             int mediaCount = -1;
-            _mediaList.Lock();
             mediaCount = _mediaList.Count;
             ++trackIdx;
-            _mediaList.Unlock();
             if (mediaCount > trackIdx)
             {
-                //Play(media.Mrl);
                 Play(true);
             }
+            //else
+            //{
+            //    Play(false);
+            //}
         }
 
         private void _mediaPlayer_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
@@ -318,14 +340,55 @@ namespace MediaViewer
             Debug.WriteLine("Length Changed");
         }
 
+        delegate void AdvanceProgress(MediaPlayerPositionChangedEventArgs e);
+        delegate void AdvancePlayLabel(string e);
+
         private void _mediaPlayer_PositionChanged(object sender, MediaPlayerPositionChangedEventArgs e)
         {
             Debug.WriteLine("Position Changed {0}", e.Position);
+            AdvanceProgress adv = (s) =>
+            {
+                if (_parent.workProgressBar.SmallChange != 0.1)
+                {
+                    _parent.workProgressBar.SmallChange = 0.1;
+                }
+                _parent.workProgressBar.Value += 0.1;
+            };
+            if (!_parent.Dispatcher.CheckAccess())
+            {
+                _parent.Dispatcher.Invoke(adv, e);
+            }
+            else
+            {
+                adv.Invoke(e);
+            }
         }
 
         private void _mediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
         {
             Debug.WriteLine("Time Changed: {0}", e.Time);
+            double playSecs = (e.Time / 1000) % 60;
+            double playMins = ((e.Time / 1000) / 60) % 60;
+            double playHours = (((e.Time / 1000) / 60) / 60) % 60;
+            string str = String.Format("{0}:{1:00}:{2:00}", playHours, playMins, playSecs);
+            long totalDuration = _mediaList[trackIdx].Duration;
+            double totalSecs = (totalDuration / 1000) % 60;
+            double totalMins = ((totalDuration / 1000) / 60) % 60;
+            double totalHours = (((totalDuration / 1000) / 60) / 60) % 60;
+            string dur = String.Format("{0}:{1:00}:{2:00}", totalHours, totalMins, totalSecs);
+            AdvancePlayLabel adv = (s) =>
+            {
+                _parent.lblTotalTime.Content = dur;
+                _parent.lblPlayTime.Content = s;
+            };
+            if (!_parent.Dispatcher.CheckAccess())
+            {
+                _parent.Dispatcher.Invoke(adv, str);
+            }
+            else
+            {
+                adv.Invoke(str);
+            }
         }
 
         private void _mediaPlayer_MediaChanged(object sender, MediaPlayerMediaChangedEventArgs e)
@@ -333,35 +396,6 @@ namespace MediaViewer
             Debug.WriteLine("Media Changed");
         }
 
-        //public void AddFileToPlay(string file)
-        //{
-        //    if (playList != null)
-        //    {
-        //        playList.Add(file);
-        //    }
-        //}
-
-        //private String PlayArguments()
-        //{
-        //    String retStr = String.Empty;
-
-        //    foreach (var item in playList)
-        //    {
-        //        retStr = String.Concat(retStr, (item + " "));
-        //        playList.Remove(item);
-        //    }
-        //    return retStr;
-        //}
-
-        //private void PlayMedia()
-        //{
-        //    if (isInitialized)
-        //    {
-        //        playProcess.StartInfo.Arguments = PlayArguments();
-        //        playProcess.Start();
-        //        playProcess.WaitForExit();
-        //    }
-        //}
 
     }
 }

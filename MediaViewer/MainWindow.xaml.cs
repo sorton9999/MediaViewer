@@ -6,7 +6,8 @@ using System.Windows.Data;
 using System.Threading;
 using System.Diagnostics;
 using DataAccessLib;
-
+using TagLib;
+using System.Collections.ObjectModel;
 
 namespace MediaViewer
 {
@@ -90,12 +91,17 @@ namespace MediaViewer
         /// <summary>
         /// Play media with this object
         /// </summary>
-        MediaPlayProcess mediaPlay = new MediaPlayProcess();
+        MediaPlayProcess mediaPlay = null;
 
         /// <summary>
         /// The media is currently playing
         /// </summary>
         bool isPlaying = false;
+
+        /// <summary>
+        /// Running list of songs in the Play List
+        /// </summary>
+        static ObservableCollection<PlayListViewModel> playListItems = new ObservableCollection<PlayListViewModel>();
 
         /// <summary>
         /// Constructor
@@ -114,7 +120,25 @@ namespace MediaViewer
             // Set the Max value from ProgressBar Maximum value
             progressBarMax = workProgressBar.Maximum;
 
+            mediaPlay = new MediaPlayProcess(this);
+
+            playListItems.CollectionChanged += PlayListItems_CollectionChanged;
+            playList.ItemsSource = playListItems;
+            //playListItems.Add(new PlayListViewModel { Song = "Tommy", Length = "4:25", Selected = true });
+            //playListItems.Add(new PlayListViewModel { Song = "Bad To The Bone", Length = "5:05", Selected = false });
+
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
+        }
+
+        private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems.Count > 0)
+            {
+                foreach (PlayListViewModel item in e.NewItems)
+                {
+                    mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
+                }
+            }
         }
 
         /// <summary>
@@ -133,6 +157,15 @@ namespace MediaViewer
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// The list of songs to play
+        /// </summary>
+        public static ObservableCollection<PlayListViewModel> PlayListItems
+        {
+            get { return playListItems; }
+            set { playListItems = value; }
         }
 
         /// <summary>
@@ -275,6 +308,7 @@ namespace MediaViewer
                                         rs.Artist = mediaInfo.Tag.FirstPerformer;
                                         rs.Title = mediaInfo.Tag.Title;
                                         rs.Album = mediaInfo.Tag.Album;
+                                        rs.SongLength = ComputeSongLength(mediaInfo);
                                         // Database table foreign key
                                         rs.FilePathID = dir.ID;
 
@@ -325,6 +359,20 @@ namespace MediaViewer
 
             // Reload the tree once all work has finished and the above dialog has been acknowledged.
             CheckAndInvoke(libraryTreeControl.libraryTreeUpdateAction);
+        }
+
+        /// <summary>
+        /// Find the song duration given the media tag file
+        /// </summary>
+        /// <param name="mediaInfo">Media Tag File</param>
+        /// <returns>The string representing the duration</returns>
+        public static string ComputeSongLength(File mediaInfo)
+        {
+            TimeSpan length = mediaInfo.Properties.Duration;
+            long lengthSec = (long)(length.TotalSeconds % 60);
+            long lengthMin = (long)length.TotalMinutes;
+
+            return (lengthMin.ToString() + ":" + lengthSec.ToString("00"));
         }
 
         /// <summary>
@@ -478,6 +526,15 @@ namespace MediaViewer
 
         private void PlayBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (mediaPlay == null)
+            {
+                List<string> items = new List<string>();
+                foreach (var title in playListItems)
+                {
+                    items.Add(title.Path + "\\" + title.Song + ".flac");
+                }
+                mediaPlay = new MediaPlayProcess(this, items);
+            }
             Debug.WriteLine("Track Count: {0}", mediaPlay.TrackCount());
             if (!mediaPlay.IsFastForward() && !mediaPlay.IsRewind())
             {

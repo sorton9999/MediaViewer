@@ -117,14 +117,14 @@ namespace DataAccessLib.DataModel
             try
             {
                 String escapedAlbum = dataAccess.EscapeString(album.AlbumName);
-                using (DataTable titles = dataAccess.GetDataTable(@"SELECT FilePath, FileName, Title FROM MusicMediaTable WHERE Album ='" +
+                using (DataTable titles = dataAccess.GetDataTable(@"SELECT FilePath, FileName, Title, SongLength FROM MusicMediaTable WHERE Album ='" +
                         escapedAlbum + "' AND Artist='" + artistName + "'"))
                 {
                     // Go through each row of the Titles table to create a list of Title names.  We add these to a
                     // List object.
                     foreach (DataRow title in titles.Rows)
                     {
-                        titleStore.Add(new Title((string)title.ItemArray[2], (string)title.ItemArray[0], (string)title.ItemArray[1]));
+                        titleStore.Add(new Title((string)title.ItemArray[2], (string)title.ItemArray[3], (string)title.ItemArray[0], (string)title.ItemArray[1]));
                     }
                 }
             }

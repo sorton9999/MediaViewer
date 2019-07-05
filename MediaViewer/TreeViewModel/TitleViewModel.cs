@@ -42,6 +42,14 @@ namespace MediaViewer.TreeViewModel
         }
 
         /// <summary>
+        /// Public song length property
+        /// </summary>
+        public string TitleLength
+        {
+            get { return _title.TitleLength; }
+        }
+
+        /// <summary>
         /// Public file path property
         /// </summary>
         public string FilePath

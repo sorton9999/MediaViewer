@@ -52,7 +52,7 @@ namespace MediaViewer
         /// <param name="proc"></param>
         private void StartProcess(Process proc)
         {
-            proc.Start();
+            //proc.Start();
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace MediaViewer
         }
 
         /// <summary>
-        /// A static method used to play the given list of files.
+        /// A static asynchronous method used to play the given list of files.
         /// </summary>
         /// <param name="filesToPlay">The list of files to play</param>
         public static async Task PlayFileAsync(List<string> filesToPlay)

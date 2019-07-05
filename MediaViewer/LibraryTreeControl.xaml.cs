@@ -44,6 +44,13 @@ namespace MediaViewer
             TitleViewModel vm = (sender as MenuItem).DataContext as TitleViewModel;
             if (vm != null)
             {
+                PlayListViewModel pm = new PlayListViewModel();
+                pm.Song = vm.TitleName;
+                pm.Path = vm.FilePath;
+                pm.Length = vm.TitleLength;
+                pm.File = vm.FileName;
+                pm.Selected = false;
+                MainWindow.PlayListItems.Add(pm);
                 // Here we have a single song title so a specific title must have been
                 // clicked in the tree.
                 // Play the song.
@@ -69,10 +76,17 @@ namespace MediaViewer
                     // to get to its file to play
                     foreach (var item in am.Children)
                     {
+                        PlayListViewModel pm = new PlayListViewModel();
                         TitleViewModel tm = item as TitleViewModel;
                         if (tm != null)
                         {
                             playList.Add(tm.FilePath + "\\" + tm.FileName);
+                            pm.Song = tm.TitleName;
+                            pm.Path = tm.FilePath;
+                            pm.Length = tm.TitleLength;
+                            pm.File = tm.FileName;
+                            pm.Selected = false;
+                            MainWindow.PlayListItems.Add(pm);
                         }
                     }
                     // Send the list to the player

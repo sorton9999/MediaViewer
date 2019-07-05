@@ -150,7 +150,7 @@ namespace MediaViewer
                 Year = file.Tag.Year.ToString();
                 Comment = file.Tag.Comment;
                 Genre = file.Tag.FirstGenre;
-                Length = file.Length.ToString();
+                Length = MainWindow.ComputeSongLength(file);
                 AlbumArt = GetArt(file.Tag.Pictures);
             }
         }

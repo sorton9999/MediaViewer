@@ -54,6 +54,7 @@ namespace DataAccessLib
                 rs.Artist = data.ItemArray[4].ToString();
                 rs.Album = data.ItemArray[5].ToString();
                 rs.FilePathID = data.ItemArray[6].ToString();
+                rs.SongLength = data.ItemArray[7].ToString();
             }
             catch (InvalidCastException)
             {
@@ -77,7 +78,7 @@ namespace DataAccessLib
             MusicMediaResultSet mrs = rs as MusicMediaResultSet;
             if (mrs != null)
             {
-                retVal = InvokeAndInsert(typeof(MusicMediaResultSet), new Object[] { mrs.ID, mrs.FilePath, mrs.FileName, mrs.Title, mrs.Artist, mrs.Album, mrs.FilePathID });
+                retVal = InvokeAndInsert(typeof(MusicMediaResultSet), new Object[] { mrs.ID, mrs.FilePath, mrs.FileName, mrs.Title, mrs.Artist, mrs.Album, mrs.FilePathID, mrs.SongLength });
             }
             return retVal;
         }
