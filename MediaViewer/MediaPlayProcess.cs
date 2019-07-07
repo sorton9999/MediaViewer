@@ -95,7 +95,7 @@ namespace MediaViewer
             _mediaPlayer.TitleChanged += _mediaPlayer_TitleChanged;
             _mediaPlayer.Stopped += _mediaPlayer_Stopped;
             _mediaPlayer.SetVolumeCallback(new MediaPlayer.LibVLCVolumeCb(MediaPlayer_ChangeVolume));
-            _mediaPlayer.Volume = 25;
+            //_mediaPlayer.Volume = 15;
 
             RewindEvent = new MediaAction(_mediaPlayer_Backward);
             FastForwardEvent = new MediaAction(_mediaPlayer_Forward);
@@ -131,7 +131,8 @@ namespace MediaViewer
             {
                 if (GetState() != MediaPlayStateEnum.MEDIA_PLAY)
                 {
-                    _mediaPlayer.Media = _mediaList[(_mediaList.Count - 1)];
+                    //_mediaPlayer.Media = _mediaList[(_mediaList.Count - 1)];
+                    _mediaPlayer.Media = _mediaList[0];
                     _mediaPlayer.Media.AddOption(":no-video");
                 }
             }
@@ -264,6 +265,12 @@ namespace MediaViewer
             }
         }
 
+        public void Play(bool play, int idx)
+        {
+            trackIdx = idx;
+            Play(play);
+        }
+
         public void Stop()
         {
             if (_mediaPlayer.IsPlaying)
@@ -282,7 +289,7 @@ namespace MediaViewer
             return GetState() == MediaPlayStateEnum.MEDIA_REWIND;
         }
 
-        private void MediaPlayer_ChangeVolume(IntPtr data, float volume, bool mute)
+        public void MediaPlayer_ChangeVolume(IntPtr data, float volume, bool mute)
         {
             if (mute)
             {

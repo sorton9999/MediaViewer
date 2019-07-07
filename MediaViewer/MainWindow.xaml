@@ -87,6 +87,10 @@
         </Grid>
         <Label x:Name="lblTotalTime" Content="0:00:00" HorizontalAlignment="Left" Margin="469,354,0,0" VerticalAlignment="Top" AllowDrop="True"/>
         <Label x:Name="lblPlayTime" Content="0:00:00" HorizontalAlignment="Left" Margin="8,355,0,0" VerticalAlignment="Top" AllowDrop="True"/>
+        <Button x:Name="volumeButton" HorizontalAlignment="Left" Margin="480,385,0,0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="0.815,0.5" Click="VolumeButton_Click">
+            <Image Source="/Images/SpeakerIcon-white.png" Width="25" Height="16" />
+        </Button>
+        <local:VolumeControl x:Name="volumeControl" HorizontalAlignment="Left" Height="44" Margin="419,310,0,0" VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.5,0.49" PropertyChanged="VolumeControl_PropertyChanged" Visibility="Collapsed" />
 
     </Grid>
 </Window>

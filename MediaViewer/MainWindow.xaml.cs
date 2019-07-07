@@ -99,6 +99,11 @@ namespace MediaViewer
         bool isPlaying = false;
 
         /// <summary>
+        /// The volume control visibility flag
+        /// </summary>
+        bool isVolumeControlVisible = false;
+
+        /// <summary>
         /// Running list of songs in the Play List
         /// </summary>
         static ObservableCollection<PlayListViewModel> playListItems = new ObservableCollection<PlayListViewModel>();
@@ -121,6 +126,7 @@ namespace MediaViewer
             progressBarMax = workProgressBar.Maximum;
 
             mediaPlay = new MediaPlayProcess(this);
+            volumeControl.Volume = 25;
 
             playListItems.CollectionChanged += PlayListItems_CollectionChanged;
             playList.ItemsSource = playListItems;
@@ -540,7 +546,14 @@ namespace MediaViewer
             {
                 isPlaying = !isPlaying;
             }
-            mediaPlay.Play(isPlaying);
+            if (playList.SelectedIndex > -1)
+            {
+                mediaPlay.Play(isPlaying, playList.SelectedIndex);
+            }
+            else
+            {
+                mediaPlay.Play(isPlaying);
+            }
         }
 
         private void PauseBtn_Click(object sender, RoutedEventArgs e)
@@ -556,6 +569,7 @@ namespace MediaViewer
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
         {
+            isPlaying = false;
             mediaPlay.Stop();
         }
 
@@ -570,6 +584,18 @@ namespace MediaViewer
         private void MediaDetailsControl_Loaded(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void VolumeButton_Click(object sender, RoutedEventArgs e)
+        {
+            volumeControl.Visibility = ((isVolumeControlVisible = !isVolumeControlVisible) ? Visibility.Visible : Visibility.Collapsed);
+        }
+
+        private void VolumeControl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            IntPtr data = new IntPtr();
+            //System.Diagnostics.Debug.WriteLine("Volume Changed {0}", volumeControl.Volume);
+            mediaPlay.MediaPlayer_ChangeVolume(data, (float)volumeControl.Volume / 50, volumeControl.Mute);
         }
     }
 }
