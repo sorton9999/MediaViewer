@@ -46,6 +46,15 @@ namespace MediaViewer
         }
 
         /// <summary>
+        /// This class's viewmodel object
+        /// </summary>
+        public ViewModel ViewModel
+        {
+            get { return viewModel; }
+            private set { viewModel = value; }
+        }
+
+        /// <summary>
         /// Public method to load the file info into the view model
         /// </summary>
         /// <param name="fileName"></param>

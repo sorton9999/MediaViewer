@@ -100,6 +100,7 @@
     <Compile Include="MediaPlayProcess.cs" />
     <Compile Include="MediaPlayProducerConsumer.cs" />
     <Compile Include="MediaPlayWorker.cs" />
+    <Compile Include="MediaViewerViewModel.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="PlayListViewModel.cs" />
     <Compile Include="ProducerConsumerWorker.cs" />
@@ -243,6 +244,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\volume_med-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\volume_none.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets" Condition="Exists('..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets')" />

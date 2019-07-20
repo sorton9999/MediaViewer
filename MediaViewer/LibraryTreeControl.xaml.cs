@@ -55,7 +55,7 @@ namespace MediaViewer
                 // clicked in the tree.
                 // Play the song.
                 playList.Add(vm.FilePath + "\\" + vm.FileName);
-                await MediaPlayWorker.PlayFileAsync(playList);
+                await MediaPlayWorker.PlayFileAsync(playList, MainWindow.PlayProcess);
             }
             else
             {
@@ -90,7 +90,7 @@ namespace MediaViewer
                         }
                     }
                     // Send the list to the player
-                    await MediaPlayWorker.PlayFileAsync(playList);
+                    await MediaPlayWorker.PlayFileAsync(playList, MainWindow.PlayProcess);
                 }
             }
         }

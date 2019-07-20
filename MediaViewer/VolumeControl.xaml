@@ -76,7 +76,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="muteButton" Content="mute" Style="{DynamicResource RoundCorner}" Foreground="White" VerticalAlignment="Center" Margin="4,1" Width="18" Height="18" Background="DarkGray" Click="Button_Click" FontSize="8"/>
+                    <Button x:Name="muteButton" Content="mute" Style="{DynamicResource RoundCorner}" Foreground="White" VerticalAlignment="Center" Margin="4,1" Width="19" Height="18" Background="DarkGray" Click="Button_Click" FontSize="8"/>
                     <ProgressBar x:Name="volumeBar"  Height="10" 
                     Value="{Binding Volume}" 
                     Width="100"

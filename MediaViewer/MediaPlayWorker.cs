@@ -20,6 +20,12 @@ namespace MediaViewer
         private static MediaPlayWorker _instance = null;
 
         /// <summary>
+        /// A static play process object that provides media play capabilities.  We're using
+        /// this to load the files to play.
+        /// </summary>
+        private static MediaPlayProcess _playProcess = null;
+
+        /// <summary>
         /// The EnqueueOnce flag to indicate which argument to give the player
         /// when starting the player for the first time vs. calling again when the
         /// player is already started and you want to just add the song to the
@@ -44,6 +50,15 @@ namespace MediaViewer
         public static MediaPlayWorker Instance()
         {
             return (_instance ?? (_instance = new MediaPlayWorker()));
+        }
+
+        /// <summary>
+        /// The static public accessor for the play process object
+        /// </summary>
+        public static MediaPlayProcess PlayProcess
+        {
+            get { return _playProcess; }
+            private set { _playProcess = value; }
         }
 
         /// <summary>
@@ -83,6 +98,19 @@ namespace MediaViewer
             return process;
         }
 
+        private static string GetPlayTitle(string title)
+        {
+            return title;
+        }
+
+        private void AddTitle(string title)
+        {
+            if (_playProcess != null)
+            {
+                _playProcess.AddTrack(title);
+            }
+        }
+
         /// <summary>
         /// Encode the given file to make it useable by the media player
         /// </summary>
@@ -107,20 +135,24 @@ namespace MediaViewer
         /// A static asynchronous method used to play the given list of files.
         /// </summary>
         /// <param name="filesToPlay">The list of files to play</param>
-        public static async Task PlayFileAsync(List<string> filesToPlay)
+        public static async Task PlayFileAsync(List<string> filesToPlay, MediaPlayProcess playProcess)
         {
-            List<Task<Process>> tasks = new List<Task<Process>>();
+            _playProcess = playProcess;
+            //List<Task<Process>> tasks = new List<Task<Process>>();
+            List<Task<string>> tasks = new List<Task<string>>();
 
             foreach (var file in filesToPlay)
             {
-                tasks.Add(Task.Run(() => Instance().GetPlayProcess(file)));
+                //tasks.Add(Task.Run(() => Instance().GetPlayProcess(file)));
+                tasks.Add(Task.Run(() => GetPlayTitle(file)));
             }
 
             var results = await Task.WhenAll(tasks);
 
             foreach (var item in results)
             {
-                Instance().StartProcess(item);
+                //Instance().StartProcess(item);
+                Instance().AddTitle(item);
             }
         }
 

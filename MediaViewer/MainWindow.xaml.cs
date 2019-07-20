@@ -33,6 +33,11 @@ namespace MediaViewer
                         };
 
         /// <summary>
+        /// The view model for the main application
+        /// </summary>
+        private MediaViewerViewModel mediaViewerViewModel = new MediaViewerViewModel();
+
+        /// <summary>
         /// The database result set from the MusicMediaTable table.
         /// </summary>
         static private MusicMediaResultSet rs = new DataAccessLib.MusicMediaResultSet();
@@ -91,7 +96,7 @@ namespace MediaViewer
         /// <summary>
         /// Play media with this object
         /// </summary>
-        MediaPlayProcess mediaPlay = null;
+        static MediaPlayProcess mediaPlay = null;
 
         /// <summary>
         /// The media is currently playing
@@ -125,8 +130,10 @@ namespace MediaViewer
             // Set the Max value from ProgressBar Maximum value
             progressBarMax = workProgressBar.Maximum;
 
+            volumeImage.DataContext = mediaViewerViewModel;
             mediaPlay = new MediaPlayProcess(this);
             volumeControl.Volume = 25;
+            SetVolumeControlImage();
 
             playListItems.CollectionChanged += PlayListItems_CollectionChanged;
             playList.ItemsSource = playListItems;
@@ -142,7 +149,7 @@ namespace MediaViewer
             {
                 foreach (PlayListViewModel item in e.NewItems)
                 {
-                    mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
+                    //mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
                 }
             }
         }
@@ -172,6 +179,12 @@ namespace MediaViewer
         {
             get { return playListItems; }
             set { playListItems = value; }
+        }
+
+        public static MediaPlayProcess PlayProcess
+        {
+            get { return mediaPlay; }
+            private set { mediaPlay = value; }
         }
 
         /// <summary>
@@ -471,6 +484,30 @@ namespace MediaViewer
             return (processes.Length > 0);
         }
 
+        public void SetVolumeControlImage()
+        {
+            mediaViewerViewModel.Volume = (int)volumeControl.Volume;
+            if (volumeControl.Mute)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/mute-white.png";
+                mediaViewerViewModel.Volume = 0;
+            }
+            else if (volumeControl.Volume <= 25)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_low-white.png";
+            }
+            else if (volumeControl.Volume > 25 && volumeControl.Volume < 60)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_med-white.png";
+            }
+            else
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_high-white.png";
+            }
+        }
+
+
+
         /// <summary>
         /// The Exit button click event handler
         /// </summary>
@@ -596,6 +633,8 @@ namespace MediaViewer
             IntPtr data = new IntPtr();
             //System.Diagnostics.Debug.WriteLine("Volume Changed {0}", volumeControl.Volume);
             mediaPlay.MediaPlayer_ChangeVolume(data, (float)volumeControl.Volume / 50, volumeControl.Mute);
+            SetVolumeControlImage();
         }
+
     }
 }

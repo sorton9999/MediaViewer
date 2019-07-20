@@ -13,7 +13,6 @@ namespace MediaViewer
     public class ViewModel : ViewModelBase
     {
         Model fileModel = new Model();
-
         public string FileName
         {
             get { return fileModel.FullFilePath; }
@@ -178,5 +177,6 @@ namespace MediaViewer
 
             return image;
         }
+
     }
 }

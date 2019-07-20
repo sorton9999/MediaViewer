@@ -16,6 +16,8 @@ namespace MediaViewer
             MEDIA_PLAY, MEDIA_PAUSE, MEDIA_FASTFWD, MEDIA_REWIND
         };
 
+        public delegate bool Adder(string file);
+        public delegate void AdvancePlayLabel(string e);
         public delegate void MediaAction(object sender, EventArgs e);
         public event MediaAction PlayEvent;
         public event MediaAction StopEvent;
@@ -31,7 +33,7 @@ namespace MediaViewer
 
         readonly LibVLC _libVLC;
         readonly MediaPlayer _mediaPlayer;
-        private MediaList _mediaList;
+        MediaList _mediaList;
         const long OFFSET = 5000;
 
         private MainWindow _parent = null;
@@ -129,12 +131,9 @@ namespace MediaViewer
             retVal = _mediaList.AddMedia(new Media(_libVLC, mediaPath));
             if (retVal && GetState() != MediaPlayStateEnum.MEDIA_PLAY)
             {
-                if (GetState() != MediaPlayStateEnum.MEDIA_PLAY)
-                {
-                    //_mediaPlayer.Media = _mediaList[(_mediaList.Count - 1)];
-                    _mediaPlayer.Media = _mediaList[0];
-                    _mediaPlayer.Media.AddOption(":no-video");
-                }
+                //_mediaPlayer.Media = _mediaList[(_mediaList.Count - 1)];
+                _mediaPlayer.Media = _mediaList[0];
+                _mediaPlayer.Media.AddOption(":no-video");
             }
             return retVal;
         }
@@ -222,8 +221,6 @@ namespace MediaViewer
             }
         }
 
-        delegate bool Adder(string file);
-
         public bool InvokeAdder(string file)
         {
             Adder adder = new Adder(AddTrack);
@@ -249,6 +246,11 @@ namespace MediaViewer
         {
             if (play)
             {
+                if (trackIdx > 0)
+                {
+                    MainWindow.PlayListItems[(trackIdx - 1)].Selected = false;
+                }
+                MainWindow.PlayListItems[trackIdx].Selected = true;
                 if (IsFastForward())
                 {
                     _mediaPlayer.SetRate(1F);
@@ -347,28 +349,14 @@ namespace MediaViewer
             Debug.WriteLine("Length Changed");
         }
 
-        delegate void AdvanceProgress(MediaPlayerPositionChangedEventArgs e);
-        delegate void AdvancePlayLabel(string e);
-
         private void _mediaPlayer_PositionChanged(object sender, MediaPlayerPositionChangedEventArgs e)
         {
             Debug.WriteLine("Position Changed {0}", e.Position);
-            AdvanceProgress adv = (s) =>
+            Action adv = () =>
             {
-                if (_parent.workProgressBar.SmallChange != 0.1)
-                {
-                    _parent.workProgressBar.SmallChange = 0.1;
-                }
-                _parent.workProgressBar.Value += 0.1;
+                _parent.workProgressBar.Value = e.Position * 100;
             };
-            if (!_parent.Dispatcher.CheckAccess())
-            {
-                _parent.Dispatcher.Invoke(adv, e);
-            }
-            else
-            {
-                adv.Invoke(e);
-            }
+            _parent.CheckAndInvoke(adv);
         }
 
         private void _mediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
@@ -401,6 +389,11 @@ namespace MediaViewer
         private void _mediaPlayer_MediaChanged(object sender, MediaPlayerMediaChangedEventArgs e)
         {
             Debug.WriteLine("Media Changed");
+            Action reset = () =>
+            {
+                _parent.workProgressBar.Value = 0;
+            };
+            _parent.CheckAndInvoke(reset);
         }
 
 
