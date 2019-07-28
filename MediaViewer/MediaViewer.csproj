@@ -102,12 +102,10 @@
       <DependentUpon>LibraryTreeControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="MediaPlay\MediaPlayProcess.cs" />
-    <Compile Include="MediaPlay\MediaPlayProducerConsumer.cs" />
     <Compile Include="MediaPlay\MediaPlayWorker.cs" />
     <Compile Include="WindowViewModels\MediaViewerViewModel.cs" />
     <Compile Include="WindowModels\Model.cs" />
     <Compile Include="WindowViewModels\PlayListViewModel.cs" />
-    <Compile Include="Utilities\ProducerConsumerWorker.cs" />
     <Compile Include="TreeViewModel\AlbumViewModel.cs" />
     <Compile Include="TreeViewModel\ArtistViewModel.cs" />
     <Compile Include="TreeViewModel\LibraryViewModel.cs" />
