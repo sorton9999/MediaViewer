@@ -100,20 +100,28 @@ namespace DataAccessLib
         /// <returns>Results in the form of a DataTable</returns>
         public DataTable ExecuteQuery(string sql)
         {
+            SQLiteConnection conn = null;
             DataTable dt = new DataTable();
             try
             {
-                SQLiteConnection conn = new SQLiteConnection(dbConnectionStr);
+                conn = new SQLiteConnection(dbConnectionStr);
                 conn.Open();
-                SQLiteCommand cmd = new SQLiteCommand(conn);
-                cmd.CommandText = sql;
-                SQLiteDataAdapter data = new SQLiteDataAdapter(cmd);
-                data.Fill(dt);
-                conn.Close();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText = sql;
+                    using (SQLiteDataAdapter data = new SQLiteDataAdapter(cmd))
+                    {
+                        data.Fill(dt);
+                    }
+                }
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+            finally
+            {
+                conn.Close();
             }
             return dt;
         }
@@ -126,12 +134,26 @@ namespace DataAccessLib
         /// <returns>The number of rows updated</returns>
         public int Execute(string sql)
         {
-            SQLiteConnection conn = new SQLiteConnection(dbConnectionStr);
-            conn.Open();
-            SQLiteCommand cmd = new SQLiteCommand(conn);
-            cmd.CommandText = sql;
-            int numRows = cmd.ExecuteNonQuery();
-            conn.Close();
+            SQLiteConnection conn = null;
+            int numRows = -1;
+            try
+            {
+                conn = new SQLiteConnection(dbConnectionStr);
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText = sql;
+                    numRows = cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
             return numRows;
         }
 
@@ -142,15 +164,28 @@ namespace DataAccessLib
         /// <returns>The result as a string</returns>
         public string ExecuteSimpleQuery(string sql)
         {
-            SQLiteConnection conn = new SQLiteConnection(dbConnectionStr);
-            conn.Open();
-            SQLiteCommand cmd = new SQLiteCommand(conn);
-            cmd.CommandText = sql;
-            object value = cmd.ExecuteScalar();
-            conn.Close();
-            if (value != null)
+            SQLiteConnection conn = null;
+            try
             {
-                return value.ToString();
+                conn = new SQLiteConnection(dbConnectionStr);
+                conn.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText = sql;
+                    object value = cmd.ExecuteScalar();
+                    if (value != null)
+                    {
+                        return value.ToString();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                conn.Close();
             }
             return String.Empty;
         }
