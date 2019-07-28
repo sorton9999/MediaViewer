@@ -54,6 +54,14 @@ namespace MediaViewer.TreeViewModel
         }
 
         /// <summary>
+        /// Public ArtistViewModel property
+        /// </summary>
+        public ArtistViewModel Artist
+        {
+            get { return _artist; }
+        }
+
+        /// <summary>
         /// The child load method.  This is part of the lazy loading
         /// mechanism.
         /// </summary>

@@ -117,8 +117,9 @@ namespace DataAccessLib.DataModel
             try
             {
                 String escapedAlbum = dataAccess.EscapeString(album.AlbumName);
+                String escapedArtist = dataAccess.EscapeString(artistName);
                 using (DataTable titles = dataAccess.GetDataTable(@"SELECT FilePath, FileName, Title, SongLength FROM MusicMediaTable WHERE Album ='" +
-                        escapedAlbum + "' AND Artist='" + artistName + "'"))
+                        escapedAlbum + "' AND Artist='" + escapedArtist + "'"))
                 {
                     // Go through each row of the Titles table to create a list of Title names.  We add these to a
                     // List object.

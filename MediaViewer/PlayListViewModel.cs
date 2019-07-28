@@ -1,18 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace MediaViewer
 {
     public class PlayListViewModel : ViewModelBase
     {
+        private string artist = String.Empty;
         private string song = String.Empty;
         private string path = String.Empty;
         private string length = String.Empty;
         private string file = String.Empty;
         private bool selected = false;
+        private bool nowPlaying = false;
+
+        public string ArtistName
+        {
+            get { return artist; }
+            set
+            {
+                artist = value;
+                NotifyPropertyChanged("ArtistName");
+            }
+        }
 
         public string Song
         {
@@ -63,5 +77,16 @@ namespace MediaViewer
                 NotifyPropertyChanged("Selected");
             }
         }
+
+        public bool NowPlaying
+        {
+            get { return nowPlaying; }
+            set
+            {
+                nowPlaying = value;
+                NotifyPropertyChanged("NowPlaying");
+            }
+        }
     }
+
 }

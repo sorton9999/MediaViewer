@@ -72,6 +72,7 @@ namespace MediaViewer
         {
             this._mediaList.Dispose();
             this._mediaPlayer.Dispose();
+            this._libVLC.CloseLogFile();
             this._libVLC.Dispose();
         }
 
@@ -108,6 +109,11 @@ namespace MediaViewer
         private void _mediaPlayer_Stopped(object sender, EventArgs e)
         {
             Debug.WriteLine("Title Stopped");
+            Action reset = () =>
+            {
+                _parent.workProgressBar.Value = 0;
+            };
+            _parent.CheckAndInvoke(reset);
         }
 
         private void _mediaPlayer_TitleChanged(object sender, MediaPlayerTitleChangedEventArgs e)
@@ -210,7 +216,7 @@ namespace MediaViewer
         {
             try
             {
-                if (_mediaList.Count > 0)
+                if ((_mediaList.Count > 0) && (trackIdx >= 0) && (trackIdx < _mediaList.Count))
                 {
                     _mediaPlayer.Play(_mediaList[trackIdx]);
                 }
@@ -246,18 +252,17 @@ namespace MediaViewer
         {
             if (play)
             {
-                if (trackIdx > 0)
+                if ((trackIdx >= 0) && (trackIdx < MainWindow.PlayListItems.Count))
                 {
-                    MainWindow.PlayListItems[(trackIdx - 1)].Selected = false;
-                }
-                MainWindow.PlayListItems[trackIdx].Selected = true;
-                if (IsFastForward())
-                {
-                    _mediaPlayer.SetRate(1F);
-                }
-                else
-                {
-                    InvokePlayer();
+                    MainWindow.SetTrackItems(trackIdx);
+                    if (IsFastForward())
+                    {
+                        _mediaPlayer.SetRate(1F);
+                    }
+                    else
+                    {
+                        InvokePlayer();
+                    }
                 }
             }
             else
@@ -271,6 +276,27 @@ namespace MediaViewer
         {
             trackIdx = idx;
             Play(play);
+        }
+
+        public void NextTrack()
+        {
+            ++trackIdx;
+            if (trackIdx > _mediaList.Count - 1)
+            {
+                trackIdx = _mediaList.Count - 1;
+                return;
+            }
+            Play(true);
+        }
+
+        public void PreviousTrack()
+        {
+            --trackIdx;
+            if (trackIdx < 0)
+            {
+                trackIdx = 0;
+            }
+            Play(true);
         }
 
         public void Stop()
@@ -303,18 +329,18 @@ namespace MediaViewer
             }
         }
 
-        private void _mediaPlayer_Backward(object sender, EventArgs e)
+        public void _mediaPlayer_Backward(object sender, EventArgs e)
         {
             Debug.WriteLine("Rewind");
             _state = MediaPlayStateEnum.MEDIA_REWIND;
             _mediaPlayer.Time -= OFFSET;
         }
 
-        private void _mediaPlayer_Forward(object sender, EventArgs e)
+        public void _mediaPlayer_Forward(object sender, EventArgs e)
         {
             Debug.WriteLine("Forward");
             _state = MediaPlayStateEnum.MEDIA_FASTFWD;
-            _mediaPlayer.Time += OFFSET;
+            SetRate(2.0F);
         }
 
         private void _mediaPlayer_Paused(object sender, EventArgs e)
@@ -362,6 +388,12 @@ namespace MediaViewer
         private void _mediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
         {
             Debug.WriteLine("Time Changed: {0}", e.Time);
+
+            if ((trackIdx < 0) || (trackIdx >= _mediaList.Count))
+            {
+                return;
+            }
+
             double playSecs = (e.Time / 1000) % 60;
             double playMins = ((e.Time / 1000) / 60) % 60;
             double playHours = (((e.Time / 1000) / 60) / 60) % 60;

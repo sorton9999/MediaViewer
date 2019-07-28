@@ -45,6 +45,7 @@ namespace MediaViewer
             if (vm != null)
             {
                 PlayListViewModel pm = new PlayListViewModel();
+                pm.ArtistName = vm.Album.Artist.ArtistName;
                 pm.Song = vm.TitleName;
                 pm.Path = vm.FilePath;
                 pm.Length = vm.TitleLength;
@@ -81,6 +82,7 @@ namespace MediaViewer
                         if (tm != null)
                         {
                             playList.Add(tm.FilePath + "\\" + tm.FileName);
+                            pm.ArtistName = tm.Album.Artist.ArtistName;
                             pm.Song = tm.TitleName;
                             pm.Path = tm.FilePath;
                             pm.Length = tm.TitleLength;

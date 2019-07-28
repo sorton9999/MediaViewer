@@ -8,6 +8,7 @@ using System.Diagnostics;
 using DataAccessLib;
 using TagLib;
 using System.Collections.ObjectModel;
+using MediaViewer.Utilities;
 
 namespace MediaViewer
 {
@@ -114,6 +115,16 @@ namespace MediaViewer
         static ObservableCollection<PlayListViewModel> playListItems = new ObservableCollection<PlayListViewModel>();
 
         /// <summary>
+        /// Fastforward Button Single and Double Click Actions
+        /// </summary>
+        private readonly SingleMultiClickAction fFwdButtonMultiClick = null;
+
+        /// <summary>
+        /// Rewind Button Single and Double Click Actions
+        /// </summary>
+        private readonly SingleMultiClickAction rwdButtonMultiClick = null;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public MainWindow()
@@ -137,8 +148,9 @@ namespace MediaViewer
 
             playListItems.CollectionChanged += PlayListItems_CollectionChanged;
             playList.ItemsSource = playListItems;
-            //playListItems.Add(new PlayListViewModel { Song = "Tommy", Length = "4:25", Selected = true });
-            //playListItems.Add(new PlayListViewModel { Song = "Bad To The Bone", Length = "5:05", Selected = false });
+
+            fFwdButtonMultiClick = new SingleMultiClickAction(new Action(FFBtn_SingleClickAction), new Action(FFBtn_DoubleClickAction), this.Dispatcher);
+            rwdButtonMultiClick = new SingleMultiClickAction(new Action(RwdBtn_SingleClickAction), new Action(RwdBtn_DoubleClickAction), this.Dispatcher);
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
         }
@@ -153,6 +165,8 @@ namespace MediaViewer
                 }
             }
         }
+
+        #region Properties
 
         /// <summary>
         /// Property holding the flag to indicate when the media tree data has changed
@@ -187,6 +201,10 @@ namespace MediaViewer
             private set { mediaPlay = value; }
         }
 
+        #endregion
+
+        #region Tree Event Handlers
+
         /// <summary>
         /// Event handler called when an item has been selected on the media tree.  The handler is always
         /// called no matter which item has been selected, but only media song title items are considered
@@ -216,38 +234,6 @@ namespace MediaViewer
         {
             // Add the incoming error message to the error message list
             errorList.Add(message);
-        }
-
-        /// <summary>
-        /// The handler for button clicks on the "Find Media" button.  The backend
-        /// Music Media table is cleared as well as the error list.  The DB insert
-        /// thread is then created and started.
-        /// </summary>
-        /// <param name="sender">The control sending this event being handled</param>
-        /// <param name="e">The event arguments</param>
-        private void Media_Button_Click(object sender, RoutedEventArgs e)
-        {
-            // If nothing has changed, don't do anything
-            if (!DataChanged)
-            {
-                e.Handled = false;
-                return;
-            }
-            // Make media search progress bar visible and set progress to zero
-            if (workProgressBar.Visibility != System.Windows.Visibility.Visible)
-            {
-                workProgressBar.Visibility = System.Windows.Visibility.Visible;
-            }
-            workProgressBar.Value = 0.0;
-            // Create the DB insert thread
-            insertThread = new Thread(new ThreadStart(InsertThreadHandler));
-            // Clear out any old data
-            data.ClearTable();
-            this.errorList.Clear();
-            DataChanged = false;
-            // Start the insert thread
-            insertThread.Start();
-            e.Handled = true;
         }
 
         /// <summary>
@@ -380,6 +366,10 @@ namespace MediaViewer
             CheckAndInvoke(libraryTreeControl.libraryTreeUpdateAction);
         }
 
+        #endregion
+
+        #region Public Methods
+
         /// <summary>
         /// Find the song duration given the media tag file
         /// </summary>
@@ -411,6 +401,69 @@ namespace MediaViewer
         }
 
         /// <summary>
+        /// Sets the image on the volume button to match the
+        /// volume setting in the Volume Control.  The image
+        /// is dynamically changed as the volume slider in
+        /// the control is moved.
+        /// </summary>
+        public void SetVolumeControlImage()
+        {
+            mediaViewerViewModel.Volume = (int)volumeControl.Volume;
+            if (volumeControl.Mute)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/mute-white.png";
+                mediaViewerViewModel.Volume = 0;
+            }
+            else if (volumeControl.Volume <= 25)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_low-white.png";
+            }
+            else if (volumeControl.Volume > 25 && volumeControl.Volume < 60)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_med-white.png";
+            }
+            else
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_high-white.png";
+            }
+        }
+
+        public static void SetTrackItems(int trackIdx)
+        {
+            foreach (var item in playListItems.ToList().Select((e, i) => new { e , i}))
+            {
+                if (item.i != trackIdx)
+                {
+                    item.e.NowPlaying = false;
+                    item.e.Selected = false;
+                }
+                else
+                {
+                    item.e.NowPlaying = true;
+                    item.e.Selected = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Used to find if the process named 'processName' is listed in
+        /// the process table.  Its listing indicates whether or not it
+        /// is running at the time of the call.
+        /// </summary>
+        /// <param name="processName">The name of the process to check</param>
+        /// <returns></returns>
+        public static bool IsProcessRunning(string processName)
+        {
+            System.Diagnostics.Process[] processes =
+                System.Diagnostics.Process.GetProcessesByName(processName);
+            return (processes.Length > 0);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
         /// Advance the media search progress bar as work is being done
         /// </summary>
         private void AdvanceProgressBar()
@@ -426,20 +479,6 @@ namespace MediaViewer
         {
             workProgressBar.Value = workProgressBar.Maximum;
         }
-
-        /// <summary>
-        /// Ensure the given value is within the range Min - Max
-        /// </summary>
-        /// <param name="value">The incoming value</param>
-        /// <param name="step">The value to step the incoming value to</param>
-        /// <param name="min">The minimum the value should equal</param>
-        /// <param name="max">The maximum the value should equal</param>
-        /// <returns></returns>
-        double EnsureStepRange(double value, double step, double min, double max)
-        {
-            return Math.Min(Math.Max(value + step, min), max);
-        }
-
 
         /// <summary>
         /// As a separate operation, the user can add directories that will be searched for media files
@@ -470,43 +509,41 @@ namespace MediaViewer
             }
         }
 
+        #endregion
+
+        #region Control Event Handlers
+
         /// <summary>
-        /// Used to find if the process named 'processName' is listed in
-        /// the process table.  Its listing indicates whether or not it
-        /// is running at the time of the call.
+        /// The handler for button clicks on the "Find Media" button.  The backend
+        /// Music Media table is cleared as well as the error list.  The DB insert
+        /// thread is then created and started.
         /// </summary>
-        /// <param name="processName">The name of the process to check</param>
-        /// <returns></returns>
-        public static bool IsProcessRunning(string processName)
+        /// <param name="sender">The control sending this event being handled</param>
+        /// <param name="e">The event arguments</param>
+        private void Media_Button_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process[] processes =
-                System.Diagnostics.Process.GetProcessesByName(processName);
-            return (processes.Length > 0);
+            // If nothing has changed, don't do anything
+            if (!DataChanged)
+            {
+                e.Handled = false;
+                return;
+            }
+            // Make media search progress bar visible and set progress to zero
+            if (workProgressBar.Visibility != System.Windows.Visibility.Visible)
+            {
+                workProgressBar.Visibility = System.Windows.Visibility.Visible;
+            }
+            workProgressBar.Value = 0.0;
+            // Create the DB insert thread
+            insertThread = new Thread(new ThreadStart(InsertThreadHandler));
+            // Clear out any old data
+            data.ClearTable();
+            this.errorList.Clear();
+            DataChanged = false;
+            // Start the insert thread
+            insertThread.Start();
+            e.Handled = true;
         }
-
-        public void SetVolumeControlImage()
-        {
-            mediaViewerViewModel.Volume = (int)volumeControl.Volume;
-            if (volumeControl.Mute)
-            {
-                mediaViewerViewModel.ImageFile = "/Images/mute-white.png";
-                mediaViewerViewModel.Volume = 0;
-            }
-            else if (volumeControl.Volume <= 25)
-            {
-                mediaViewerViewModel.ImageFile = "/Images/volume_low-white.png";
-            }
-            else if (volumeControl.Volume > 25 && volumeControl.Volume < 60)
-            {
-                mediaViewerViewModel.ImageFile = "/Images/volume_med-white.png";
-            }
-            else
-            {
-                mediaViewerViewModel.ImageFile = "/Images/volume_high-white.png";
-            }
-        }
-
-
 
         /// <summary>
         /// The Exit button click event handler
@@ -599,9 +636,25 @@ namespace MediaViewer
             mediaPlay.Play(false);
         }
 
-        private void RewindBtn_Click(object sender, RoutedEventArgs e)
+        private void RwBtn_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            
+            rwdButtonMultiClick.Element_MouseLeftButtonDown(sender, e);
+        }
+
+        private void RwdBtn_SingleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay._mediaPlayer_Backward(rwBtn, new RoutedEventArgs());
+            }
+        }
+
+        private void RwdBtn_DoubleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay.PreviousTrack();
+            }
         }
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
@@ -610,11 +663,32 @@ namespace MediaViewer
             mediaPlay.Stop();
         }
 
+        private void FfBtn_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            fFwdButtonMultiClick.Element_MouseLeftButtonDown(sender, e);
+        }
+
         private void FastFwdBtn_Click(object sender, RoutedEventArgs e)
         {
             if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
             {
-                mediaPlay.SetRate(2.0F);
+                mediaPlay._mediaPlayer_Forward(sender, e);
+            }
+        }
+
+        private void FFBtn_DoubleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay.NextTrack();
+            }
+        }
+
+        private void FFBtn_SingleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay._mediaPlayer_Forward(ffBtn, new RoutedEventArgs());
             }
         }
 
@@ -636,5 +710,6 @@ namespace MediaViewer
             SetVolumeControlImage();
         }
 
+        #endregion
     }
 }
