@@ -13,41 +13,44 @@ namespace DataAccessLib
     public class DataAccess
     {
         /// <summary>
-        /// The connection string used to access the backend data
+        /// Connection string used to open the DB for dat access
         /// </summary>
-        String dbConnection;
+        String dbConnectionStr;
 
         /// <summary>
-        /// Default Constructor using a default connection string
+        /// Constructor -- 
+        /// Using a default connection string
         /// </summary>
         public DataAccess()
         {
-            dbConnection = "Data Source=MediaDB;Pooling=true;FailIfMissing=false";
+            dbConnectionStr = "Data Source=MediaDB;Pooling=true;FailIfMissing=false";
         }
 
         /// <summary>
-        /// A Constructor using the database name as the input string
+        /// Constructor --
+        /// Using the database name as a string.  This isn't a path to the file, but
+        /// only the name of the DB file.
         /// </summary>
-        /// <param name="inputFile">The database string</param>
-        public DataAccess(String inputFile)
+        /// <param name="dbFileName">The database string</param>
+        public DataAccess(String dbFileName)
         {
-            dbConnection = String.Format("Data Source={0};Pooling=true;FailIfMissing=false", inputFile);
+            dbConnectionStr = String.Format("Data Source={0};Pooling=true;FailIfMissing=false", dbFileName);
         }
 
         /// <summary>
-        /// A Constructor taking a key-value pairing of connection options used to access
-        /// the backend data.
+        /// Constructor --
+        /// With connection options used to access the backend data.
         /// </summary>
-        /// <param name="connectionOpts">A Key-Value string dictionary of connection options</param>
-        public DataAccess(Dictionary<String, String> connectionOpts)
+        /// <param name="options">A Key-Value string dictionary of connection options</param>
+        public DataAccess(Dictionary<String, String> options)
         {
             String str = String.Empty;
-            foreach (KeyValuePair<String, String> opt in connectionOpts)
+            foreach (KeyValuePair<String, String> opt in options)
             {
                 str += String.Format("{0}={1}; ", opt.Key, opt.Value);
             }
             str = str.Trim().Substring(0, str.Length - 1);
-            dbConnection = str;
+            dbConnectionStr = str;
         }
 
         /// <summary>
@@ -62,7 +65,7 @@ namespace DataAccessLib
             List<Boolean> retKeys = default(List<Boolean>);
             try
             {
-                using (SQLiteConnection cnn = new SQLiteConnection(dbConnection))
+                using (SQLiteConnection cnn = new SQLiteConnection(dbConnectionStr))
                 {
                     cnn.Open();
                     using (SQLiteCommand cmd = new SQLiteCommand(String.Format(@"PRAGMA table_info({0})", tableName), cnn))
@@ -90,22 +93,23 @@ namespace DataAccessLib
         }
 
         /// <summary>
-        /// Allows the programmer to run a query against the Database.
+        /// Perform a standard query against the Database with a well formed
+        /// SQL statement.  Returns data as a DataTable with rows and columns.
         /// </summary>
-        /// <param name="sql">The SQL to run</param>
-        /// <returns>A DataTable containing the result set.</returns>
-        public DataTable GetDataTable(string sql)
+        /// <param name="sql">The well formed SQL to run</param>
+        /// <returns>Results in the form of a DataTable</returns>
+        public DataTable ExecuteQuery(string sql)
         {
             DataTable dt = new DataTable();
             try
             {
-                SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-                cnn.Open();
-                SQLiteCommand mycommand = new SQLiteCommand(cnn);
-                mycommand.CommandText = sql;
-                SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(mycommand);
-                dataAdapter.Fill(dt);
-                cnn.Close();
+                SQLiteConnection conn = new SQLiteConnection(dbConnectionStr);
+                conn.Open();
+                SQLiteCommand cmd = new SQLiteCommand(conn);
+                cmd.CommandText = sql;
+                SQLiteDataAdapter data = new SQLiteDataAdapter(cmd);
+                data.Fill(dt);
+                conn.Close();
             }
             catch (Exception e)
             {
@@ -115,34 +119,35 @@ namespace DataAccessLib
         }
 
         /// <summary>
-        /// Allows the programmer to interact with the database for purposes other than a query.
+        /// Perform non-retrieval operations on the DB such as inserts, updates
+        /// and deletes.
         /// </summary>
-        /// <param name="sql">The SQL to be run.</param>
-        /// <returns>An Integer containing the number of rows updated.</returns>
-        public int ExecuteNonQuery(string sql)
+        /// <param name="sql">The well formed SQL to run</param>
+        /// <returns>The number of rows updated</returns>
+        public int Execute(string sql)
         {
-            SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-            cnn.Open();
-            SQLiteCommand mycommand = new SQLiteCommand(cnn);
-            mycommand.CommandText = sql;
-            int rowsUpdated = mycommand.ExecuteNonQuery();
-            cnn.Close();
-            return rowsUpdated;
+            SQLiteConnection conn = new SQLiteConnection(dbConnectionStr);
+            conn.Open();
+            SQLiteCommand cmd = new SQLiteCommand(conn);
+            cmd.CommandText = sql;
+            int numRows = cmd.ExecuteNonQuery();
+            conn.Close();
+            return numRows;
         }
 
         /// <summary>
-        /// Allows the programmer to retrieve single items from the DB.
+        /// Retrieve items from the DB using simple queries.
         /// </summary>
-        /// <param name="sql">The query to run.</param>
-        /// <returns>A string.</returns>
-        public string ExecuteScalar(string sql)
+        /// <param name="sql">The well formed SQL to run</param>
+        /// <returns>The result as a string</returns>
+        public string ExecuteSimpleQuery(string sql)
         {
-            SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-            cnn.Open();
-            SQLiteCommand mycommand = new SQLiteCommand(cnn);
-            mycommand.CommandText = sql;
-            object value = mycommand.ExecuteScalar();
-            cnn.Close();
+            SQLiteConnection conn = new SQLiteConnection(dbConnectionStr);
+            conn.Open();
+            SQLiteCommand cmd = new SQLiteCommand(conn);
+            cmd.CommandText = sql;
+            object value = cmd.ExecuteScalar();
+            conn.Close();
             if (value != null)
             {
                 return value.ToString();
@@ -161,7 +166,7 @@ namespace DataAccessLib
         public bool Update(String tableName, Dictionary<String, String> data, String where)
         {
             String vals = "";
-            Boolean returnCode = true;
+            Boolean retVal = true;
             if (data.Count >= 1)
             {
                 foreach (KeyValuePair<String, String> val in data)
@@ -174,18 +179,18 @@ namespace DataAccessLib
             {
                 if (!String.IsNullOrEmpty(where))
                 {
-                    this.ExecuteNonQuery(String.Format("update {0} set {1} where {2};", tableName, vals, where));
+                    this.Execute(String.Format("update {0} set {1} where {2};", tableName, vals, where));
                 }
                 else
                 {
-                    this.ExecuteNonQuery(String.Format("update {0} set {1};", tableName, vals, where));
+                    this.Execute(String.Format("update {0} set {1};", tableName, vals, where));
                 }
             }
             catch
             {
-                returnCode = false;
+                retVal = false;
             }
-            return returnCode;
+            return retVal;
         }
 
         /// <summary>
@@ -196,24 +201,24 @@ namespace DataAccessLib
         /// <returns>A boolean true or false to signify success or failure.</returns>
         public bool Delete(String tableName, String where)
         {
-            Boolean returnCode = true;
+            Boolean retVal = true;
             try
             {
                 if (!String.IsNullOrEmpty(where))
                 {
-                    this.ExecuteNonQuery(String.Format("delete from {0} where {1};", tableName, where));
+                    this.Execute(String.Format("delete from {0} where {1};", tableName, where));
                 }
                 else
                 {
-                    this.ExecuteNonQuery(String.Format("delete from {0};", tableName, where));
+                    this.Execute(String.Format("delete from {0};", tableName, where));
                 }
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.Message);
-                returnCode = false;
+                retVal = false;
             }
-            return returnCode;
+            return retVal;
         }
 
         /// <summary>
@@ -227,7 +232,7 @@ namespace DataAccessLib
         {
             String columns = "";
             String values = "";
-            Boolean returnCode = true;
+            Boolean retVal = true;
             errorString = String.Empty;
             foreach (KeyValuePair<String, String> val in data)
             {
@@ -238,15 +243,15 @@ namespace DataAccessLib
             values = values.Substring(0, values.Length - 1);
             try
             {
-                this.ExecuteNonQuery(String.Format("insert into {0}({1}) values({2});", tableName, columns, values));
+                this.Execute(String.Format("insert into {0}({1}) values({2});", tableName, columns, values));
             }
             catch (Exception e)
             {
                 //MessageBox.Show(e.Message);
                 errorString = e.Message;
-                returnCode = false;
+                retVal = false;
             }
-            return returnCode;
+            return retVal;
         }
 
         /// <summary>
@@ -267,14 +272,14 @@ namespace DataAccessLib
         /// <summary>
         /// Allows the user to easily clear all data from a specific table.
         /// </summary>
-        /// <param name="table">The name of the table to clear.</param>
-        /// <returns>A boolean true or false to signify success or failure.</returns>
+        /// <param name="table">The name of the table to clear</param>
+        /// <returns>A boolean true or false to signify success or failure</returns>
         public bool ClearTable(String table)
         {
             try
             {
 
-                this.ExecuteNonQuery(String.Format("delete from {0};", table));
+                this.Execute(String.Format("delete from {0};", table));
                 return true;
             }
             catch

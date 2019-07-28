@@ -61,16 +61,16 @@
     <Compile Include="DataModel\Artist.cs" />
     <Compile Include="DataModel\DataStore.cs" />
     <Compile Include="DataModel\Title.cs" />
-    <Compile Include="IResultSet.cs" />
-    <Compile Include="MediaFileDao.cs" />
-    <Compile Include="MediaViewConfigDao.cs" />
-    <Compile Include="MediaViewConfigResultSet.cs" />
-    <Compile Include="MusicMediaResultSet.cs" />
+    <Compile Include="ResultSets\IResultSet.cs" />
+    <Compile Include="DataAccessObjects\MediaFileDao.cs" />
+    <Compile Include="DataAccessObjects\MediaViewConfigDao.cs" />
+    <Compile Include="ResultSets\MediaViewConfigResultSet.cs" />
+    <Compile Include="ResultSets\MusicMediaResultSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResultSetAdapter.cs" />
-    <Compile Include="ResultSetDao.cs" />
-    <Compile Include="SearchPathDao.cs" />
-    <Compile Include="SearchPathResultSet.cs" />
+    <Compile Include="ResultSets\ResultSetAdapter.cs" />
+    <Compile Include="DataAccessObjects\ResultSetDao.cs" />
+    <Compile Include="DataAccessObjects\SearchPathDao.cs" />
+    <Compile Include="ResultSets\SearchPathResultSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
