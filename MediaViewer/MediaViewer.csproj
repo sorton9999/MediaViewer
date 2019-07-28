@@ -87,54 +87,54 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ConfigItemsModel.cs" />
-    <Compile Include="ConfigItemsViewModel.cs" />
-    <Compile Include="ConfigView.xaml.cs">
+    <Compile Include="WindowModels\ConfigItemsModel.cs" />
+    <Compile Include="WindowViewModels\ConfigItemsViewModel.cs" />
+    <Compile Include="WindowViews\ConfigView.xaml.cs">
       <DependentUpon>ConfigView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ErrorListView.xaml.cs">
+    <Compile Include="WindowViews\ErrorListView.xaml.cs">
       <DependentUpon>ErrorListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LibraryListView.xaml.cs">
+    <Compile Include="WindowViews\LibraryListView.xaml.cs">
       <DependentUpon>LibraryListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LibraryTreeControl.xaml.cs">
+    <Compile Include="Controls\LibraryTreeControl.xaml.cs">
       <DependentUpon>LibraryTreeControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MediaPlayProcess.cs" />
-    <Compile Include="MediaPlayProducerConsumer.cs" />
-    <Compile Include="MediaPlayWorker.cs" />
-    <Compile Include="MediaViewerViewModel.cs" />
-    <Compile Include="Model.cs" />
-    <Compile Include="PlayListViewModel.cs" />
-    <Compile Include="ProducerConsumerWorker.cs" />
+    <Compile Include="MediaPlay\MediaPlayProcess.cs" />
+    <Compile Include="MediaPlay\MediaPlayProducerConsumer.cs" />
+    <Compile Include="MediaPlay\MediaPlayWorker.cs" />
+    <Compile Include="WindowViewModels\MediaViewerViewModel.cs" />
+    <Compile Include="WindowModels\Model.cs" />
+    <Compile Include="WindowViewModels\PlayListViewModel.cs" />
+    <Compile Include="Utilities\ProducerConsumerWorker.cs" />
     <Compile Include="TreeViewModel\AlbumViewModel.cs" />
     <Compile Include="TreeViewModel\ArtistViewModel.cs" />
     <Compile Include="TreeViewModel\LibraryViewModel.cs" />
     <Compile Include="TreeViewModel\TitleViewModel.cs" />
     <Compile Include="TreeViewModel\TreeViewItemViewModel.cs" />
-    <Compile Include="UserControl1.xaml.cs">
+    <Compile Include="Controls\UserControl1.xaml.cs">
       <DependentUpon>UserControl1.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\SingleMultiClickAction.cs" />
-    <Compile Include="ViewModel.cs" />
-    <Compile Include="ViewModelBase.cs" />
-    <Compile Include="VolumeControl.xaml.cs">
+    <Compile Include="WindowModels\ViewModel.cs" />
+    <Compile Include="WindowModels\ViewModelBase.cs" />
+    <Compile Include="Controls\VolumeControl.xaml.cs">
       <DependentUpon>VolumeControl.xaml</DependentUpon>
     </Compile>
-    <Page Include="ConfigView.xaml">
+    <Page Include="WindowViews\ConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ErrorListView.xaml">
+    <Page Include="WindowViews\ErrorListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LibraryListView.xaml">
+    <Page Include="WindowViews\LibraryListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LibraryTreeControl.xaml">
+    <Page Include="Controls\LibraryTreeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -150,11 +150,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="UserControl1.xaml">
+    <Page Include="Controls\UserControl1.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="VolumeControl.xaml">
+    <Page Include="Controls\VolumeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
