@@ -1,63 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
-
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MediaViewer
 {
     /// <summary>
-    /// A threading class that follows the Producer/Consumer pattern.  The producer
-    /// creates threads and pass items to the consumer handler to be acted upon
-    /// when each thread's handler is called.  This class also follows the
+    /// A class that provides the asynchronous Play method.  This class also follows the
     /// Singleton pattern.
     /// </summary>
-    public class MediaPlayProducerConsumer : ProducerConsumerWorker
+    public class MediaPlayWorker
     {
         /// <summary>
-        /// A static reference to the object of this class
+        /// The static instance
         /// </summary>
-        private static MediaPlayProducerConsumer _instance;
+        private static MediaPlayWorker _instance = null;
 
         /// <summary>
-        /// The public accessor to the static instance
+        /// A static play process object that provides media play capabilities.  We're using
+        /// this to load the files to play.
         /// </summary>
-        /// <returns>The static reference</returns>
-        public static MediaPlayProducerConsumer Instance()
-        {
-            return _instance ?? ( _instance = new MediaPlayProducerConsumer() );
-        }
+        private static MediaPlayProcess _playProcess = null;
 
         /// <summary>
-        /// Constructor -- A work handler is set up as well as a state based
-        /// on whether or not the media player is already running.
+        /// The EnqueueOnce flag to indicate which argument to give the player
+        /// when starting the player for the first time vs. calling again when the
+        /// player is already started and you want to just add the song to the
+        /// play list.
         /// </summary>
-        protected MediaPlayProducerConsumer()
+        private bool EnqueueOnce = false;
+
+        /// <summary>
+        /// Constructor
+        /// Set the EnqueueOnce flag depending on if the player is already
+        /// started or not.
+        /// </summary>
+        protected MediaPlayWorker()
         {
-            WorkLength = 0;
-            workEvent += MediaPlayProducerConsumer_workEvent;
             EnqueueOnce = MainWindow.IsProcessRunning("vlc");
         }
 
         /// <summary>
-        /// The work handler each thread calls to do work.  The work is to
-        /// play the media file passed in as the work item.
+        /// The static instance caller for the Singleton
         /// </summary>
-        /// <param name="workItem">The passed item to do work on</param>
-        void MediaPlayProducerConsumer_workEvent(object workItem)
+        /// <returns></returns>
+        public static MediaPlayWorker Instance()
         {
-            // Grab the media file
-            string file = workItem as string;
-            if (file != null)
-            {
-                // Start playing the media file
-                GetPlayProcess(file).Start();
-            }
+            return (_instance ?? (_instance = new MediaPlayWorker()));
+        }
+
+        /// <summary>
+        /// The static public accessor for the play process object
+        /// </summary>
+        public static MediaPlayProcess PlayProcess
+        {
+            get { return _playProcess; }
+            private set { _playProcess = value; }
+        }
+
+        /// <summary>
+        /// Take the given process type and start it.
+        /// </summary>
+        /// <param name="proc"></param>
+        private void StartProcess(Process proc)
+        {
+            //proc.Start();
         }
 
         /// <summary>
@@ -88,6 +98,19 @@ namespace MediaViewer
             return process;
         }
 
+        private static string GetPlayTitle(string title)
+        {
+            return title;
+        }
+
+        private void AddTitle(string title)
+        {
+            if (_playProcess != null)
+            {
+                _playProcess.AddTrack(title);
+            }
+        }
+
         /// <summary>
         /// Encode the given file to make it useable by the media player
         /// </summary>
@@ -109,23 +132,29 @@ namespace MediaViewer
         }
 
         /// <summary>
-        /// A static method used to play the given list of files.
+        /// A static asynchronous method used to play the given list of files.
         /// </summary>
         /// <param name="filesToPlay">The list of files to play</param>
-        public static void PlayFile(List<string> filesToPlay)
+        public static async Task PlayFileAsync(List<string> filesToPlay, MediaPlayProcess playProcess)
         {
+            _playProcess = playProcess;
+            //List<Task<Process>> tasks = new List<Task<Process>>();
+            List<Task<string>> tasks = new List<Task<string>>();
+
             foreach (var file in filesToPlay)
             {
-                int id = MediaPlayProducerConsumer.Instance().WorkLength + 1;
-                MediaPlayProducerConsumer.Instance().Produce
-                    (
-                        new WorkItem
-                            (
-                                id, file
-                            )
-                    );
+                //tasks.Add(Task.Run(() => Instance().GetPlayProcess(file)));
+                tasks.Add(Task.Run(() => GetPlayTitle(file)));
             }
-            MediaPlayProducerConsumer.Instance().Wait();
+
+            var results = await Task.WhenAll(tasks);
+
+            foreach (var item in results)
+            {
+                //Instance().StartProcess(item);
+                Instance().AddTitle(item);
+            }
         }
+
     }
 }

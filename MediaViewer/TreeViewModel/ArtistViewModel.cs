@@ -44,7 +44,7 @@ namespace MediaViewer.TreeViewModel
         /// </summary>
         protected override void LoadChildren()
         {
-            foreach (Album album in DataStore.GetAlbums(_artist))
+            foreach (var album in DataStore.GetAlbums(_artist).OrderBy(a => a.AlbumName))
             {
                 // The parent is the root of the tree which holds
                 // the artists.

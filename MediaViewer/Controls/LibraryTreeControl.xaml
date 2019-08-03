@@ -25,7 +25,7 @@
                     ItemsSource="{Binding Children}"
                     >
                     <StackPanel Orientation="Horizontal">
-                        <Image Width="16" Height="16" Margin="3,0" Source="Images\Region.png" />
+                        <Image Width="16" Height="16" Margin="3,0" Source="..\Images\Region.png" />
                         <TextBlock Text="{Binding ArtistName}" />
                     </StackPanel>
                 </HierarchicalDataTemplate>
@@ -35,7 +35,7 @@
                     ItemsSource="{Binding Children}"
                     >
                     <StackPanel Orientation="Horizontal">
-                        <Image Width="16" Height="16" Margin="3,0" Source="Images\State.png" />
+                        <Image Width="16" Height="16" Margin="3,0" Source="..\Images\State.png" />
                         <TextBlock Text="{Binding AlbumName}">
                             <TextBlock.ContextMenu>
                                 <ContextMenu>

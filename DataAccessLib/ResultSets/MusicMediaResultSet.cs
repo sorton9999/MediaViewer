@@ -21,6 +21,7 @@ namespace DataAccessLib
         public string Artist { get; set; }
         public string Album { get; set; }
         public string FilePathID { get; set; }
+        public string SongLength { get; set; }
         #endregion
 
         #region Table Name
@@ -44,6 +45,7 @@ namespace DataAccessLib
             Artist = String.Empty;
             Album = String.Empty;
             FilePathID = String.Empty;
+            SongLength = String.Empty;
 
             TableName = "MusicMediaTable";
         }
@@ -61,6 +63,7 @@ namespace DataAccessLib
             Artist = rsIn.Artist;
             Album = rsIn.Album;
             FilePathID = rsIn.FilePathID;
+            SongLength = rsIn.SongLength;
 
             TableName = "MusicMediaTable";
         }
@@ -75,7 +78,7 @@ namespace DataAccessLib
         /// <param name="artist">Table column Artist value</param>
         /// <param name="album">Table column Album value</param>
         /// <param name="filePathId">Table column FilePathID value</param>
-        public MusicMediaResultSet(string id, string filePath, string fileName, string title, string artist, string album, string filePathId)
+        public MusicMediaResultSet(string id, string filePath, string fileName, string title, string artist, string album, string filePathId, string songLength)
         {
             this.ID = id;
             this.FilePath = filePath;
@@ -84,6 +87,7 @@ namespace DataAccessLib
             this.Artist = artist;
             this.Album = album;
             this.FilePathID = filePathId;
+            this.SongLength = songLength;
 
             TableName = "MusicMediaTable";
         }

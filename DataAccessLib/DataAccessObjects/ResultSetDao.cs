@@ -96,7 +96,7 @@ namespace DataAccessLib
             // Get the contents of the table, convert each
             // DataRow to a resultset, then add to the
             // list.
-            using (DataTable dt = DB.GetDataTable(sql))
+            using (DataTable dt = DB.ExecuteQuery(sql))
             {
                 foreach (DataRow row in dt.Rows)
                 {

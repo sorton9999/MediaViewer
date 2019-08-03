@@ -29,6 +29,7 @@ namespace MediaViewer
         public string Year { get; set; }
         public string Comment { get; set; }
         public string Genre { get; set; }
+        public string Length { get; set; }
         public BitmapImage AlbumArt { get; set; }
     }
 }

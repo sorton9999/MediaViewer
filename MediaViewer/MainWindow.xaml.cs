@@ -4,8 +4,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Threading;
+using System.Diagnostics;
 using DataAccessLib;
-
+using TagLib;
+using System.Collections.ObjectModel;
+using MediaViewer.Utilities;
 
 namespace MediaViewer
 {
@@ -26,8 +29,14 @@ namespace MediaViewer
                             "*.m4a",
                             "*.mp3",
                             "*.ogg",
-                            "*.wav"
+                            "*.wav",
+                            "*.wma"
                         };
+
+        /// <summary>
+        /// The view model for the main application
+        /// </summary>
+        private MediaViewerViewModel mediaViewerViewModel = new MediaViewerViewModel();
 
         /// <summary>
         /// The database result set from the MusicMediaTable table.
@@ -80,8 +89,40 @@ namespace MediaViewer
         /// </summary>
         private double progressBarValue = 0.0;
 
+        /// <summary>
+        /// Mutex Lock
+        /// </summary>
         private Object syncLock = new object();
 
+        /// <summary>
+        /// Play media with this object
+        /// </summary>
+        static MediaPlayProcess mediaPlay = null;
+
+        /// <summary>
+        /// The media is currently playing
+        /// </summary>
+        bool isPlaying = false;
+
+        /// <summary>
+        /// The volume control visibility flag
+        /// </summary>
+        bool isVolumeControlVisible = false;
+
+        /// <summary>
+        /// Running list of songs in the Play List
+        /// </summary>
+        static ObservableCollection<PlayListViewModel> playListItems = new ObservableCollection<PlayListViewModel>();
+
+        /// <summary>
+        /// Fastforward Button Single and Double Click Actions
+        /// </summary>
+        private readonly SingleMultiClickAction fFwdButtonMultiClick = null;
+
+        /// <summary>
+        /// Rewind Button Single and Double Click Actions
+        /// </summary>
+        private readonly SingleMultiClickAction rwdButtonMultiClick = null;
 
         /// <summary>
         /// Constructor
@@ -90,7 +131,7 @@ namespace MediaViewer
         {
             InitializeComponent();
             // Register for the database data operation error events
-            data.InsertErrorEvent += data_InsertErrorEventHandler;
+            data.InsertErrorEvent += Data_InsertErrorEventHandler;
             // Register for the item tree control selected item event
             TreeViewModel.TreeViewItemViewModel.OnItemSelected += TreeViewItemViewModel_OnItemSelected;
             // Set the item source for the DB operation error window to the error string list
@@ -100,8 +141,32 @@ namespace MediaViewer
             // Set the Max value from ProgressBar Maximum value
             progressBarMax = workProgressBar.Maximum;
 
+            volumeImage.DataContext = mediaViewerViewModel;
+            mediaPlay = new MediaPlayProcess(this);
+            volumeControl.Volume = 25;
+            SetVolumeControlImage();
+
+            playListItems.CollectionChanged += PlayListItems_CollectionChanged;
+            playList.ItemsSource = playListItems;
+
+            fFwdButtonMultiClick = new SingleMultiClickAction(new Action(FFBtn_SingleClickAction), new Action(FFBtn_DoubleClickAction), this.Dispatcher);
+            rwdButtonMultiClick = new SingleMultiClickAction(new Action(RwdBtn_SingleClickAction), new Action(RwdBtn_DoubleClickAction), this.Dispatcher);
+
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
         }
+
+        private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems.Count > 0)
+            {
+                foreach (PlayListViewModel item in e.NewItems)
+                {
+                    //mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
+                }
+            }
+        }
+
+        #region Properties
 
         /// <summary>
         /// Property holding the flag to indicate when the media tree data has changed
@@ -122,6 +187,25 @@ namespace MediaViewer
         }
 
         /// <summary>
+        /// The list of songs to play
+        /// </summary>
+        public static ObservableCollection<PlayListViewModel> PlayListItems
+        {
+            get { return playListItems; }
+            set { playListItems = value; }
+        }
+
+        public static MediaPlayProcess PlayProcess
+        {
+            get { return mediaPlay; }
+            private set { mediaPlay = value; }
+        }
+
+        #endregion
+
+        #region Tree Event Handlers
+
+        /// <summary>
         /// Event handler called when an item has been selected on the media tree.  The handler is always
         /// called no matter which item has been selected, but only media song title items are considered
         /// for operations in this handler.
@@ -136,7 +220,7 @@ namespace MediaViewer
                 TreeViewModel.TitleViewModel title = item as TreeViewModel.TitleViewModel;
                 if (title != null)
                 {
-                    // Load the view model for the detaile control using the path and file name
+                    // Load the view model for the details control using the path and file name
                     mediaDetailsControl.LoadViewModel(title.FilePath + "\\" + title.FileName);
                 }
             }
@@ -146,11 +230,288 @@ namespace MediaViewer
         /// The handler for the database operation error events
         /// </summary>
         /// <param name="message">The error message</param>
-        void data_InsertErrorEventHandler(string message)
+        void Data_InsertErrorEventHandler(string message)
         {
             // Add the incoming error message to the error message list
             errorList.Add(message);
         }
+
+        /// <summary>
+        /// Does the work for the database inserts.  This is the most labor intensive operation and will
+        /// cycle through all the file types, get all files of that type and then insert the required
+        /// information into the backend database.  If any insert errors happen, they are inserted into
+        /// the error viewer.
+        /// </summary>
+        private void InsertThreadHandler()
+        {
+            // Get the directories where this operation should look for media.  The directories are set by
+            // the user.
+            List<SearchPathResultSet> dirList = GetMediaPathList();
+
+            // Keep a running count of files processed
+            int runningFileCount = 0;
+
+            // The total files counted in first pass
+            int maxFileCount = 0;
+
+            // We make two passes, the first is to count the total files to process
+            bool firstPass = true;
+
+            // Did we start inserting songs
+            bool insertStarted = false;
+
+            // Is the insert operation finished
+            bool done = false;
+
+            do
+            {
+                // Cycle through all the user set directories
+                foreach (var dir in dirList)
+                {
+                    System.Diagnostics.Debug.WriteLine("{0} DIR \'{1}\'", (firstPass ? "COUNTING" : "PROCESSING"), dir.DirPath);
+                    // Cycle through each file type defined in the filerList class var.
+                    foreach (var filterType in filterList)
+                    {
+                        System.Diagnostics.Debug.WriteLine("{0} File Type: {1}", (firstPass ? "COUNTING" : "PROCESSING"), filterType);
+                        // Obtain the directory info for the current directory
+                        System.IO.DirectoryInfo fileDirInfo = new System.IO.DirectoryInfo(dir.DirPath);
+                        if (fileDirInfo != null)
+                        {
+                            // Let's get all the files together into a list
+                            List<System.IO.FileInfo> fileList = fileDirInfo.EnumerateFiles(filterType, System.IO.SearchOption.AllDirectories).ToList();
+
+                            // Filter out the desired files in the directory and iterate through each one
+                            foreach (var file in fileList)
+                            {
+                                if (!firstPass)
+                                {
+                                    insertStarted = true;
+                                    // Grab the directory path and file name to grab the embedded data in the media file.
+                                    // This uses the open source C# taglib library.
+                                    string dirStr = file.DirectoryName;
+                                    TagLib.File mediaInfo = null;
+                                    try
+                                    {
+                                        mediaInfo = TagLib.File.Create(dirStr + "\\" + file);
+                                    }
+                                    catch (TagLib.UnsupportedFormatException ex)
+                                    {
+                                        Console.WriteLine("[[[EXCEPTION]]] -- Unsupported File: " + ex.Message);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine("[Non-specific Exception]: " + e.Message);
+                                    }
+                                    // If we get the media data object, grab the info then insert it into
+                                    // the database.
+                                    if (mediaInfo != null)
+                                    {
+                                        // File location info
+                                        rs.FilePath = dirStr;
+                                        rs.FileName = file.Name;
+                                        // Media file info.  This is a small subset of the total available
+                                        rs.Artist = mediaInfo.Tag.FirstPerformer;
+                                        rs.Title = mediaInfo.Tag.Title;
+                                        rs.Album = mediaInfo.Tag.Album;
+                                        rs.SongLength = ComputeSongLength(mediaInfo);
+                                        // Database table foreign key
+                                        rs.FilePathID = dir.ID;
+
+                                        // Insert the data for the media file.  If we get a failure, there should be an error
+                                        // from the failed operation.  Start the error viewer so we can attempt to find the
+                                        // cause.
+                                        if (!data.InsertResultSet(rs))
+                                        {
+                                            CheckAndInvoke(new Action(MakeErrorViewVisible));
+                                        }
+                                    }
+
+                                    ++runningFileCount;
+
+                                    // Advance progress bar a bit after processing this file
+                                    progressBarStep = (runningFileCount % (maxFileCount / 100) == 0) ? 1 : 0;
+                                    CheckAndInvoke(new Action(AdvanceProgressBar));
+                                }
+                                else
+                                {
+                                    ++maxFileCount;
+                                    if ((maxFileCount %  10) == 0)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Found {0} Files to Insert", maxFileCount);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+                // First pass is done here.  Set to FALSE to start inserting songs
+                if (firstPass)
+                {
+                    firstPass = false;
+                    System.Diagnostics.Debug.WriteLine("FOUND {0} TOTAL FILES TO INSERT", maxFileCount);
+                }
+
+                done = ((firstPass == false) && (insertStarted == true));
+
+            } while (!done);
+
+            // Advance progress bar to max if needed
+            CheckAndInvoke(new Action(ProgressBarStop));
+
+            // A small notification the work has finished
+            MessageBox.Show("Media Import Is Complete");
+
+            // Reload the tree once all work has finished and the above dialog has been acknowledged.
+            CheckAndInvoke(libraryTreeControl.libraryTreeUpdateAction);
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Find the song duration given the media tag file
+        /// </summary>
+        /// <param name="mediaInfo">Media Tag File</param>
+        /// <returns>The string representing the duration</returns>
+        public static string ComputeSongLength(File mediaInfo)
+        {
+            TimeSpan length = mediaInfo.Properties.Duration;
+            long lengthSec = (long)(length.TotalSeconds % 60);
+            long lengthMin = (long)length.TotalMinutes;
+
+            return (lengthMin.ToString() + ":" + lengthSec.ToString("00"));
+        }
+
+        /// <summary>
+        /// A thread safe means to calling the given action
+        /// </summary>
+        /// <param name="action">The action to invoke</param>
+        public void CheckAndInvoke(Action action)
+        {
+            if (!this.Dispatcher.CheckAccess())
+            {
+                this.Dispatcher.Invoke(action);
+            }
+            else
+            {
+                action.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Sets the image on the volume button to match the
+        /// volume setting in the Volume Control.  The image
+        /// is dynamically changed as the volume slider in
+        /// the control is moved.
+        /// </summary>
+        public void SetVolumeControlImage()
+        {
+            mediaViewerViewModel.Volume = (int)volumeControl.Volume;
+            if (volumeControl.Mute)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/mute-white.png";
+                mediaViewerViewModel.Volume = 0;
+            }
+            else if (volumeControl.Volume <= 25)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_low-white.png";
+            }
+            else if (volumeControl.Volume > 25 && volumeControl.Volume < 60)
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_med-white.png";
+            }
+            else
+            {
+                mediaViewerViewModel.ImageFile = "/Images/volume_high-white.png";
+            }
+        }
+
+        public static void SetTrackItems(int trackIdx)
+        {
+            foreach (var item in playListItems.ToList().Select((e, i) => new { e , i}))
+            {
+                if (item.i != trackIdx)
+                {
+                    item.e.NowPlaying = false;
+                    item.e.Selected = false;
+                }
+                else
+                {
+                    item.e.NowPlaying = true;
+                    item.e.Selected = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Used to find if the process named 'processName' is listed in
+        /// the process table.  Its listing indicates whether or not it
+        /// is running at the time of the call.
+        /// </summary>
+        /// <param name="processName">The name of the process to check</param>
+        /// <returns></returns>
+        public static bool IsProcessRunning(string processName)
+        {
+            System.Diagnostics.Process[] processes =
+                System.Diagnostics.Process.GetProcessesByName(processName);
+            return (processes.Length > 0);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Advance the media search progress bar as work is being done
+        /// </summary>
+        private void AdvanceProgressBar()
+        {
+            workProgressBar.Value += progressBarStep;
+            progressBarValue = workProgressBar.Value;
+        }
+
+        /// <summary>
+        /// Advance the progress bar to its maximum value to indicate completion
+        /// </summary>
+        private void ProgressBarStop()
+        {
+            workProgressBar.Value = workProgressBar.Maximum;
+        }
+
+        /// <summary>
+        /// As a separate operation, the user can add directories that will be searched for media files
+        /// to be added to the media tree control.  This list of resultsets is returned to the caller.
+        /// </summary>
+        /// <returns>The list of resultsets</returns>
+        private List<SearchPathResultSet> GetMediaPathList()
+        {
+            SearchPathResultSet rs = new SearchPathResultSet();
+            SearchPathDao<SearchPathResultSet> data = new SearchPathDao<SearchPathResultSet>(rs, rs.TableName);
+            return data.GetAllResults();
+        }
+
+        /// <summary>
+        /// Sets the visibility flag of the error view window to make it visible.  Also resets the error list
+        /// to update the errors displayed in the window.
+        /// </summary>
+        private void MakeErrorViewVisible()
+        {
+            if (errorView.Visibility != System.Windows.Visibility.Visible)
+            {
+                errorView.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                errorView.ErrorList.ItemsSource = null;
+                errorView.ErrorList.ItemsSource = errorList;
+            }
+        }
+
+        #endregion
+
+        #region Control Event Handlers
 
         /// <summary>
         /// The handler for button clicks on the "Find Media" button.  The backend
@@ -182,186 +543,6 @@ namespace MediaViewer
             // Start the insert thread
             insertThread.Start();
             e.Handled = true;
-        }
-
-        /// <summary>
-        /// Does the work for the database inserts.  This is the most labor intensive operation and will
-        /// cycle through all the file types, get all files of that type and then insert the required
-        /// information into the backend database.  If any insert errors happen, they are inserted into
-        /// the error viewer.
-        /// </summary>
-        private void InsertThreadHandler()
-        {
-            // Get the directories where this operation should look for media.  The directories are set by
-            // the user.
-            List<SearchPathResultSet> dirList = GetMediaPathList();
-
-            // Cycle through all the user set directories
-            foreach (var dir in dirList)
-            {
-                // Cycle through each file type defined in the filerList class var.
-                foreach (var filterType in filterList)
-                {
-                    // Obtain the directory info for the current directory
-                    System.IO.DirectoryInfo fileDirInfo = new System.IO.DirectoryInfo(dir.DirPath);
-                    if (fileDirInfo != null)
-                    {
-                        List<System.IO.FileInfo> fileList = fileDirInfo.EnumerateFiles(filterType, System.IO.SearchOption.AllDirectories).ToList();
-                        int val = fileList.Count();
-                        //progressBarStep = (progressBarMax - progressBarValue) / ((filterList.Count + val) / dirList.Count);
-                        progressBarStep = (progressBarMax - progressBarValue) / val;
-
-                        // Filter out the desired files in the directory and iterate through each one
-                        foreach (var file in fileList)
-                        {
-                            // Grab the directory path and file name to grab the imbedded data in the media file.
-                            // This uses the open source C# taglib library.
-                            string dirStr = file.DirectoryName;
-                            TagLib.File mediaInfo = null;
-                            try
-                            {
-                                mediaInfo = TagLib.File.Create(dirStr + "\\" + file);
-                            }
-                            catch (TagLib.UnsupportedFormatException ex)
-                            {
-                                Console.WriteLine("[[[EXCEPTION]]] -- Unsupported File: " + ex.Message);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine("[Non-specific Exception]: " + e.Message);
-                            }
-                            // If we get the media data object, grab the info then insert it into
-                            // the database.
-                            if (mediaInfo != null)
-                            {
-                                // File location info
-                                rs.FilePath = dirStr;
-                                rs.FileName = file.Name;
-                                // Media file info.  This is a small subset of the total available
-                                rs.Artist = mediaInfo.Tag.FirstPerformer;
-                                rs.Title = mediaInfo.Tag.Title;
-                                rs.Album = mediaInfo.Tag.Album;
-                                // Database table foreign key
-                                rs.FilePathID = dir.ID;
-
-                                // Insert the data for the media file.  If we get a failure, there should be an error
-                                // from the failed operation.  Start the error viewer so we can attempt to find the
-                                // cause.
-                                if (!data.InsertResultSet(rs))
-                                {
-                                    CheckAndInvoke(new Action(MakeErrorViewVisible));
-                                }
-                            }
-
-                            // Advance progress bar a bit after processing this file
-                            CheckAndInvoke(new Action(AdvanceProgressBar));
-                        }
-
-                    }
-                    progressBarStep = (progressBarMax / dirList.Count) / filterList.Count;
-                    CheckAndInvoke(new Action(AdvanceProgressBar));
-                }
-                progressBarStep = progressBarMax / dirList.Count;
-                CheckAndInvoke(new Action(AdvanceProgressBar));
-            }
-            // Advance progress bar to max if needed
-            CheckAndInvoke(new Action(ProgressBarStop));
-
-            // A small notification the work has finished
-            MessageBox.Show("Media Import Is Complete");
-
-            // Reload the tree once all work has finished and the above dialog has been acknowledged.
-            CheckAndInvoke(libraryTreeControl.libraryTreeUpdateAction);
-        }
-
-        /// <summary>
-        /// A thread safe means to calling the given action
-        /// </summary>
-        /// <param name="action">The action to invoke</param>
-        public void CheckAndInvoke(Action action)
-        {
-            if (!this.Dispatcher.CheckAccess())
-            {
-                this.Dispatcher.Invoke(action);
-            }
-            else
-            {
-                action.Invoke();
-            }
-        }
-
-        /// <summary>
-        /// Advance the media search progress bar as work is being done
-        /// </summary>
-        private void AdvanceProgressBar()
-        {
-            workProgressBar.Value += progressBarStep;
-            progressBarValue = workProgressBar.Value;
-        }
-
-        /// <summary>
-        /// Advance the progress bar to its maximum value to indicate completion
-        /// </summary>
-        private void ProgressBarStop()
-        {
-            workProgressBar.Value = workProgressBar.Maximum;
-        }
-
-        /// <summary>
-        /// Ensure the given value is within the range Min - Max
-        /// </summary>
-        /// <param name="value">The incoming value</param>
-        /// <param name="step">The value to step the incoming value to</param>
-        /// <param name="min">The minimum the value should equal</param>
-        /// <param name="max">The maximum the value should equal</param>
-        /// <returns></returns>
-        double EnsureStepRange(double value, double step, double min, double max)
-        {
-            return Math.Min(Math.Max(value + step, min), max);
-        }
-
-
-        /// <summary>
-        /// As a separate operation, the user can add directories that will be searched for media files
-        /// to be added to the media tree control.  This list of resultsets is returned to the caller.
-        /// </summary>
-        /// <returns>The list of resultsets</returns>
-        private List<SearchPathResultSet> GetMediaPathList()
-        {
-            SearchPathResultSet rs = new SearchPathResultSet();
-            SearchPathDao<SearchPathResultSet> data = new SearchPathDao<SearchPathResultSet>(rs, rs.TableName);
-            return data.GetAllResults();
-        }
-
-        /// <summary>
-        /// Sets the visibility flag of the error view window to make it visible.  Also resets the error list
-        /// to update the errors displayed in the window.
-        /// </summary>
-        private void MakeErrorViewVisible()
-        {
-            if (errorView.Visibility != System.Windows.Visibility.Visible)
-            {
-                errorView.Visibility = System.Windows.Visibility.Visible;
-            }
-            else
-            {
-                errorView.ErrorList.ItemsSource = null;
-                errorView.ErrorList.ItemsSource = errorList;
-            }
-        }
-
-        /// <summary>
-        /// Used to find if the process named 'processName' is listed in
-        /// the process table.  Its listing indicates whether or not it
-        /// is running at the time of the call.
-        /// </summary>
-        /// <param name="processName">The name of the process to check</param>
-        /// <returns></returns>
-        public static bool IsProcessRunning(string processName)
-        {
-            System.Diagnostics.Process[] processes =
-                System.Diagnostics.Process.GetProcessesByName(processName);
-            return (processes.Length > 0);
         }
 
         /// <summary>
@@ -414,7 +595,121 @@ namespace MediaViewer
             errorView.Close();
             configView.Close();
             if (libView != null)
+            {
                 libView.Close();
+            }
+            if (mediaPlay != null)
+            {
+                mediaPlay.Dispose();
+            }
         }
+
+        private void PlayBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaPlay == null)
+            {
+                List<string> items = new List<string>();
+                foreach (var title in playListItems)
+                {
+                    items.Add(title.Path + "\\" + title.Song + ".flac");
+                }
+                mediaPlay = new MediaPlayProcess(this, items);
+            }
+            Debug.WriteLine("Track Count: {0}", mediaPlay.TrackCount());
+            if (!mediaPlay.IsFastForward() && !mediaPlay.IsRewind())
+            {
+                isPlaying = !isPlaying;
+            }
+            if (playList.SelectedIndex > -1)
+            {
+                mediaPlay.Play(isPlaying, playList.SelectedIndex);
+            }
+            else
+            {
+                mediaPlay.Play(isPlaying);
+            }
+        }
+
+        private void PauseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            isPlaying = false;
+            mediaPlay.Play(false);
+        }
+
+        private void RwBtn_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            rwdButtonMultiClick.Element_MouseLeftButtonDown(sender, e);
+        }
+
+        private void RwdBtn_SingleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay._mediaPlayer_Backward(rwBtn, new RoutedEventArgs());
+            }
+        }
+
+        private void RwdBtn_DoubleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay.PreviousTrack();
+            }
+        }
+
+        private void StopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            isPlaying = false;
+            mediaPlay.Stop();
+        }
+
+        private void FfBtn_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            fFwdButtonMultiClick.Element_MouseLeftButtonDown(sender, e);
+        }
+
+        private void FastFwdBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay._mediaPlayer_Forward(sender, e);
+            }
+        }
+
+        private void FFBtn_DoubleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay.NextTrack();
+            }
+        }
+
+        private void FFBtn_SingleClickAction()
+        {
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                mediaPlay._mediaPlayer_Forward(ffBtn, new RoutedEventArgs());
+            }
+        }
+
+        private void MediaDetailsControl_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void VolumeButton_Click(object sender, RoutedEventArgs e)
+        {
+            volumeControl.Visibility = ((isVolumeControlVisible = !isVolumeControlVisible) ? Visibility.Visible : Visibility.Collapsed);
+        }
+
+        private void VolumeControl_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            IntPtr data = new IntPtr();
+            //System.Diagnostics.Debug.WriteLine("Volume Changed {0}", volumeControl.Volume);
+            mediaPlay.MediaPlayer_ChangeVolume(data, (float)volumeControl.Volume / 50, volumeControl.Mute);
+            SetVolumeControlImage();
+        }
+
+        #endregion
     }
 }

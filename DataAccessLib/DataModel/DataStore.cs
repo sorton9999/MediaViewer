@@ -48,7 +48,7 @@ namespace DataAccessLib.DataModel
             try
             {
                 String escapedArtist = dataAccess.EscapeString(artist.ArtistName);
-                using (DataTable albums = dataAccess.GetDataTable(@"SELECT DISTINCT Album FROM MusicMediaTable WHERE Artist ='" +
+                using (DataTable albums = dataAccess.ExecuteQuery(@"SELECT DISTINCT Album FROM MusicMediaTable WHERE Artist ='" +
                         escapedArtist + "'"))
                 {
                     // Go through each row of the Album table to create a list of Album names.  We add these to a
@@ -82,7 +82,7 @@ namespace DataAccessLib.DataModel
             // grab the Artists stored in the DB.
             try
             {
-                using (DataTable artists = dataAccess.GetDataTable(@"SELECT DISTINCT Artist FROM MusicMediaTable ASC"))
+                using (DataTable artists = dataAccess.ExecuteQuery(@"SELECT DISTINCT Artist FROM MusicMediaTable ASC"))
                 {
                     // Go through each row of the Artist table to create a list of Artist names.  We add these to a
                     // List object.
@@ -104,7 +104,7 @@ namespace DataAccessLib.DataModel
         /// </summary>
         /// <param name="album">The Album object that will be used to look up song titles in the DB</param>
         /// <returns></returns>
-        public static Title[] GetTitles(Album album)
+        public static Title[] GetTitles(Album album, String artistName)
         {
             // clear out what's there already
             if (titleStore != null && titleStore.Count > 0)
@@ -117,14 +117,15 @@ namespace DataAccessLib.DataModel
             try
             {
                 String escapedAlbum = dataAccess.EscapeString(album.AlbumName);
-                using (DataTable titles = dataAccess.GetDataTable(@"SELECT FilePath, FileName, Title FROM MusicMediaTable WHERE Album ='" +
-                        escapedAlbum + "'"))
+                String escapedArtist = dataAccess.EscapeString(artistName);
+                using (DataTable titles = dataAccess.ExecuteQuery(@"SELECT FilePath, FileName, Title, SongLength FROM MusicMediaTable WHERE Album ='" +
+                        escapedAlbum + "' AND Artist='" + escapedArtist + "'"))
                 {
                     // Go through each row of the Titles table to create a list of Title names.  We add these to a
                     // List object.
                     foreach (DataRow title in titles.Rows)
                     {
-                        titleStore.Add(new Title((string)title.ItemArray[2], (string)title.ItemArray[0], (string)title.ItemArray[1]));
+                        titleStore.Add(new Title((string)title.ItemArray[2], (string)title.ItemArray[3], (string)title.ItemArray[0], (string)title.ItemArray[1]));
                     }
                 }
             }

@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -28,17 +30,41 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\bin\MediaViewer\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DataAccessLib">
       <HintPath>..\DataAccessLib\bin\Debug\DataAccessLib.dll</HintPath>
     </Reference>
+    <Reference Include="LibVLCSharp, Version=3.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LibVLCSharp.3.0.3\lib\net40\LibVLCSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="LibVLCSharp.WinForms, Version=3.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LibVLCSharp.WinForms.3.0.3\lib\net40\LibVLCSharp.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop, Version=1.0.168.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -50,7 +76,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="taglib-sharp">
-      <HintPath>..\..\taglib-sharp-master\src\obj\Debug\taglib-sharp.dll</HintPath>
+      <HintPath>bin\Release\taglib-sharp.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -61,47 +87,52 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ConfigItemsModel.cs" />
-    <Compile Include="ConfigItemsViewModel.cs" />
-    <Compile Include="ConfigView.xaml.cs">
+    <Compile Include="WindowModels\ConfigItemsModel.cs" />
+    <Compile Include="WindowViewModels\ConfigItemsViewModel.cs" />
+    <Compile Include="WindowViews\ConfigView.xaml.cs">
       <DependentUpon>ConfigView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ErrorListView.xaml.cs">
+    <Compile Include="WindowViews\ErrorListView.xaml.cs">
       <DependentUpon>ErrorListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LibraryListView.xaml.cs">
+    <Compile Include="WindowViews\LibraryListView.xaml.cs">
       <DependentUpon>LibraryListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LibraryTreeControl.xaml.cs">
+    <Compile Include="Controls\LibraryTreeControl.xaml.cs">
       <DependentUpon>LibraryTreeControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MediaPlayProcess.cs" />
-    <Compile Include="MediaPlayProducerConsumer.cs" />
-    <Compile Include="Model.cs" />
-    <Compile Include="ProducerConsumerWorker.cs" />
+    <Compile Include="MediaPlay\MediaPlayProcess.cs" />
+    <Compile Include="MediaPlay\MediaPlayWorker.cs" />
+    <Compile Include="WindowViewModels\MediaViewerViewModel.cs" />
+    <Compile Include="WindowModels\Model.cs" />
+    <Compile Include="WindowViewModels\PlayListViewModel.cs" />
     <Compile Include="TreeViewModel\AlbumViewModel.cs" />
     <Compile Include="TreeViewModel\ArtistViewModel.cs" />
     <Compile Include="TreeViewModel\LibraryViewModel.cs" />
     <Compile Include="TreeViewModel\TitleViewModel.cs" />
     <Compile Include="TreeViewModel\TreeViewItemViewModel.cs" />
-    <Compile Include="UserControl1.xaml.cs">
+    <Compile Include="Controls\UserControl1.xaml.cs">
       <DependentUpon>UserControl1.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel.cs" />
-    <Compile Include="ViewModelBase.cs" />
-    <Page Include="ConfigView.xaml">
+    <Compile Include="Utilities\SingleMultiClickAction.cs" />
+    <Compile Include="WindowModels\ViewModel.cs" />
+    <Compile Include="WindowModels\ViewModelBase.cs" />
+    <Compile Include="Controls\VolumeControl.xaml.cs">
+      <DependentUpon>VolumeControl.xaml</DependentUpon>
+    </Compile>
+    <Page Include="WindowViews\ConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ErrorListView.xaml">
+    <Page Include="WindowViews\ErrorListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LibraryListView.xaml">
+    <Page Include="WindowViews\LibraryListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LibraryTreeControl.xaml">
+    <Page Include="Controls\LibraryTreeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -117,7 +148,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="UserControl1.xaml">
+    <Page Include="Controls\UserControl1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VolumeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -140,6 +175,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -164,7 +200,70 @@
   <ItemGroup>
     <Resource Include="Images\mp3Thumb.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\aacThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\apeThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\m4aThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\oggThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wavThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wmaThumb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\play_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pause_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\fastforward_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\rewind_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\stop_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\mute-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\SpeakerIcon-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\volume_high-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\volume_low-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\volume_med-white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\volume_none.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets" Condition="Exists('..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
+  </Target>
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

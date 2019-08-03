@@ -13,7 +13,6 @@ namespace MediaViewer
     public class ViewModel : ViewModelBase
     {
         Model fileModel = new Model();
-
         public string FileName
         {
             get { return fileModel.FullFilePath; }
@@ -99,6 +98,19 @@ namespace MediaViewer
             }
         }
 
+        public string Length
+        {
+            get { return fileModel.Length; }
+            set
+            {
+                if (fileModel.Length != value)
+                {
+                    fileModel.Length = value;
+                    NotifyPropertyChanged("Length");
+                }
+            }
+        }
+
         public BitmapImage AlbumArt
         {
             get { return fileModel.AlbumArt; }
@@ -137,6 +149,7 @@ namespace MediaViewer
                 Year = file.Tag.Year.ToString();
                 Comment = file.Tag.Comment;
                 Genre = file.Tag.FirstGenre;
+                Length = MainWindow.ComputeSongLength(file);
                 AlbumArt = GetArt(file.Tag.Pictures);
             }
         }
@@ -164,5 +177,6 @@ namespace MediaViewer
 
             return image;
         }
+
     }
 }
