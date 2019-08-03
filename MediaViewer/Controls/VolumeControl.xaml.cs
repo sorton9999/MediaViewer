@@ -84,9 +84,26 @@ namespace MediaViewer
         }
         #endregion
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void MuteButton_Click(object sender, RoutedEventArgs e)
         {
             Mute = !Mute;
+        }
+
+        private void OuterBorder_MouseMove(object sender, MouseEventArgs e)
+        {
+            Point pos = e.GetPosition(this);
+            // This diff is because there's a skew in the height of the control vs mouse position.
+            // The height is announced as 44, but the mouse position is registered differently.
+            double diffY = 9.0D;
+            if (((pos.X < this.Width) && (pos.X > 0)) &&
+                ((pos.Y < (this.Height - diffY)) && (pos.Y > (0 + diffY))))
+            {
+                outerBorder.Background = new SolidColorBrush(SystemColors.MenuHighlightColor);
+            }
+            else
+            {
+                outerBorder.Background = new SolidColorBrush(Colors.Gray);
+            }
         }
     }
 }
