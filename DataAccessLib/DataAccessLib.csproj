@@ -57,10 +57,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccess.cs" />
+    <Compile Include="DataAccessObjects\DBVersionDao.cs" />
     <Compile Include="DataModel\Album.cs" />
     <Compile Include="DataModel\Artist.cs" />
     <Compile Include="DataModel\DataStore.cs" />
+    <Compile Include="DataModel\DBVersion.cs" />
     <Compile Include="DataModel\Title.cs" />
+    <Compile Include="ResultSets\DBVersionResultSet.cs" />
     <Compile Include="ResultSets\IResultSet.cs" />
     <Compile Include="DataAccessObjects\MediaFileDao.cs" />
     <Compile Include="DataAccessObjects\MediaViewConfigDao.cs" />
@@ -74,7 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="MediaDB" />
+    <None Include="MediaDB">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
