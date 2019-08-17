@@ -141,6 +141,14 @@ namespace MediaViewer
             // Set the Max value from ProgressBar Maximum value
             progressBarMax = workProgressBar.Maximum;
 
+            if (!CheckDbVersion())
+            {
+                if (MessageBox.Show("DB Version is incorrect.  Cannot Continue.", "MediaViewer - DataBase Error", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Exit_Button_Click(this, new RoutedEventArgs());
+                }
+            }
+
             volumeImage.DataContext = mediaViewerViewModel;
             mediaPlay = new MediaPlayProcess(this);
             volumeControl.Volume = 25;
@@ -153,6 +161,7 @@ namespace MediaViewer
             rwdButtonMultiClick = new SingleMultiClickAction(new Action(RwdBtn_SingleClickAction), new Action(RwdBtn_DoubleClickAction), this.Dispatcher);
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
+
         }
 
         private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -507,6 +516,16 @@ namespace MediaViewer
                 errorView.ErrorList.ItemsSource = null;
                 errorView.ErrorList.ItemsSource = errorList;
             }
+        }
+
+        private bool CheckDbVersion()
+        {
+            bool retVal = false;
+
+            uint dbVersion = (CurrentDBVersion.CurrentMajorVersion | CurrentDBVersion.CurrentMinorVersion | CurrentDBVersion.CurrentPointVersion);
+            retVal = DBVersionUtility.IsDbVersion(dbVersion);
+
+            return retVal;
         }
 
         #endregion

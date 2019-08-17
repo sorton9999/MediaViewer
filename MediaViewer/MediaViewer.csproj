@@ -87,6 +87,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CurrentDBVersion.cs" />
+    <Compile Include="Utilities\DBVersionUtility.cs" />
     <Compile Include="WindowModels\ConfigItemsModel.cs" />
     <Compile Include="WindowViewModels\ConfigItemsViewModel.cs" />
     <Compile Include="WindowViews\ConfigView.xaml.cs">
