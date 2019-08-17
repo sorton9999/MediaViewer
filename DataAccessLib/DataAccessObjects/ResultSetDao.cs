@@ -96,7 +96,33 @@ namespace DataAccessLib
             // Get the contents of the table, convert each
             // DataRow to a resultset, then add to the
             // list.
-            using (DataTable dt = DB.GetDataTable(sql))
+            using (DataTable dt = DB.ExecuteQuery(sql))
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    T temp = GetResultSetFromDataRow(row);
+                    list.Add(temp);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Return all rows in the table assigned to the table name adding a well formed
+        /// WHERE clause.  The contents are returned as a List of resultsets of type T.
+        /// </summary>
+        /// <param name="where">A well formed SQL WHERE clause</param>
+        /// <returns>The list of resultsets satisfying the SQL statement</returns>
+        public List<T> GetAllResultsWhere(string where)
+        {
+            // A new empty list
+            List<T> list = new List<T>();
+            // A simple select all SQL string plus the input WHERE clause
+            string sql = @"SELECT * FROM " + TableName + where;
+            // Get the contents of the table, convert each
+            // DataRow to a resultset, then add to the
+            // list.
+            using (DataTable dt = DB.ExecuteQuery(sql))
             {
                 foreach (DataRow row in dt.Rows)
                 {

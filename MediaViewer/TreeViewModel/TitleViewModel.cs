@@ -21,6 +21,13 @@ namespace MediaViewer.TreeViewModel
         readonly Title _title;
 
         /// <summary>
+        /// The album name the title is a child of
+        /// </summary>
+        readonly string _albumName;
+
+        readonly AlbumViewModel _album;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="title">The title data to store</param>
@@ -30,6 +37,8 @@ namespace MediaViewer.TreeViewModel
             : base(parentAlbum, true)
         {
             _title = title;
+            _album = parentAlbum;
+            _albumName = parentAlbum.AlbumName;
             this.ImageSourceName = imageName;
         }
 
@@ -39,6 +48,27 @@ namespace MediaViewer.TreeViewModel
         public string TitleName
         {
             get { return _title.TitleName; }
+        }
+
+        public AlbumViewModel Album
+        {
+            get { return _album; }
+        }
+
+        /// <summary>
+        /// The public Album Name property
+        /// </summary>
+        public string AlbumName
+        {
+            get { return _albumName; }
+        }
+
+        /// <summary>
+        /// Public song length property
+        /// </summary>
+        public string TitleLength
+        {
+            get { return _title.TitleLength; }
         }
 
         /// <summary>

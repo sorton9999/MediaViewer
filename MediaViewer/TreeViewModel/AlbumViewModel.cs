@@ -54,6 +54,14 @@ namespace MediaViewer.TreeViewModel
         }
 
         /// <summary>
+        /// Public ArtistViewModel property
+        /// </summary>
+        public ArtistViewModel Artist
+        {
+            get { return _artist; }
+        }
+
+        /// <summary>
         /// The child load method.  This is part of the lazy loading
         /// mechanism.
         /// </summary>
@@ -82,31 +90,31 @@ namespace MediaViewer.TreeViewModel
                 switch (strArray[(strArray.Length-1)])
                 {
                     case "mp3":
-                        imageName = "Images\\mp3Thumb.png";
+                        imageName = "..\\Images\\mp3Thumb.png";
                         break;
                     case "flac":
-                        imageName = "Images\\flacThumb.png";
+                        imageName = "..\\Images\\flacThumb.png";
                         break;
                     case "wma":
-                        imageName = "Images\\wmaThumb.png";
+                        imageName = "..\\Images\\wmaThumb.png";
                         break;
                     case "aac":
-                        imageName = "Images\\aacThumb.png";
+                        imageName = "..\\Images\\aacThumb.png";
                         break;
                     case "ogg":
-                        imageName = "Images\\oggThumb.png";
+                        imageName = "..\\Images\\oggThumb.png";
                         break;
                     case "m4a":
-                        imageName = "Images\\m4aThumb.png";
+                        imageName = "..\\Images\\m4aThumb.png";
                         break;
                     case "wav":
-                        imageName = "Images\\wavThumb.png";
+                        imageName = "..\\Images\\wavThumb.png";
                         break;
                     case "ape":
-                        imageName = "Images\\apeThumb.png";
+                        imageName = "..\\Images\\apeThumb.png";
                         break;
                     default:
-                        imageName = "Images\\City.png";
+                        imageName = "..\\Images\\City.png";
                         break;
                 }
             }

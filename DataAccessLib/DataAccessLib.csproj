@@ -24,29 +24,29 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\bin\MediaViewer\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\..\..\..\src\lib\x86\System.Data.SQLite.dll</HintPath>
+      <HintPath>bin\Release\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite.EF6">
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.99.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
+      <HintPath>bin\Release\System.Data.SQLite.EF6.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite.Linq">
-      <HintPath>..\..\..\..\..\src\lib\x86\System.Data.SQLite.Linq.dll</HintPath>
+      <HintPath>bin\Release\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -57,20 +57,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccess.cs" />
+    <Compile Include="DataAccessObjects\DBVersionDao.cs" />
     <Compile Include="DataModel\Album.cs" />
     <Compile Include="DataModel\Artist.cs" />
     <Compile Include="DataModel\DataStore.cs" />
+    <Compile Include="DataModel\DBVersion.cs" />
     <Compile Include="DataModel\Title.cs" />
-    <Compile Include="IResultSet.cs" />
-    <Compile Include="MediaFileDao.cs" />
-    <Compile Include="MediaViewConfigDao.cs" />
-    <Compile Include="MediaViewConfigResultSet.cs" />
-    <Compile Include="MusicMediaResultSet.cs" />
+    <Compile Include="ResultSets\DBVersionResultSet.cs" />
+    <Compile Include="ResultSets\IResultSet.cs" />
+    <Compile Include="DataAccessObjects\MediaFileDao.cs" />
+    <Compile Include="DataAccessObjects\MediaViewConfigDao.cs" />
+    <Compile Include="ResultSets\MediaViewConfigResultSet.cs" />
+    <Compile Include="ResultSets\MusicMediaResultSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResultSetAdapter.cs" />
-    <Compile Include="ResultSetDao.cs" />
-    <Compile Include="SearchPathDao.cs" />
-    <Compile Include="SearchPathResultSet.cs" />
+    <Compile Include="ResultSets\ResultSetAdapter.cs" />
+    <Compile Include="DataAccessObjects\ResultSetDao.cs" />
+    <Compile Include="DataAccessObjects\SearchPathDao.cs" />
+    <Compile Include="ResultSets\SearchPathResultSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
