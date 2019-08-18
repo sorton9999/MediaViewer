@@ -325,9 +325,27 @@
                         <local:LibraryTreeControl x:Name="libraryTreeControl"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Play List" Style="{StaticResource TabItemStyle}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TabItem Header="Play List" Style="{StaticResource TabItemStyle}"
+                         VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
+                         HorizontalAlignment="Left"
+                         VerticalAlignment="Top"
+                         >
                     <Grid Background="CornflowerBlue">
-                        <ListView x:Name="playList" Height="400" Margin="1,1,1,1" Width="300" SelectionMode="Single" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Visible">
+                        <ListView x:Name="playList" Height="400" Margin="1,1,1,1" Width="300"
+                                  SelectionMode="Single"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                  MouseDown="ListView_MouseDown"
+                                  >
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
                             <ListView.View>
                                 <GridView ColumnHeaderContainerStyle="{StaticResource GridViewColumnHeaderStyle1}">
                                     <GridViewColumn Header="Song" Width="200" DisplayMemberBinding="{Binding Song}"/>
@@ -337,7 +355,7 @@
                             </ListView.View>
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}">
-                                   <Style.Triggers>
+                                    <Style.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
                                             <Setter Property="Background" Value="AliceBlue"/>
                                             <Setter Property="FontStyle" Value="Italic"/>

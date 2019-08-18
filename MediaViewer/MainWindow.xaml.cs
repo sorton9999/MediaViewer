@@ -9,6 +9,7 @@ using DataAccessLib;
 using TagLib;
 using System.Collections.ObjectModel;
 using MediaViewer.Utilities;
+using System.Windows.Input;
 
 namespace MediaViewer
 {
@@ -162,17 +163,6 @@ namespace MediaViewer
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
 
-        }
-
-        private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.NewItems.Count > 0)
-            {
-                foreach (PlayListViewModel item in e.NewItems)
-                {
-                    //mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
-                }
-            }
         }
 
         #region Properties
@@ -608,6 +598,11 @@ namespace MediaViewer
             configView.Show();
         }
 
+        /// <summary>
+        /// Window closing event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Exiting = true;
@@ -622,6 +617,62 @@ namespace MediaViewer
                 mediaPlay.Dispose();
             }
         }
+
+        /// <summary>
+        /// When items are added or removed from the PlayListItem itemsource they get
+        /// processed here.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // Added items
+            if (e.NewItems != null && e.NewItems.Count > 0)
+            {
+                foreach (PlayListViewModel item in e.NewItems)
+                {
+                    //mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
+                }
+            }
+            // Removed items
+            if (e.OldItems != null && e.OldItems.Count > 0)
+            {
+                foreach (PlayListViewModel item in e.OldItems)
+                {
+                    mediaPlay.InvokeRemover(e.OldStartingIndex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// PlayList listview right-click delete menuitem event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MenuItemDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (playList.SelectedIndex == -1)
+            {
+                return;
+            }
+            if (!PlayListItems[playList.SelectedIndex].NowPlaying)
+            {
+                playListItems.RemoveAt(playList.SelectedIndex);
+            }
+        }
+
+        /// <summary>
+        /// PlayList listview mouse down event handler.  This will unselect
+        /// all the items if a click is registered outside of the list area.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListView_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            playList.UnselectAll();
+        }
+
+        #region Media Play Event Handlers
 
         private void PlayBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -681,6 +732,8 @@ namespace MediaViewer
             isPlaying = false;
             mediaPlay.Stop();
         }
+
+        #endregion
 
         private void FfBtn_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {

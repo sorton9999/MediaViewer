@@ -17,6 +17,7 @@ namespace MediaViewer
         };
 
         public delegate bool Adder(string file);
+        public delegate bool Remover(int idx);
         public delegate void AdvancePlayLabel(string e);
         public delegate void MediaAction(object sender, EventArgs e);
         public event MediaAction PlayEvent;
@@ -144,6 +145,23 @@ namespace MediaViewer
             return retVal;
         }
 
+        public bool RemoveTrack(int idx)
+        {
+            bool retVal = false;
+            try
+            {
+                if (_mediaList[idx].State != VLCState.Playing)
+                {
+                    retVal = _mediaList.RemoveIndex(idx);
+                }
+            }
+            catch (Exception)
+            {
+                retVal = false;
+            }
+            return retVal;
+        }
+
         public bool RemoveTrack(string mediaPath)
         {
             bool retVal = false;
@@ -235,6 +253,17 @@ namespace MediaViewer
             {
                 ret = (result.AsyncState as Adder).EndInvoke(result);
             }), adder);
+            return (res.IsCompleted && ret);
+        }
+
+        public bool InvokeRemover(int idx)
+        {
+            Remover rem = new Remover(RemoveTrack);
+            bool ret = false;
+            var res = rem.BeginInvoke(idx, new AsyncCallback(result =>
+            {
+                ret = (result.AsyncState as Remover).EndInvoke(result);
+            }), rem);
             return (res.IsCompleted && ret);
         }
 
