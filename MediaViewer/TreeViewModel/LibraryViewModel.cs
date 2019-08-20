@@ -32,6 +32,7 @@ namespace MediaViewer.TreeViewModel
             _artists = new ReadOnlyCollection<ArtistViewModel>(
                 (from artist in artists
                  select new ArtistViewModel(artist))
+                 .Where(s => !String.IsNullOrEmpty(s.ArtistName))
                  .OrderBy(s => s.ArtistName)
                  .ToList());     
         }
