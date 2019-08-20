@@ -3,6 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:MediaViewer" x:Class="MediaViewer.MainWindow"
         Title="Media Viewer" Height="450" Width="950" MinHeight="450" MinWidth="950" Closing="Window_Closing">
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Color="MediumPurple" Offset="0"/>
+                <GradientStop Color="CornflowerBlue" Offset="1"/>
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+    </Window.Background>
     <Grid>
         <Grid.Resources>
             <local:MediaViewerViewModel x:Key="MediaViewerData" />
@@ -11,9 +19,12 @@
             <BitmapImage x:Key="LowVolumeImage" UriSource="Images\volume_low-white.png" />
             <BitmapImage x:Key="MedVolumeImage" UriSource="Images\volume_med-white.png" />
             <BitmapImage x:Key="HighVolumeImage" UriSource="Images\volume_high-white.png" />
+            <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFBA96EE" Opacity="1"/>
+            <SolidColorBrush x:Key="LightBackgroundBrush" Color="#FFBA96EE" Opacity="1"/>
+            <SolidColorBrush x:Key="DarkBackgroundBrush" Color="MediumPurple" Opacity="1"/>
             <local:TestValueConverter x:Key="testValueConverter" />
             <Style x:Key="TabControlStyle" TargetType="{x:Type TabControl}">
-                <Setter Property="Background" Value="#FFFFFFFF"/>
+                <Setter Property="Background" Value="{StaticResource LightBackgroundBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="Padding" Value="5"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -52,7 +63,7 @@
 
                                     </TabPanel>
                                 </Border>
-                                <Border Grid.Row="1" x:Name="ContentPanel" MinHeight="10" MinWidth="10" Background="#FFFFFFFF" BorderBrush="#FF979AA2" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1">
+                                <Border Grid.Row="1" x:Name="ContentPanel" MinHeight="10" MinWidth="10" Background="{StaticResource DarkBackgroundBrush}" BorderBrush="#FF979AA2" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1">
                                     <ContentPresenter Margin="4" x:Name="PART_SelectedContentHost" ContentSource="SelectedContent"/>
                                 </Border>
                                 <Border x:Name="DisabledVisualTop" Grid.Row="1" Grid.RowSpan="2" Background="#8CFFFFFF" CornerRadius="1" Panel.ZIndex="1" IsHitTestVisible="False" Opacity="0"/>
@@ -159,7 +170,7 @@
 
                                 <Grid x:Name="TemplateTopSelected" Margin="-2,0,-2,0" Panel.ZIndex="0" Opacity="0">
                                     <Grid>
-                                        <Border x:Name="BackgroundTop" Background="#FFFFFFFF" BorderBrush="#FF979AA2" BorderThickness="1,1,1,0" />
+                                        <Border x:Name="BackgroundTop" Background="{StaticResource DarkBackgroundBrush}" BorderBrush="#FF979AA2" BorderThickness="1,1,1,0" />
                                     </Grid>
                                     <Border x:Name="DisabledVisualTopSelected" Background="#8CFFFFFF" IsHitTestVisible="false" Visibility="Collapsed" />
                                 </Grid>
@@ -167,24 +178,25 @@
                                     <Grid>
                                         <Border x:Name="TopUnselected_Background" BorderBrush="#FF94979F" BorderThickness="1,1,1,0">
                                             <Border.Background>
+                                                <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+                                                    <LinearGradientBrush.GradientStops>
+                                                        <GradientStop Color="#FFBA96EE" Offset="0"/>
+                                                        <GradientStop Color="CornflowerBlue" Offset="1"/>
+                                                    </LinearGradientBrush.GradientStops>
+                                                </LinearGradientBrush>
+                                                <!--
                                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                                    <!--
-                                                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
-                                                    <GradientStop Color="#FFF3F3F3" Offset="0.152"/>
-                                                    <GradientStop Color="#FFF3F3F3" Offset="0.456"/>
-                                                    <GradientStop Color="#FFEBEBEB" Offset="0.465"/>
-                                                    <GradientStop Color="#FFD6D6D5" Offset="1"/>
-                                                    -->
                                                     <GradientStop Color="#FFFFFFFF" Offset="0"/>
                                                     <GradientStop Color="#FFB9F3F3" Offset="0.152"/>
                                                     <GradientStop Color="#FFB9F3F3" Offset="0.456"/>
                                                     <GradientStop Color="#FFAEF3F3" Offset="0.465"/>
                                                     <GradientStop Color="#FF9EF1F1" Offset="1"/>
                                                 </LinearGradientBrush>
+                                                -->
                                             </Border.Background>
                                         </Border>
-                                        <Border x:Name="TopUnselectedOver" Background="Goldenrod" BorderBrush="DarkGray" BorderThickness="1,1,1,0" Opacity="0"/>
-                                        <Border x:Name="TopUnselected_Highlight" Margin="1" BorderBrush="#FFFFFFFF" BorderThickness="1,1,1,0"/>
+                                        <Border x:Name="TopUnselectedOver" Background="{StaticResource DarkBackgroundBrush}" BorderBrush="Purple" BorderThickness="2,1,2,1" Opacity="0"/>
+                                        <Border x:Name="TopUnselected_Highlight" Margin="1" BorderBrush="{StaticResource DarkBackgroundBrush}" BorderThickness="1,1,1,0"/>
                                     </Grid>
                                     <Border x:Name="DisabledVisualTopUnSelected" Background="#8CFFFFFF" IsHitTestVisible="false" Visibility="Collapsed"/>
                                 </Grid>
@@ -314,7 +326,12 @@
                         <Setter Property="Padding" Value="3" />
                     </Style>
                 </TabControl.Resources>
-                <TabItem Header="Song Tree" Style="{StaticResource TabItemStyle}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TabItem Header="Song Tree" Style="{StaticResource TabItemStyle}"
+                         HorizontalContentAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         HorizontalAlignment="Left"
+                         VerticalAlignment="Top"
+                         >
                     <Grid Background="CornflowerBlue">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -322,7 +339,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <local:LibraryTreeControl x:Name="libraryTreeControl"/>
+                        <local:LibraryTreeControl x:Name="libraryTreeControl" Background="{StaticResource ButtonBackgroundBrush}"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Play List" Style="{StaticResource TabItemStyle}"
@@ -340,6 +357,7 @@
                                   VerticalAlignment="Top"
                                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                   MouseDown="ListView_MouseDown"
+                                  Background="{StaticResource ButtonBackgroundBrush}"
                                   >
                             <ListView.ContextMenu>
                                 <ContextMenu>
@@ -361,12 +379,12 @@
                                             <Setter Property="FontStyle" Value="Italic"/>
                                         </Trigger>
                                         <DataTrigger Binding="{Binding NowPlaying}" Value="True">
-                                            <Setter Property="Background" Value="LightGray"/>
+                                            <Setter Property="Background" Value="MediumPurple"/>
                                             <Setter Property="Foreground" Value="DarkBlue"/>
                                             <Setter Property="FontWeight" Value="Bold"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding NowPlaying}" Value="False">
-                                            <Setter Property="Background" Value="White"/>
+                                            <Setter Property="Background" Value="{StaticResource LightBackgroundBrush}"/>
                                             <Setter Property="Foreground" Value="Black"/>
                                             <Setter Property="FontWeight" Value="Regular"/>
                                         </DataTrigger>
@@ -380,39 +398,39 @@
         </Grid>
         <Grid HorizontalAlignment="Left" Height="124" Margin="10,295,0,0" VerticalAlignment="Bottom" Width="509">
             <local:VolumeControl x:Name="volumeControl" HorizontalAlignment="Left" Height="44" Margin="409,10,0,0" VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.5,0.49" PropertyChanged="VolumeControl_PropertyChanged" Visibility="Collapsed" />
-            <Button x:Name="rwBtn" HorizontalAlignment="Left" Margin="81,10,0,0" VerticalAlignment="Top" Width="45" Height="45" PreviewMouseLeftButtonDown="RwBtn_PreviewMouseLeftButtonDown">
+            <Button x:Name="rwBtn" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="81,10,0,0" VerticalAlignment="Top" Width="45" Height="45" PreviewMouseLeftButtonDown="RwBtn_PreviewMouseLeftButtonDown">
                 <StackPanel>
                     <Image Source="Images\rewind_button.png"/>
                 </StackPanel>
             </Button>
-            <Button x:Name="playBtn" HorizontalAlignment="Left" Margin="148,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="PlayBtn_Click">
+            <Button x:Name="playBtn" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="148,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="PlayBtn_Click">
                 <StackPanel>
                     <Image Source="Images\play_button.png"/>
                 </StackPanel>
             </Button>
-            <Button x:Name="pauseBtn" HorizontalAlignment="Left" Margin="217,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="PauseBtn_Click" RenderTransformOrigin="2.2,0.6">
+            <Button x:Name="pauseBtn" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="217,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="PauseBtn_Click" RenderTransformOrigin="2.2,0.6">
                 <StackPanel>
                     <Image Source="Images\pause_button.png"/>
                 </StackPanel>
             </Button>
-            <Button x:Name="stopBtn" HorizontalAlignment="Left" Margin="284,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="StopBtn_Click">
+            <Button x:Name="stopBtn" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="284,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="StopBtn_Click">
                 <StackPanel>
                     <Image Source="Images\stop_button.png"/>
                 </StackPanel>
             </Button>
-            <Button x:Name="ffBtn" HorizontalAlignment="Left" Margin="350,11,0,0" VerticalAlignment="Top" Width="45" Height="45" PreviewMouseLeftButtonDown="FfBtn_PreviewMouseLeftButtonDown">
+            <Button x:Name="ffBtn" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="350,11,0,0" VerticalAlignment="Top" Width="45" Height="45" PreviewMouseLeftButtonDown="FfBtn_PreviewMouseLeftButtonDown">
                 <StackPanel>
                     <Image Source="Images\fastforward_button.png"/>
                 </StackPanel>
             </Button>
-            <ProgressBar x:Name="workProgressBar" HorizontalAlignment="Left" Height="12" Margin="62,65,0,0" VerticalAlignment="Top" Width="387" Visibility="Visible"/>
+            <ProgressBar x:Name="workProgressBar" Background="{StaticResource ButtonBackgroundBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="62,65,0,0" VerticalAlignment="Top" Width="387" Visibility="Visible"/>
             <Label x:Name="lblTotalTime" Content="0:00:00" HorizontalAlignment="Left" Margin="462,57,-1,0" VerticalAlignment="Top" AllowDrop="True"/>
             <Label x:Name="lblPlayTime" Content="0:00:00" HorizontalAlignment="Left" Margin="1,58,0,0" VerticalAlignment="Top" AllowDrop="True"/>
-            <Button x:Name="Media_Button" Content="Find Media" HorizontalAlignment="Left" Margin="250,91,0,0" VerticalAlignment="Top" Width="75" Click="Media_Button_Click"/>
-            <Button x:Name="Exit_Button" Content="Exit" HorizontalAlignment="Left" Margin="350,91,0,0" VerticalAlignment="Top" Width="75" Click="Exit_Button_Click"/>
-            <Button Content="Edit Library ..." HorizontalAlignment="Left" Margin="142,91,0,0" VerticalAlignment="Top" Width="82" Click="Library_Button_Click"/>
-            <Button x:Name="Config_Button" Content="Config ..." HorizontalAlignment="Left" Margin="38,91,0,0" VerticalAlignment="Top" Width="75" Click="Config_Button_Click"/>
-            <Button x:Name="volumeButton" HorizontalAlignment="Left" Margin="449,88,0,0" VerticalAlignment="Top" Width="27" Height="27" RenderTransformOrigin="0.815,0.5" Click="VolumeButton_Click">
+            <Button x:Name="Media_Button" Content="Find Media" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="250,91,0,0" VerticalAlignment="Top" Width="75" Click="Media_Button_Click"/>
+            <Button x:Name="Exit_Button" Content="Exit" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="350,91,0,0" VerticalAlignment="Top" Width="75" Click="Exit_Button_Click"/>
+            <Button Content="Edit Library ..." Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="142,91,0,0" VerticalAlignment="Top" Width="82" Click="Library_Button_Click"/>
+            <Button x:Name="Config_Button" Content="Config ..." Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="38,91,0,0" VerticalAlignment="Top" Width="75" Click="Config_Button_Click"/>
+            <Button x:Name="volumeButton" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="449,88,0,0" VerticalAlignment="Top" Width="27" Height="27" RenderTransformOrigin="0.815,0.5" Click="VolumeButton_Click">
                 <Image x:Name="volumeImage">
                     <Image.Source>
                         <MultiBinding Converter="{StaticResource testValueConverter}">
