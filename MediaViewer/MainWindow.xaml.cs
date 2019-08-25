@@ -10,6 +10,7 @@ using TagLib;
 using System.Collections.ObjectModel;
 using MediaViewer.Utilities;
 using System.Windows.Input;
+using System.Windows.Controls;
 
 namespace MediaViewer
 {
@@ -116,6 +117,11 @@ namespace MediaViewer
         static ObservableCollection<PlayListViewModel> playListItems = new ObservableCollection<PlayListViewModel>();
 
         /// <summary>
+        /// The playlist view model for the playlist button controls
+        /// </summary>
+        SavedPlayListViewModel savedPlayListViewModel = new SavedPlayListViewModel();
+
+        /// <summary>
         /// Fastforward Button Single and Double Click Actions
         /// </summary>
         private readonly SingleMultiClickAction fFwdButtonMultiClick = null;
@@ -124,6 +130,7 @@ namespace MediaViewer
         /// Rewind Button Single and Double Click Actions
         /// </summary>
         private readonly SingleMultiClickAction rwdButtonMultiClick = null;
+
 
         /// <summary>
         /// Constructor
@@ -157,6 +164,9 @@ namespace MediaViewer
 
             playListItems.CollectionChanged += PlayListItems_CollectionChanged;
             playList.ItemsSource = playListItems;
+
+            savedPlayListsCB.ItemsSource = savedPlayListViewModel.SavedPlayListItems;
+            deletePlayListCB.ItemsSource = savedPlayListViewModel.DeletePlayListItems;
 
             fFwdButtonMultiClick = new SingleMultiClickAction(new Action(FFBtn_SingleClickAction), new Action(FFBtn_DoubleClickAction), this.Dispatcher);
             rwdButtonMultiClick = new SingleMultiClickAction(new Action(RwdBtn_SingleClickAction), new Action(RwdBtn_DoubleClickAction), this.Dispatcher);
@@ -626,12 +636,22 @@ namespace MediaViewer
         /// <param name="e"></param>
         private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("Changed Idx: {0}", e.NewStartingIndex);
             // Added items
             if (e.NewItems != null && e.NewItems.Count > 0)
             {
-                foreach (PlayListViewModel item in e.NewItems)
+                if (fromSavedPlayList)
                 {
-                    //mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
+                    List<PlayListViewModel> list = new List<PlayListViewModel>();
+                    foreach (PlayListViewModel item in e.NewItems)
+                    {
+                        list.Add(item);
+                    }
+                    foreach (PlayListViewModel item in list.OrderBy((p) => p.OrderId).ToList())
+                    {
+                        mediaPlay.InvokeAdder(item.Path + "\\" + item.File);
+                        System.Threading.Thread.Sleep(200);
+                    }
                 }
             }
             // Removed items
@@ -671,6 +691,287 @@ namespace MediaViewer
         {
             playList.UnselectAll();
         }
+
+        #region Save PlayList Event Handlers
+
+        int saveBtnClickNum = 0;
+        /// <summary>
+        /// Event handler which responds to the Save PlayList button clicks.  The first time
+        /// the button is clicked, a textbox is popped up to enter a playlist name to save
+        /// the contents of the playlist.  The second time it is clicked will do the saving.
+        /// If the button is clicked without entering a name, the textbox is popped down.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SavePlayListBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ++saveBtnClickNum;
+            if (saveBtnClickNum == 1)
+            {
+                playListSaveTB.Visibility = Visibility.Visible;
+            }
+            else if ((saveBtnClickNum == 2) && !String.IsNullOrEmpty(playListSaveTB.Text) && (playList.Items.Count > 0))
+            {
+                // Second click requires a entered name and items in the playlist
+
+                // Set up the playlist name to enter
+                PlayListNameResultSet rs = new PlayListNameResultSet();
+                rs.Name = playListSaveTB.Text;
+                PlayListNameDao<PlayListNameResultSet> dao = new PlayListNameDao<PlayListNameResultSet>(rs, rs.TableName);
+                if (dao.InsertResultSet(rs))
+                {
+                    // Once the name is entered into the names table, we need to set up the song items to insert
+
+                    // Capture some needed ID values
+                    string songId = String.Empty;
+                    string listId = String.Empty;
+
+                    // Go through the playlist items storage
+                    foreach (PlayListViewModel item in playList.ItemsSource)
+                    {
+                        // We need to get the song IDs from the DB
+                        string title = DataAccess.EscapeString(item.Song);
+                        MusicMediaResultSet mrs = new MusicMediaResultSet();
+                        MediaFileDao<MusicMediaResultSet> mdao = new MediaFileDao<MusicMediaResultSet>(mrs, mrs.TableName);
+                        List<MusicMediaResultSet> results = mdao.GetAllResultsWhere(@" WHERE Title='" + title + "'");
+                        if (results.Count > 0)
+                        {
+                            songId = results[0].ID;
+
+                            // Once we get the song ID, we need the playlist name ID from the DB table
+                            if (String.IsNullOrEmpty(listId))
+                            {
+                                string text = DataAccess.EscapeString(playListSaveTB.Text);
+                                List<PlayListNameResultSet> list = dao.GetAllResultsWhere(@" WHERE Name='" + text + "'");
+                                if (list.Count > 0)
+                                {
+                                    listId = list[0].Id;
+                                }
+                            }
+
+                            // Insert Song-PlayListName IDs into the table
+                            PlayListNamesToMediaItemsResultSet plrs = new PlayListNamesToMediaItemsResultSet();
+                            plrs.MediaId = songId;
+                            plrs.PlayListId = listId;
+                            PlayListNamesToMediaItemsDao<PlayListNamesToMediaItemsResultSet> pldao = new PlayListNamesToMediaItemsDao<PlayListNamesToMediaItemsResultSet>(plrs, plrs.TableName);
+                            if (!pldao.InsertResultSet(plrs))
+                            {
+                                MakeErrorViewVisible();
+                            }
+                        }
+                    }
+                }
+                saveBtnClickNum = 0;
+                playListSaveTB.Text = String.Empty;
+                playListSaveTB.Visibility = Visibility.Collapsed;
+            }
+            else if (playListSaveTB.Visibility == Visibility.Visible && String.IsNullOrEmpty(playListSaveTB.Text) && (saveBtnClickNum == 2))
+            {
+                // We clicked the button without entering anything into the textbox
+                saveBtnClickNum = 0;
+                playListSaveTB.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        int numLoadClicks = 0;
+        /// <summary>
+        /// Event handler which responds to the Load PlayList button clicks.  Clicking the button the first time
+        /// will pop up a combobox with the saved playlist names.  If the button is clicked without entering a
+        /// name, the combobox is popped down.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LoadBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ++numLoadClicks;
+
+            if (numLoadClicks == 1)
+            {
+                savedPlayListViewModel.savedPlayListItems.Clear();
+
+                // Get list of files to add to combobox
+                PlayListNameResultSet prs = new PlayListNameResultSet();
+                PlayListNameDao<PlayListNameResultSet> pdao = new PlayListNameDao<PlayListNameResultSet>(prs, prs.TableName);
+                List<PlayListNameResultSet> playListResults = pdao.GetAllResults();
+                if (playListResults.Count > 0)
+                {
+                    foreach (var item in playListResults)
+                    {
+                        SavedPlayListModel model = new SavedPlayListModel();
+                        model.Name = item.Name;
+                        savedPlayListViewModel.savedPlayListItems.Add(model);
+                    }
+                    savedPlayListsCB.Visibility = Visibility.Visible;
+                }
+            }
+            else if ((savedPlayListsCB.Visibility == Visibility.Visible) && (numLoadClicks == 2))
+            {
+                // The button was clicked without making a selection in the combobox
+                savedPlayListsCB.Visibility = Visibility.Collapsed;
+                numLoadClicks = 0;
+            }
+        }
+
+        int numDeleteClicks = 0;
+        /// <summary>
+        /// Event handler which responds to the Delete PlayList button clicks.  Clicking the button the first time
+        /// will pop up a combobox with the saved playlist names.  If the button is clicked without entering a
+        /// name, the combobox is popped down.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DeletePlayListBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ++numDeleteClicks;
+
+            if (numDeleteClicks == 1)
+            {
+                savedPlayListViewModel.deletePlayListItems.Clear();
+
+                // Get list of names to add to combobox
+                PlayListNameResultSet prs = new PlayListNameResultSet();
+                PlayListNameDao<PlayListNameResultSet> pdao = new PlayListNameDao<PlayListNameResultSet>(prs, prs.TableName);
+                List<PlayListNameResultSet> playListResults = pdao.GetAllResults();
+                if (playListResults.Count > 0)
+                {
+                    foreach (var item in playListResults)
+                    {
+                        SavedPlayListModel model = new SavedPlayListModel();
+                        model.Name = item.Name;
+                        savedPlayListViewModel.deletePlayListItems.Add(model);
+                    }
+                    deletePlayListCB.Visibility = Visibility.Visible;
+                }
+            }
+            else if ((deletePlayListCB.Visibility == Visibility.Visible) && (numDeleteClicks == 2))
+            {
+                // The button was clicked without making a selection in the combobox
+                deletePlayListCB.Visibility = Visibility.Collapsed;
+                numDeleteClicks = 0;
+            }
+        }
+
+        bool fromSavedPlayList = false;
+        /// <summary>
+        /// Event handler which responds to making selections in the Save PlayList combobox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SavedPlayListCB_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            string playListName = null;
+            ComboBox box = sender as ComboBox;
+            if (box != null)
+            {
+                int selectedPlayListNameIdx = box.SelectedIndex;
+                if (selectedPlayListNameIdx > -1)
+                {
+                    // A selection was made.  Get the name and add the playlist items into the playlist listview
+                    playListName = savedPlayListViewModel.SavedPlayListItems[selectedPlayListNameIdx].Name;
+                    if (!String.IsNullOrEmpty(playListName))
+                    {
+                        // Just in case there's quotes in the name
+                        string escapedName = DataAccess.EscapeString(playListName);
+
+                        // Get all the songs associated with this playlist name
+                        PlayListViewResultSet rs = new PlayListViewResultSet();
+                        PlayListViewDao<PlayListViewResultSet> dao = new PlayListViewDao<PlayListViewResultSet>(rs, rs.TableName);
+                        List<PlayListViewResultSet> list = dao.GetAllResultsWhere(@" WHERE PlayListName='" + escapedName + "' ORDER BY 'Id'");
+
+                        if (list != null)
+                        {
+                            // This flag is for syncing with the playlist collection changed handler
+                            fromSavedPlayList = true;
+
+                            // Go through the list returned from the DB and add them to the playlist listview itemsource
+                            foreach (var item in list)
+                            {
+                                PlayListViewModel vm = new PlayListViewModel();
+                                vm.OrderId = Convert.ToInt32(item.Id);
+                                vm.ArtistName = item.Artist;
+                                vm.File = item.FileName;
+                                vm.Length = item.SongLength;
+                                vm.Path = item.FilePath;
+                                vm.Song = item.Title;
+                                vm.Selected = false;
+                                vm.NowPlaying = false;
+
+                                playListItems.Add(vm);
+                            }
+                            playList.ItemsSource = playListItems;
+                            box.Visibility = Visibility.Collapsed;
+                        }
+                    }
+                    numLoadClicks = 0;
+                    fromSavedPlayList = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler which responds to making selections in the Delete PlayList combobox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DeletePlayListCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string playListName = null;
+            ComboBox box = sender as ComboBox;
+            if (box != null)
+            {
+                int selectedPlayListNameIdx = box.SelectedIndex;
+                // Get PlayList Names
+                if (selectedPlayListNameIdx > -1)
+                {
+                    // A selection was made.  Get the name and add the playlist items into the playlist listview
+                    playListName = savedPlayListViewModel.DeletePlayListItems[selectedPlayListNameIdx].Name;
+                    if (!String.IsNullOrEmpty(playListName))
+                    {
+                        // Just in case there's quotes in the name
+                        string escapedName = DataAccess.EscapeString(playListName);
+
+                        // Capture the ID of the playList name from the DB table
+                        string nameId = String.Empty;
+                        PlayListNameResultSet nameRs = new PlayListNameResultSet();
+                        PlayListNameDao<PlayListNameResultSet> nameDao = new PlayListNameDao<PlayListNameResultSet>(nameRs, nameRs.TableName);
+                        List<PlayListNameResultSet> nameList = nameDao.GetAllResultsWhere(" WHERE  Name='" + escapedName + "'");
+                        if (nameList.Count > 0)
+                        {
+                            nameId = nameList[0].Id;
+                        }
+
+                        // Now we delete the rows in the bridge table that have the name ID
+                        PlayListNamesToMediaItemsResultSet rs = new PlayListNamesToMediaItemsResultSet();
+                        PlayListNamesToMediaItemsDao<PlayListNamesToMediaItemsResultSet> dao = new PlayListNamesToMediaItemsDao<PlayListNamesToMediaItemsResultSet>(rs, rs.TableName);
+                        if (!dao.DeleteAllResultsWhere(@" WHERE PlayListId=" + nameId))
+                        {
+                            MakeErrorViewVisible();
+                        }
+                        else
+                        {
+                            // Now we delete the name from the Name table
+                            if (!nameDao.DeleteAllResultsWhere(@" WHERE Id=" + nameId))
+                            {
+                                MakeErrorViewVisible();
+                            }
+                            else
+                            {
+                                // Delete the name from the DeletePlayList itemsource
+                                SavedPlayListModel pModel = new SavedPlayListModel();
+                                pModel.Name = playListName;
+                                if (savedPlayListViewModel.deletePlayListItems.Remove(pModel))
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Item removed from itemsource [{0}]", playListName);
+                                    deletePlayListCB.SelectedItem = -1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
 
         #region Media Play Event Handlers
 
@@ -781,6 +1082,7 @@ namespace MediaViewer
             mediaPlay.MediaPlayer_ChangeVolume(data, (float)volumeControl.Volume / 50, volumeControl.Mute);
             SetVolumeControlImage();
         }
+
 
         #endregion
     }

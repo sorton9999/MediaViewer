@@ -134,6 +134,20 @@ namespace DataAccessLib
         }
 
         /// <summary>
+        /// Delete from the table the rows that satisfy the given WHERE clause.
+        /// </summary>
+        /// <param name="where">A well formed SQL WHERE clause</param>
+        /// <returns>Whether or not the operation succeeded</returns>
+        public bool DeleteAllResultsWhere(string where)
+        {
+            string sql = @"DELETE FROM " + TableName + where;
+
+            int rows = DB.Execute(sql);
+
+            return (rows >= 0);
+        }
+
+        /// <summary>
         /// A protected method used to insert the contents of a resultset into
         /// the database.  It is a generalized method that uses reflection to
         /// create the resultset of the given Type with values to be inserted
