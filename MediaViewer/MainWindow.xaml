@@ -404,11 +404,22 @@
                 <Button x:Name="loadPlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
                 <Button x:Name="deletePlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
             </StackPanel>
-            <TextBox x:Name="playListSaveTB" HorizontalAlignment="Left" Height="23" Margin="69,187,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Visibility="Collapsed" AcceptsReturn="True"/>
+            <TextBox x:Name="playListSaveTB"
+                     HorizontalAlignment="Left"
+                     Height="23"
+                     Width="120"
+                     Margin="69,187,0,0"
+                     BorderThickness="3"
+                     VerticalAlignment="Top"
+                     Visibility="Collapsed"
+                     AcceptsReturn="True"
+                     VerticalContentAlignment="Center"
+                     />
             <ComboBox x:Name="savedPlayListsCB"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Name"
                       SelectedValue="{Binding Path=SavedPlayListModel}"
+                      BorderThickness="3"
                       HorizontalAlignment="Left"
                       Margin="69,215,0,0"
                       VerticalAlignment="Top"
@@ -416,17 +427,28 @@
                       AllowDrop="True"
                       Visibility="Collapsed"
                       SelectionChanged="SavedPlayListCB_SelectionChanged"
-                      />
+                      >
+                <ComboBox.Resources>
+                    <!-- Color of ComboBoxItem -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="MediumPurple" />
+                </ComboBox.Resources>
+            </ComboBox>
             <ComboBox x:Name="deletePlayListCB"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Name"
                       SelectedValue="{Binding Path=DeletePlayListModel}"
+                      BorderThickness="3"
                       HorizontalAlignment="Left"
                       Margin="69,241,0,0"
                       VerticalAlignment="Top"
                       Width="120"
                       SelectionChanged="DeletePlayListCB_SelectionChanged" Visibility="Collapsed"
-                      />
+                      >
+                <ComboBox.Resources>
+                    <!-- Color of ComboBoxItem -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="MediumPurple" />
+                </ComboBox.Resources>
+            </ComboBox>
         </Grid>
         <Grid HorizontalAlignment="Left" Height="124" Margin="10,295,0,0" VerticalAlignment="Bottom" Width="509">
             <local:VolumeControl x:Name="volumeControl" HorizontalAlignment="Left" Height="44" Margin="409,10,0,0" VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.5,0.49" PropertyChanged="VolumeControl_PropertyChanged" Visibility="Collapsed" />
