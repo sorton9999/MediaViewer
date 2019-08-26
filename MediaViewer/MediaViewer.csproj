@@ -134,8 +134,8 @@
       <DependentUpon>UserControl1.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\SingleMultiClickAction.cs" />
-    <Compile Include="WindowModels\ViewModel.cs" />
-    <Compile Include="WindowModels\ViewModelBase.cs" />
+    <Compile Include="WindowViewModels\ViewModel.cs" />
+    <Compile Include="WindowViewModels\ViewModelBase.cs" />
     <Compile Include="Controls\VolumeControl.xaml.cs">
       <DependentUpon>VolumeControl.xaml</DependentUpon>
     </Compile>

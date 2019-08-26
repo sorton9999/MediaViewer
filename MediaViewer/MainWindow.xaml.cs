@@ -131,6 +131,11 @@ namespace MediaViewer
         /// </summary>
         private readonly SingleMultiClickAction rwdButtonMultiClick = null;
 
+        /// <summary>
+        /// Hold song details for various controls
+        /// </summary>
+        private ViewModel songDetails = new ViewModel();
+
 
         /// <summary>
         /// Constructor
@@ -167,6 +172,9 @@ namespace MediaViewer
 
             savedPlayListsCB.ItemsSource = savedPlayListViewModel.SavedPlayListItems;
             deletePlayListCB.ItemsSource = savedPlayListViewModel.DeletePlayListItems;
+
+            playTimeLabel.DataContext = songDetails;
+            songDetails.TotalPlayTime = "[00:00:00]";
 
             fFwdButtonMultiClick = new SingleMultiClickAction(new Action(FFBtn_SingleClickAction), new Action(FFBtn_DoubleClickAction), this.Dispatcher);
             rwdButtonMultiClick = new SingleMultiClickAction(new Action(RwdBtn_SingleClickAction), new Action(RwdBtn_DoubleClickAction), this.Dispatcher);
@@ -468,6 +476,69 @@ namespace MediaViewer
             return (processes.Length > 0);
         }
 
+        /// <summary>
+        /// Calculate the time given the seconds and return a string
+        /// in the format "00:00:00"
+        /// </summary>
+        /// <param name="seconds">The seconds to calculate</param>
+        /// <returns>The string in format "00:00:00"</returns>
+        public static string SecondsToString(long seconds)
+        {
+            string retStr = "00:00:00";
+            int totalSecs = (int)(seconds % 60);
+            int totalMins = (int)((seconds / 60) % 60);
+            int totalHours = (int)(((seconds / 60) / 60) % 60);
+            retStr = String.Format("{0:00}:{1:00}:{2:00}", totalHours, totalMins, totalSecs);
+            return retStr;
+        }
+
+        /// <summary>
+        /// Change the input string in the either the format "00:00:00" or "00:00"
+        /// to seconds.
+        /// </summary>
+        /// <param name="time">The input string in the format "00:00:00"</param>
+        /// <returns>The number of seconds the string represents</returns>
+        public static long StringToSeconds(string time)
+        {
+            long retVal = 0;
+            bool one = true;
+            try
+            {
+                // This call is to check if more than one ":" is in the string. If there is
+                // the exception is triggered and the hours are parsed in the next try
+                // block.
+                char c = time.Single((s) => s == ':');
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("Exception: {0}", e.Message);
+                one = false;
+            }
+            try
+            {
+                int hrs = 0, mins = 0, secs = 0;
+                string[] parts = time.Split(':');
+                if (one)
+                {
+                    mins = Convert.ToInt32(parts[0]);
+                    secs = Convert.ToInt32(parts[1]);
+                    retVal = (mins * 60) + secs;
+                }
+                else
+                {
+                    hrs = Convert.ToInt32(parts[0]);
+                    mins = Convert.ToInt32(parts[1]);
+                    secs = Convert.ToInt32(parts[2]);
+                    retVal = (hrs * 3600) + (mins * 60) + secs;
+                }
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("Exception: {0}", e.Message);
+            }
+            return retVal;
+        }
+
         #endregion
 
         #region Private Methods
@@ -636,7 +707,6 @@ namespace MediaViewer
         /// <param name="e"></param>
         private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Changed Idx: {0}", e.NewStartingIndex);
             // Added items
             if (e.NewItems != null && e.NewItems.Count > 0)
             {
@@ -653,6 +723,13 @@ namespace MediaViewer
                         System.Threading.Thread.Sleep(200);
                     }
                 }
+
+                // Compute Time Length
+                foreach (PlayListViewModel item in e.NewItems)
+                {
+                    totalSecs += StringToSeconds(item.Length);
+                }
+
             }
             // Removed items
             if (e.OldItems != null && e.OldItems.Count > 0)
@@ -660,9 +737,16 @@ namespace MediaViewer
                 foreach (PlayListViewModel item in e.OldItems)
                 {
                     mediaPlay.InvokeRemover(e.OldStartingIndex);
+
+                    // Compute new song length
+                    totalSecs -= StringToSeconds(item.Length);
                 }
             }
+            // Create formatted string of total play time
+            songDetails.TotalPlayTime = "[" + SecondsToString(totalSecs) + "]";
         }
+
+        long totalSecs = 0;
 
         /// <summary>
         /// PlayList listview right-click delete menuitem event handler
