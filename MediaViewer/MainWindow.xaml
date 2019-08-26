@@ -109,7 +109,7 @@
                                     <Setter Property="Margin" TargetName="border" Value="-6,2,0,0"/>
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="false">
-                                  <!--  <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" /> -->
+                                    <!--  <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" /> -->
                                     <Setter Property="Foreground" Value="MediumAquamarine" />
                                     <Setter Property="Opacity" TargetName="DisabledVisualTop" Value="1"/>
                                 </Trigger>
@@ -308,8 +308,8 @@
         </Grid.Resources>
         <local:UserControl1 x:Name="mediaDetailsControl" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="290" Width="497" Loaded="MediaDetailsControl_Loaded"/>
         <GridSplitter HorizontalAlignment="Left" Margin="524,0,0,0" Width="8"/>
-        <Grid Height="399" Margin="537,10,0,0" Width="350">
-            <TabControl x:Name="tabControl" Style="{StaticResource TabControlStyle}" TabStripPlacement="Left" Margin="10,10,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Grid Height="399" Margin="537,15,10,5" HorizontalAlignment="Left">
+            <TabControl x:Name="tabControl" Style="{StaticResource TabControlStyle}" TabStripPlacement="Left" Margin="42,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">
                         <Setter Property="HeaderTemplate">
@@ -349,7 +349,11 @@
                          VerticalAlignment="Top"
                          >
                     <Grid Background="CornflowerBlue">
-                        <ListView x:Name="playList" Height="400" Margin="1,1,1,1" Width="300"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="103*"/>
+                            <RowDefinition Height="276*"/>
+                        </Grid.RowDefinitions>
+                        <ListView x:Name="playList" Height="378" Margin="1,1,0,0" Width="300"
                                   SelectionMode="Single"
                                   HorizontalContentAlignment="Center"
                                   VerticalContentAlignment="Center"
@@ -357,7 +361,7 @@
                                   VerticalAlignment="Top"
                                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                   MouseDown="ListView_MouseDown"
-                                  Background="{StaticResource ButtonBackgroundBrush}"
+                                  Background="{StaticResource ButtonBackgroundBrush}" Grid.RowSpan="2"
                                   >
                             <ListView.ContextMenu>
                                 <ContextMenu>
@@ -395,6 +399,58 @@
                     </Grid>
                 </TabItem>
             </TabControl>
+            <StackPanel HorizontalAlignment="Left" Height="198" Margin="2,189,0,0" VerticalAlignment="Top" Width="60">
+                <Button x:Name="savePlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Save" Click="SavePlayListBtn_Click"/>
+                <Button x:Name="loadPlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
+                <Button x:Name="deletePlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
+            </StackPanel>
+            <TextBox x:Name="playListSaveTB"
+                     HorizontalAlignment="Left"
+                     Height="23"
+                     Width="120"
+                     Margin="69,187,0,0"
+                     BorderThickness="3"
+                     VerticalAlignment="Top"
+                     Visibility="Collapsed"
+                     AcceptsReturn="True"
+                     VerticalContentAlignment="Center"
+                     />
+            <ComboBox x:Name="savedPlayListsCB"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="Name"
+                      SelectedValue="{Binding Path=SavedPlayListModel}"
+                      BorderThickness="3"
+                      HorizontalAlignment="Left"
+                      Margin="69,215,0,0"
+                      VerticalAlignment="Top"
+                      Width="120"
+                      AllowDrop="True"
+                      Visibility="Collapsed"
+                      SelectionChanged="SavedPlayListCB_SelectionChanged"
+                      >
+                <ComboBox.Resources>
+                    <!-- Color of ComboBoxItem -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="MediumPurple" />
+                </ComboBox.Resources>
+            </ComboBox>
+            <ComboBox x:Name="deletePlayListCB"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="Name"
+                      SelectedValue="{Binding Path=DeletePlayListModel}"
+                      BorderThickness="3"
+                      HorizontalAlignment="Left"
+                      Margin="69,241,0,0"
+                      VerticalAlignment="Top"
+                      Width="120"
+                      SelectionChanged="DeletePlayListCB_SelectionChanged" Visibility="Collapsed"
+                      >
+                <ComboBox.Resources>
+                    <!-- Color of ComboBoxItem -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="MediumPurple" />
+                </ComboBox.Resources>
+            </ComboBox>
+            <Label x:Name="label" Content="Play  List" Background="{StaticResource LightBackgroundBrush}" HorizontalAlignment="Left" Margin="2,143,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0"/>
+            <Label x:Name="playTimeLabel" Content="{Binding Path=TotalPlayTime}" Background="{StaticResource LightBackgroundBrush}" HorizontalAlignment="Left" Margin="2,166,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0"/>
         </Grid>
         <Grid HorizontalAlignment="Left" Height="124" Margin="10,295,0,0" VerticalAlignment="Bottom" Width="509">
             <local:VolumeControl x:Name="volumeControl" HorizontalAlignment="Left" Height="44" Margin="409,10,0,0" VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.5,0.49" PropertyChanged="VolumeControl_PropertyChanged" Visibility="Collapsed" />

@@ -294,7 +294,7 @@ namespace DataAccessLib
         /// </summary>
         /// <param name="inputStr">The string to alter</param>
         /// <returns>The altered string if quotes appear in string</returns>
-        public String EscapeString(String inputStr)
+        public static String EscapeString(String inputStr)
         {
             String outStr = String.Empty;
             if (!String.IsNullOrEmpty(inputStr) && inputStr.Contains('\''))
