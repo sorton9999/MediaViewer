@@ -167,6 +167,9 @@ namespace MediaViewer
             volumeControl.Volume = 25;
             SetVolumeControlImage();
 
+            flyoutBtnExpand.DataContext = mediaViewerViewModel;
+            flyoutButtonContract.DataContext = mediaViewerViewModel;
+
             playListItems.CollectionChanged += PlayListItems_CollectionChanged;
             playList.ItemsSource = playListItems;
 
@@ -1064,6 +1067,28 @@ namespace MediaViewer
             }
         }
 
+        /// <summary>
+        /// The event handler for the Expand playlist section button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FlyoutButtonExpand_Click(object sender, RoutedEventArgs e)
+        {
+            mediaViewerViewModel.FlyoutExpand = !mediaViewerViewModel.FlyoutExpand;
+            mediaViewerViewModel.FlyoutContract = true;
+        }
+
+        /// <summary>
+        /// The event handler for the Contract playlist section button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FlyoutContractButton_Click(object sender, RoutedEventArgs e)
+        {
+            mediaViewerViewModel.FlyoutContract = !mediaViewerViewModel.FlyoutContract;
+            mediaViewerViewModel.FlyoutExpand = true;
+        }
+
         #endregion
 
         #region Media Play Event Handlers
@@ -1178,5 +1203,6 @@ namespace MediaViewer
 
 
         #endregion
+
     }
 }
