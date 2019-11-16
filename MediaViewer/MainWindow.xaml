@@ -312,15 +312,65 @@
 
             </Storyboard>
             <Storyboard x:Key="ContractGrid">
-                
+
                 <DoubleAnimation Duration="0:0:0.2" From="160" To="0" Storyboard.TargetProperty="(Grid.Height)" Storyboard.TargetName="AnimatedGrid"/>
-                
+
             </Storyboard>
         </Grid.Resources>
         <local:UserControl1 x:Name="mediaDetailsControl" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="290" Width="497" Loaded="MediaDetailsControl_Loaded"/>
         <GridSplitter HorizontalAlignment="Left" Margin="524,0,0,0" Width="8"/>
-        <Grid Height="419" Margin="537,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <TabControl x:Name="tabControl" Style="{StaticResource TabControlStyle}" TabStripPlacement="Left" Margin="42,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Grid x:Name="flyoutBtnGrid" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="535,0,0,14">
+            <Label x:Name="label" Content="Play  List" Background="{StaticResource LightBackgroundBrush}" HorizontalAlignment="Left" Margin="9,162,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0"/>
+            <Label x:Name="playTimeLabel" Content="{Binding Path=TotalPlayTime}" Background="{StaticResource LightBackgroundBrush}" HorizontalAlignment="Left" Margin="9,186,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0" RenderTransformOrigin="0.65,0.053"/>
+            <Button x:Name="flyoutBtnExpand"
+                        Content="Expand"
+                        Background="{StaticResource ButtonBackgroundBrush}"
+                        HorizontalAlignment="Left"
+                        Margin="7,389,0,0"
+                        VerticalAlignment="Top"
+                        Width="60"
+                        Visibility="{Binding Path=FlyoutExpand, Converter={StaticResource boolToVisConverter}}"
+                        Click="FlyoutButtonExpand_Click"
+                        >
+
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Button.Click">
+                        <BeginStoryboard Storyboard="{StaticResource ExpandGrid}">
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
+
+            </Button>
+            <Grid x:Name="AnimatedGrid" HorizontalAlignment="Left" Height="0" Margin="3,0,0,28" VerticalAlignment="Bottom" Width="70">
+                <Border BorderBrush="{StaticResource DarkBackgroundBrush}" BorderThickness="2">
+                    <StackPanel HorizontalAlignment="Left" Height="152" Margin="3,3,0,0" VerticalAlignment="Top" Width="58">
+                        <Button x:Name="savePlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Save" Click="SavePlayListBtn_Click"/>
+                        <Button x:Name="loadPlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
+                        <Button x:Name="deletePlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <Button x:Name="flyoutButtonContract"
+                        Background="{StaticResource ButtonBackgroundBrush}"
+                        Content="Contract"
+                        HorizontalAlignment="Left"
+                        Margin="7,389,0,0"
+                        VerticalAlignment="Top"
+                        Width="60"
+                        Click="FlyoutContractButton_Click"
+                        Visibility="{Binding Path=FlyoutContract, Converter={StaticResource boolToVisConverter}}"
+                        >
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Button.Click">
+                        <BeginStoryboard Storyboard="{StaticResource ContractGrid}">
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
+
+            </Button>
+        </Grid>
+        <Grid Height="419" Margin="0,10,5,0" HorizontalAlignment="Left">
+            <TabControl x:Name="tabControl" Style="{StaticResource TabControlStyle}" TabStripPlacement="Left" Margin="590,0,5,5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">
                         <Setter Property="HeaderTemplate">
@@ -340,8 +390,6 @@
                 <TabItem Header="Song Tree" Style="{StaticResource TabItemStyle}"
                          HorizontalContentAlignment="Center"
                          VerticalContentAlignment="Center"
-                         HorizontalAlignment="Left"
-                         VerticalAlignment="Top"
                          >
                     <Grid Background="CornflowerBlue">
                         <Grid.ColumnDefinitions>
@@ -350,21 +398,19 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <local:LibraryTreeControl x:Name="libraryTreeControl" Background="{StaticResource ButtonBackgroundBrush}"/>
+                        <local:LibraryTreeControl x:Name="libraryTreeControl" Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Margin="0"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Play List" Style="{StaticResource TabItemStyle}"
                          VerticalContentAlignment="Center"
                          HorizontalContentAlignment="Center"
-                         HorizontalAlignment="Left"
-                         VerticalAlignment="Top"
                          >
                     <Grid Background="CornflowerBlue">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="103*"/>
-                            <RowDefinition Height="276*"/>
+                            <RowDefinition Height="6*"/>
+                            <RowDefinition Height="95*"/>
                         </Grid.RowDefinitions>
-                        <ListView x:Name="playList" Height="378" Margin="1,1,0,0" Width="300"
+                        <ListView x:Name="playList" Height="393" Margin="1,1,0,0" Width="300"
                                   SelectionMode="Single"
                                   HorizontalContentAlignment="Center"
                                   VerticalContentAlignment="Center"
@@ -372,11 +418,13 @@
                                   VerticalAlignment="Top"
                                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                   MouseDown="ListView_MouseDown"
+                                  SelectionChanged="ListView_SelectionChanged"
                                   Background="{StaticResource ButtonBackgroundBrush}" Grid.RowSpan="2"
                                   >
                             <ListView.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
+                                    <MenuItem Header="Delete All" Click="MenuItemDeleteAll_Click"/>
                                 </ContextMenu>
                             </ListView.ContextMenu>
                             <ListView.View>
@@ -414,7 +462,7 @@
                      HorizontalAlignment="Left"
                      Height="23"
                      Width="120"
-                     Margin="73,234,-4,0"
+                     Margin="609,222,-4,0"
                      BorderThickness="3"
                      VerticalAlignment="Top"
                      AcceptsReturn="True"
@@ -426,7 +474,7 @@
                       SelectedValue="{Binding Path=SavedPlayListModel}"
                       BorderThickness="3"
                       HorizontalAlignment="Left"
-                      Margin="73,262,-4,0"
+                      Margin="609,250,-4,0"
                       VerticalAlignment="Top"
                       Width="120"
                       AllowDrop="True"
@@ -443,7 +491,7 @@
                       SelectedValue="{Binding Path=DeletePlayListModel}"
                       BorderThickness="3"
                       HorizontalAlignment="Left"
-                      Margin="73,289,-4,0"
+                      Margin="609,277,-4,0"
                       VerticalAlignment="Top"
                       Width="120"
                       SelectionChanged="DeletePlayListCB_SelectionChanged" Visibility="Collapsed"
@@ -453,54 +501,7 @@
                     <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="MediumPurple" />
                 </ComboBox.Resources>
             </ComboBox>
-            <Label x:Name="label" Content="Play  List" Background="{StaticResource LightBackgroundBrush}" HorizontalAlignment="Left" Margin="9,162,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0"/>
-            <Label x:Name="playTimeLabel" Content="{Binding Path=TotalPlayTime}" Background="{StaticResource LightBackgroundBrush}" HorizontalAlignment="Left" Margin="9,186,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0" RenderTransformOrigin="0.65,0.053"/>
-            <Button x:Name="flyoutBtnExpand"
-                    Content="Expand"
-                    Background="{StaticResource ButtonBackgroundBrush}"
-                    HorizontalAlignment="Left"
-                    Margin="7,389,0,0"
-                    VerticalAlignment="Top"
-                    Width="60"
-                    Visibility="{Binding Path=FlyoutExpand, Converter={StaticResource boolToVisConverter}}"
-                    Click="FlyoutButtonExpand_Click"
-                    >
-                
-                <Button.Triggers>
-                    <EventTrigger RoutedEvent="Button.Click">
-                        <BeginStoryboard Storyboard="{StaticResource ExpandGrid}">
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Button.Triggers>
-                
-            </Button>
-            <Grid x:Name="AnimatedGrid" HorizontalAlignment="Left" Height="0" Margin="3,0,0,28" VerticalAlignment="Bottom" Width="70">
-                <Border BorderBrush="{StaticResource DarkBackgroundBrush}" BorderThickness="2">
-                    <StackPanel HorizontalAlignment="Left" Height="152" Margin="3,3,0,0" VerticalAlignment="Top" Width="58">
-                        <Button x:Name="savePlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Save" Click="SavePlayListBtn_Click"/>
-                        <Button x:Name="loadPlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
-                        <Button x:Name="deletePlayListBtn" Background="{StaticResource ButtonBackgroundBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-            <Button x:Name="flyoutButtonContract"
-                    Background="{StaticResource ButtonBackgroundBrush}"
-                    Content="Contract"
-                    HorizontalAlignment="Left"
-                    Margin="7,389,0,0"
-                    VerticalAlignment="Top"
-                    Width="60"
-                    Click="FlyoutContractButton_Click"
-                    Visibility="{Binding Path=FlyoutContract, Converter={StaticResource boolToVisConverter}}"
-                    >
-                <Button.Triggers>
-                    <EventTrigger RoutedEvent="Button.Click">
-                        <BeginStoryboard Storyboard="{StaticResource ContractGrid}">
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Button.Triggers>
 
-            </Button>
         </Grid>
         <Grid HorizontalAlignment="Left" Height="124" Margin="10,295,0,0" VerticalAlignment="Bottom" Width="509">
             <local:VolumeControl x:Name="volumeControl" HorizontalAlignment="Left" Height="44" Margin="409,10,0,0" VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.5,0.49" PropertyChanged="VolumeControl_PropertyChanged" Visibility="Collapsed" />

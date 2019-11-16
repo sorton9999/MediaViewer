@@ -769,6 +769,19 @@ namespace MediaViewer
         }
 
         /// <summary>
+        /// PlatList listview right-click delete all items event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MenuItemDeleteAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in PlayListItems.ToList())
+            {
+                PlayListItems.Remove(item);
+            }
+        }
+
+        /// <summary>
         /// PlayList listview mouse down event handler.  This will unselect
         /// all the items if a click is registered outside of the list area.
         /// </summary>
@@ -777,6 +790,24 @@ namespace MediaViewer
         private void ListView_MouseDown(object sender, MouseButtonEventArgs e)
         {
             playList.UnselectAll();
+        }
+
+        /// <summary>
+        /// PlayList listview selection changed event handler.  This will update the
+        /// details control to the left of the tabbed controls.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count <= 0)
+            {
+                return;
+            }
+            PlayListViewModel item = (PlayListViewModel)e.AddedItems[0];
+            
+            // Load the view model for the details control using the path and file name
+            mediaDetailsControl.LoadViewModel(item.Path + "\\" + item.File);
         }
 
         #region Save PlayList Event Handlers
