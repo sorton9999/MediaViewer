@@ -243,3 +243,7 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/DataAccessLib/MediaDB.sav
+/DataAccessLib/MediaDBplaylist.sav
+/DataAccessLib/MediaDBplaylist.sav2
+/DataAccessLib/Properties/PlayListView.sql

@@ -45,6 +45,7 @@ namespace MediaViewer
             if (vm != null)
             {
                 PlayListViewModel pm = new PlayListViewModel();
+                pm.OrderId = 1;
                 pm.ArtistName = vm.Album.Artist.ArtistName;
                 pm.Song = vm.TitleName;
                 pm.Path = vm.FilePath;
@@ -75,6 +76,7 @@ namespace MediaViewer
                     }
                     // Go through each title and load a list with its path
                     // to get to its file to play
+                    int idx = 0;
                     foreach (var item in am.Children)
                     {
                         PlayListViewModel pm = new PlayListViewModel();
@@ -82,6 +84,7 @@ namespace MediaViewer
                         if (tm != null)
                         {
                             playList.Add(tm.FilePath + "\\" + tm.FileName);
+                            pm.OrderId = idx;
                             pm.ArtistName = tm.Album.Artist.ArtistName;
                             pm.Song = tm.TitleName;
                             pm.Path = tm.FilePath;
@@ -90,6 +93,7 @@ namespace MediaViewer
                             pm.Selected = false;
                             MainWindow.PlayListItems.Add(pm);
                         }
+                        ++idx;
                     }
                     // Send the list to the player
                     await MediaPlayWorker.PlayFileAsync(playList, MainWindow.PlayProcess);

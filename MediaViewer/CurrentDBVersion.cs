@@ -23,7 +23,7 @@ namespace DataAccessLib
         /// <summary>
         /// The current DB major version
         /// </summary>
-        public static uint CurrentMajorVersion = 0x0200;
+        public static uint CurrentMajorVersion = 0x0300;
         /// <summary>
         /// The current DB minor version
         /// </summary>
@@ -31,6 +31,6 @@ namespace DataAccessLib
         /// <summary>
         /// The current DB point version
         /// </summary>
-        public static uint CurrentPointVersion = 0x0001;
+        public static uint CurrentPointVersion = 0;
     }
 }

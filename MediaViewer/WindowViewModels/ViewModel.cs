@@ -111,6 +111,19 @@ namespace MediaViewer
             }
         }
 
+        public string TotalPlayTime
+        {
+            get { return fileModel.TotalPlayTime; }
+            set
+            {
+                if (fileModel.TotalPlayTime != value)
+                {
+                    fileModel.TotalPlayTime = value;
+                    NotifyPropertyChanged("TotalPlayTime");
+                }
+            }
+        }
+
         public BitmapImage AlbumArt
         {
             get { return fileModel.AlbumArt; }
