@@ -10,6 +10,7 @@ namespace MediaViewer
 {
     public class PlayListViewModel : ViewModelBase
     {
+        private int orderId = -1;
         private string artist = String.Empty;
         private string song = String.Empty;
         private string path = String.Empty;
@@ -17,6 +18,16 @@ namespace MediaViewer
         private string file = String.Empty;
         private bool selected = false;
         private bool nowPlaying = false;
+
+        public int OrderId
+        {
+            get { return orderId; }
+            set
+            {
+                orderId = value;
+                NotifyPropertyChanged("OrderId");
+            }
+        }
 
         public string ArtistName
         {
