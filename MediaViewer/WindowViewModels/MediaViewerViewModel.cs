@@ -104,7 +104,7 @@ namespace MediaViewer
                     return image4;
                 }
 
-                if (type < 25)
+                if (type <= 25)
                 {
                     return image1;
                 }

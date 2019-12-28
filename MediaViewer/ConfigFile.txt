@@ -1,0 +1,8 @@
+[Global]
+
+[WindowColors]
+LightBackgroundColor=CornflowerBlue
+DarkBackgroundColor=DarkGray
+ButtonSolidColor=LightGray
+TopWindowBackgroundColor=Olive
+BottomWindowBackgroundColor=DarkGray
