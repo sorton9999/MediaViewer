@@ -182,6 +182,10 @@ namespace MediaViewer
             fFwdButtonMultiClick = new SingleMultiClickAction(new Action(FFBtn_SingleClickAction), new Action(FFBtn_DoubleClickAction), this.Dispatcher);
             rwdButtonMultiClick = new SingleMultiClickAction(new Action(RwdBtn_SingleClickAction), new Action(RwdBtn_DoubleClickAction), this.Dispatcher);
 
+
+            this.DataContext = UserControl1.ColorLoader.ColorView;
+            flyoutBtnGrid.DataContext = UserControl1.ColorLoader.ColorView;
+
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
 
         }

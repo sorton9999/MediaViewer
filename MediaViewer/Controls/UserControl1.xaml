@@ -17,16 +17,16 @@
         <Label Content="Year" HorizontalAlignment="Left" Margin="10,153,0,0" VerticalAlignment="Top" Width="87"/>
         <Label Content="Comment" HorizontalAlignment="Left" Margin="10,184,0,0" VerticalAlignment="Top" Width="87"/>
         <Label Content="Genre" HorizontalAlignment="Left" Margin="10,215,0,0" VerticalAlignment="Top" Width="87"/>
-        <TextBox x:Name="fullFileNameTextBox" Text ="{Binding FileName, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,21,0,0" VerticalAlignment="Top" Width="358" IsReadOnly="True"/>
-        <TextBox x:Name="titleTextBox" Text ="{Binding Title, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,62,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="artistTextBox" Text ="{Binding Artist, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,93,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="albumTextBox" Text ="{Binding Album, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,124,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="yearTextBox" Text ="{Binding Year, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,155,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="commentTextBox" Text ="{Binding Comment, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,186,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="genreTextBox" Text ="{Binding Genre, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,217,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <Button x:Name="browseButton" Content="Browse..." Background="{StaticResource ButtonBackgroundBrush}" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Width="75" Click="browse_ButtonClick"/>
+        <TextBox x:Name="fullFileNameTextBox" Text ="{Binding FileName, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,21,0,0" VerticalAlignment="Top" Width="358" IsReadOnly="True"/>
+        <TextBox x:Name="titleTextBox" Text ="{Binding Title, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,62,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="artistTextBox" Text ="{Binding Artist, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,93,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="albumTextBox" Text ="{Binding Album, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,124,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="yearTextBox" Text ="{Binding Year, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,155,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="commentTextBox" Text ="{Binding Comment, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,186,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="genreTextBox" Text ="{Binding Genre, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,217,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <Button x:Name="browseButton" Content="Browse..." Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Width="75" Click="browse_ButtonClick"/>
         <Image HorizontalAlignment="Left" Height="160" Margin="355,113,0,0" VerticalAlignment="Top" Width="130" Source="{Binding AlbumArt, Mode=OneWay}"/>
-        <TextBox x:Name="lengthtextBox" Text="{Binding Length, Mode=TwoWay}" Background="{StaticResource TextBoxBackgroundBrush}" HorizontalAlignment="Left" Height="23" Margin="97,250,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="lengthtextBox" Text="{Binding Length, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,250,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
         <Label x:Name="label" Content="Length" HorizontalAlignment="Left" Margin="10,247,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.018,0.084"/>
 
     </Grid>

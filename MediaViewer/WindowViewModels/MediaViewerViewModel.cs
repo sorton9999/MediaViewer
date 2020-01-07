@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace MediaViewer
@@ -59,6 +60,24 @@ namespace MediaViewer
             }
         }
 
+        public WindowColorViewModel ColorModel
+        {
+            get { return UserControl1.ColorLoader.ColorView; }
+        }
+
+        /// <summary>
+        /// This is needed to incorporate the button background property notification
+        /// to this view model.
+        /// </summary>
+        public SolidColorBrush LightButtonSolidColorBrush
+        {
+            get { return ColorModel.LightButtonSolidColorBrush; }
+            set
+            {
+                ColorModel.LightButtonSolidColorBrush = value;
+                NotifyPropertyChanged("LightButtonSolidColorBrush");
+            }
+        }
     }
 
 
@@ -104,7 +123,7 @@ namespace MediaViewer
                     return image4;
                 }
 
-                if (type < 25)
+                if (type <= 25)
                 {
                     return image1;
                 }
