@@ -12,14 +12,20 @@ to.  This app needs the 'SQLite.Interop' and 'System.Data.SQLite' DLLs.  Finally
 CodeProject (www.codeproject.com) post, "Simplifying the WPF TreeView by Using the ViewModel Pattern" from way back in 2008.
 A long time ago by internet standards.  It really inspired me to start this project.
 
+V.2.0
 This version got away from reusing the main VLC GUI to play audio files.  MediaViewer uses the vlc api and the VLCSharp development api to play audio files w/o starting a VLC process to do it.  So now, view your file collection in a tree structure, choose a file to play or a whole "CD" worth of files.  They get put into a playlist, click the play button and start listening.  There is rewind/fastforward/pause while playing.  There is also a skip track ahead and track back.
 
+V.2.1
+There is now playlist save, delete and load functions.  Altering the color of the GUI is available now.  This is file driven by changing color values in a configuration file.  This may be altered slightly by making different color schemes available by choice.
+
 There's more to do.  The biggest items are:
-  1. Add ability to save playlists and recall them
-  2. Remove tracks from the playlist
-  3. Reorder tracks in the playlist
-  4. Play random tracks in a playlist
-  5. Double-click a track in the playlist to start playing
-  6. Improve look and feel of the GUI
+  1. Reorder tracks in the playlist
+  2. Randomize tracks in a playlist
+  3. Repeat play tracks
+  4. Double-click a track in the playlist to start playing
+  5. Improve look and feel of the GUI
+  6. Add video playback
   
+A long term goal will be to split the functionality of the player to make it a server-client architecture.  Currently it is a single standalone player.  The server will provide the search and store of media files and the streaming of files.  The server  should provide a web interface for clients.
+
 
