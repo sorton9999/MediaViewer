@@ -103,11 +103,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CurrentDBVersion.cs" />
+    <Compile Include="Utilities\ConfigurationFileReader.cs" />
     <Compile Include="Utilities\DBVersionUtility.cs" />
+    <Compile Include="Utilities\WindowColorLoader.cs" />
     <Compile Include="WindowModels\ConfigItemsModel.cs" />
     <Compile Include="WindowModels\SavedPlayListModel.cs" />
     <Compile Include="WindowViewModels\ConfigItemsViewModel.cs" />
     <Compile Include="WindowViewModels\SavedPlayListViewModel.cs" />
+    <Compile Include="WindowViewModels\WindowColorViewModel.cs" />
     <Compile Include="WindowViews\ConfigView.xaml.cs">
       <DependentUpon>ConfigView.xaml</DependentUpon>
     </Compile>
@@ -282,6 +285,17 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="speakericon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ConfigFile.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\down-arrows.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\up-arrows.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets" Condition="Exists('..\packages\VideoLAN.LibVLC.Windows.3.0.7.1\build\VideoLAN.LibVLC.Windows.targets')" />

@@ -32,6 +32,17 @@ namespace MediaViewer
         private ViewModel viewModel = new ViewModel();
 
         /// <summary>
+        /// Load window colors
+        /// </summary>
+        private static WindowColorLoader colorLoader = null;
+
+        /// <summary>
+        /// Configuration items for the application driven by a text file
+        /// </summary>
+        public static ConfigurationFileReader configFile = null;
+
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public UserControl1()
@@ -39,6 +50,19 @@ namespace MediaViewer
             InitializeComponent();
 
             openFileDialog.RestoreDirectory = true;
+
+            try
+            {
+                configFile = new ConfigurationFileReader("./ConfigFile.txt");
+                configFile.ReadConfigFile();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Bad Configuration File Read: " + e.Message);
+            }
+
+            ColorLoader = new WindowColorLoader(configFile);
+            ColorLoader.LoadColors();
 
             this.DataContext = viewModel;
 
@@ -52,6 +76,12 @@ namespace MediaViewer
         {
             get { return viewModel; }
             private set { viewModel = value; }
+        }
+
+        public static WindowColorLoader ColorLoader
+        {
+            get { return colorLoader; }
+            private set { colorLoader = value; }
         }
 
         /// <summary>

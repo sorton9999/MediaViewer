@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TagLib.Id3v2;
 using TagLib.Mpeg;
@@ -189,6 +190,16 @@ namespace MediaViewer
             }
 
             return image;
+        }
+
+        public SolidColorBrush ControlBackgroundColor
+        {
+            get { return UserControl1.ColorLoader.ColorView.LightButtonSolidColorBrush; }
+            set
+            {
+                UserControl1.ColorLoader.ColorView.LightButtonSolidColorBrush = value;
+                NotifyPropertyChanged("ControlBackgroundColor");
+            }
         }
 
     }

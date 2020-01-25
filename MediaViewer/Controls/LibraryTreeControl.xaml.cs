@@ -22,6 +22,8 @@ namespace MediaViewer
 
             libraryTreeUpdateAction = new Action(Update);
 
+            this.DataContext = UserControl1.ColorLoader.ColorView;
+
             LoadDataStore();
         }
 
