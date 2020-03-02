@@ -15,11 +15,13 @@ namespace MediaViewer
         Color _darkSolidColor;
         Color _lightButtonSolidColor;
         Color _darkButtonSolidColor;
+        Color _activeButtonSolidColor;
 
         SolidColorBrush _lightSolidColorBrush;
         SolidColorBrush _darkSolidColorBrush;
         SolidColorBrush _lightButtonSolidColorBrush;
         SolidColorBrush _darkButtonSolidColorBrush;
+        SolidColorBrush _activeButtonSolidColorBrush;
 
         LinearGradientBrush _gradientBrush;
         GradientStopCollection gradCollection = new GradientStopCollection();
@@ -85,6 +87,15 @@ namespace MediaViewer
             }
         }
 
+        public Color ActiveButtonSolidColor
+        {
+            get { return _activeButtonSolidColor; }
+            set
+            {
+                _activeButtonSolidColor = value;
+                NotifyPropertyChanged("ActiveButtonSolidColor");
+            }
+        }
 
 
         public SolidColorBrush LightSolidColorBrush
@@ -124,6 +135,16 @@ namespace MediaViewer
             {
                 _darkButtonSolidColorBrush = value;
                 NotifyPropertyChanged("DarkButtonSolidColorBrush");
+            }
+        }
+
+        public SolidColorBrush ActiveButtonSolidColorBrush
+        {
+            get { return _activeButtonSolidColorBrush ?? new SolidColorBrush(_activeButtonSolidColor); }
+            set
+            {
+                _activeButtonSolidColorBrush = value;
+                NotifyPropertyChanged("ActiveButtonSolidColorBrush");
             }
         }
 

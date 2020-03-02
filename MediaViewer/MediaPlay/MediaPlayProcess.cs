@@ -336,6 +336,11 @@ namespace MediaViewer
             }
         }
 
+        public void SetPosition(float position)
+        {
+            _mediaPlayer.Position = position;
+        }
+
         public bool IsFastForward()
         {
             return GetState() == MediaPlayStateEnum.MEDIA_FASTFWD;

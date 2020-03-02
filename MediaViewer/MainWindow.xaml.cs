@@ -107,6 +107,11 @@ namespace MediaViewer
         bool isPlaying = false;
 
         /// <summary>
+        /// The random play mode is active when TRUE
+        /// </summary>
+        bool randomPlay = false;
+
+        /// <summary>
         /// The volume control visibility flag
         /// </summary>
         bool isVolumeControlVisible = false;
@@ -287,6 +292,9 @@ namespace MediaViewer
             // Is the insert operation finished
             bool done = false;
 
+            // Set the progress bar
+            CheckAndInvoke(new Action(SetProgressBarVisible));
+
             do
             {
                 // Cycle through all the user set directories
@@ -385,6 +393,9 @@ namespace MediaViewer
 
             // A small notification the work has finished
             MessageBox.Show("Media Import Is Complete");
+
+            // Reset the progressbar back to original
+            CheckAndInvoke(new Action(SetProgressBarHidden));
 
             // Reload the tree once all work has finished and the above dialog has been acknowledged.
             CheckAndInvoke(libraryTreeControl.libraryTreeUpdateAction);
@@ -555,8 +566,8 @@ namespace MediaViewer
         /// </summary>
         private void AdvanceProgressBar()
         {
-            workProgressBar.Value += progressBarStep;
-            progressBarValue = workProgressBar.Value;
+            xworkProgressBar.Value += progressBarStep;
+            progressBarValue = xworkProgressBar.Value;
         }
 
         /// <summary>
@@ -564,7 +575,25 @@ namespace MediaViewer
         /// </summary>
         private void ProgressBarStop()
         {
-            workProgressBar.Value = workProgressBar.Maximum;
+            xworkProgressBar.Value = xworkProgressBar.Maximum;
+        }
+
+        /// <summary>
+        /// Set the ProgressBar to Visible and the Slider to Hidden
+        /// </summary>
+        private void SetProgressBarVisible()
+        {
+            workProgressBar.Visibility = Visibility.Hidden;
+            xworkProgressBar.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Set the Slider to Visible and the ProgressBar to Hidden
+        /// </summary>
+        private void SetProgressBarHidden()
+        {
+            xworkProgressBar.Visibility = Visibility.Hidden;
+            workProgressBar.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -714,6 +743,11 @@ namespace MediaViewer
         /// <param name="e"></param>
         private void PlayListItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            //if (randomPlay)
+            //{
+            //    return;
+            //}
+
             // Added items
             if (e.NewItems != null && e.NewItems.Count > 0)
             {
@@ -809,7 +843,8 @@ namespace MediaViewer
                 return;
             }
             PlayListViewModel item = (PlayListViewModel)e.AddedItems[0];
-            
+            selectedIdx = playList.SelectedIndex;
+
             // Load the view model for the details control using the path and file name
             mediaDetailsControl.LoadViewModel(item.Path + "\\" + item.File);
         }
@@ -1031,6 +1066,68 @@ namespace MediaViewer
             }
         }
 
+        /// <summary>
+        /// Start and stop random play mode
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RandomPlayListBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button rndBtn = sender as Button;
+
+            if (rndBtn != null)
+            {
+                randomPlay = !randomPlay;
+                rndBtn.Background = (randomPlay ? mediaViewerViewModel.ColorModel.ActiveButtonSolidColorBrush : mediaViewerViewModel.ColorModel.LightButtonSolidColorBrush);
+            }
+
+            if (randomPlay && !isPlaying)
+            {
+                int count = playListItems.Count;
+                int iTemp = 0;
+
+                // Set flag to change the contents of the player's media playlist
+                fromSavedPlayList = true;
+
+                PlayListViewModel temp = new PlayListViewModel();
+                var rnd = new Random();
+                var idxArr = new int[count];
+                var playArr = playListItems.ToArray();
+
+                // 
+                for (int i = 0; i < count; ++i)
+                {
+                    idxArr[i] = i;
+                    playListItems.RemoveAt((count - 1) - i);
+                }
+
+                for (int i = 0; i < count; ++i)
+                {
+                    int idx1 = 0;
+                    int idx2 = 0;
+                    while (idx1 == idx2)
+                    {
+                        idx1 = rnd.Next(count);
+                        idx2 = rnd.Next(count);
+                    }
+
+                    iTemp = idxArr[idx2];
+                    idxArr[idx2] = idxArr[idx1];
+                    idxArr[idx1] = iTemp;
+                }
+
+                for (int i = 0; i < count; ++i)
+                {
+                    int idx = idxArr[i];
+                    playListItems.Add(playArr[idx]);
+                }
+
+                playList.ItemsSource = playListItems;
+
+                fromSavedPlayList = false;
+            }
+        }
+
         bool fromSavedPlayList = false;
         /// <summary>
         /// Event handler which responds to making selections in the Save PlayList combobox.
@@ -1130,6 +1227,10 @@ namespace MediaViewer
 
         private void PlayBtn_Click(object sender, RoutedEventArgs e)
         {
+            //if (randomPlay)
+            //{
+            //    RandomPlayListBtn_Click(null, null);
+            //}
             if (mediaPlay == null)
             {
                 List<string> items = new List<string>();
@@ -1236,6 +1337,21 @@ namespace MediaViewer
             SetVolumeControlImage();
         }
 
+        private void Slider_DragCompleted(object sender, RoutedEventArgs e)
+        {
+            float value = (float)workProgressBar.Value / 100F;
+            value = (float)Math.Round(value * 100f) / 100f;
+            // Only set the position while the media is playing,
+            // otherwise just force to zero.
+            if (isPlaying)
+            {
+                mediaPlay.SetPosition(value);
+            }
+            else
+            {
+                workProgressBar.Value = 0D;
+            }
+        }
 
         #endregion
 

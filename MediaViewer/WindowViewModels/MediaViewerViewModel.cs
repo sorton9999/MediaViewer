@@ -19,6 +19,7 @@ namespace MediaViewer
         private int volume = 0;
         private bool flyoutExpand = true;
         private bool flyoutContract = false;
+        private int selectedIdx = -1;
 
         public bool FlyoutExpand
         {
@@ -57,6 +58,16 @@ namespace MediaViewer
             {
                 volume = value;
                 NotifyPropertyChanged("Volume");
+            }
+        }
+
+        public int SelectedIdx
+        {
+            get { return selectedIdx; }
+            set
+            {
+                selectedIdx = value;
+                NotifyPropertyChanged("SelectedIdx");
             }
         }
 

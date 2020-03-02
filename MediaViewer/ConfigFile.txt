@@ -4,5 +4,6 @@
 LightBackgroundColor=CornflowerBlue
 DarkBackgroundColor=DarkGray
 ButtonSolidColor=LightGray
-TopWindowBackgroundColor=Olive
+TopWindowBackgroundColor=LightBlue
 BottomWindowBackgroundColor=DarkGray
+ActiveButtonSolidColor=Yellow

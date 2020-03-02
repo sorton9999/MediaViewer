@@ -43,6 +43,9 @@ namespace MediaViewer
 
                     color = FromName(items["DarkBackgroundColor"]);
                     _colorView.DarkSolidColor = color;
+
+                    color = FromName(items["ActiveButtonSolidColor"]);
+                    _colorView.ActiveButtonSolidColor = color;
                 }
             }
             catch (Exception e)
