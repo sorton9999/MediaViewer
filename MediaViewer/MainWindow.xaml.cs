@@ -1345,7 +1345,7 @@ namespace MediaViewer
             // otherwise just force to zero.
             if (isPlaying)
             {
-                mediaPlay.SetPosition(value);
+                mediaPlay.InvokeSeeker(value);
             }
             else
             {
