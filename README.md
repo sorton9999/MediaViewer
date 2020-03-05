@@ -1,5 +1,5 @@
 # MediaViewer
-A media viewer interface to the vlc media player developed in C#
+A media player using the vlc media API developed in C#
 
 This tool provides a way to access your media collection (audio only for now) from a tree structure and look at its tag info. Songs can be played by the VLC media player created by VideoLan (www.videolan.org). I am in no way affiliated with the VideoLan organization. I just wanted to have my music collection viewable in one location and be able to play it easily.
 
@@ -19,5 +19,6 @@ There's more to do. The biggest items are:
     Add video playback
 
 A long term goal will be to split the functionality of the player to make it a server-client architecture. Currently it is a single standalone player. The server will provide the search and store of media files and the streaming of files. The server should provide a web interface for clients.
+
 
 
