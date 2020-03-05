@@ -18,6 +18,7 @@ namespace MediaViewer
 
         public delegate bool Adder(string file);
         public delegate bool Remover(int idx);
+        public delegate bool Seeker(float value);
         public delegate void AdvancePlayLabel(string e);
         public delegate void MediaAction(object sender, EventArgs e);
         public event MediaAction PlayEvent;
@@ -267,6 +268,18 @@ namespace MediaViewer
             return (res.IsCompleted && ret);
         }
 
+        public bool InvokeSeeker(float value)
+        {
+            Seeker seek = new Seeker(SetPosition);
+            bool ret = false;
+            var res = seek.BeginInvoke(value, new AsyncCallback(result =>
+            {
+                ret = (result.AsyncState as Seeker).EndInvoke(result);
+            }
+            ), seek);
+            return (res.IsCompleted && ret);
+        }
+
         private void InvokePlayer()
         {
             Action playAction = new Action(MediaPlayerPlay);
@@ -334,6 +347,20 @@ namespace MediaViewer
             {
                 _mediaPlayer.Stop();
             }
+        }
+
+        public bool SetPosition(float position)
+        {
+            bool retVal = true;
+            try
+            {
+                _mediaPlayer.Position = position;
+            }
+            catch (Exception)
+            {
+                retVal = false;
+            }
+            return retVal;
         }
 
         public bool IsFastForward()

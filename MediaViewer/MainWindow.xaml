@@ -352,6 +352,7 @@
                         <Button x:Name="savePlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Save" Click="SavePlayListBtn_Click"/>
                         <Button x:Name="loadPlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
                         <Button x:Name="deletePlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
+                        <Button x:Name="randomPlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Random" Margin="0,10,0,0" IsTabStop="False" Click="RandomPlayListBtn_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -536,7 +537,10 @@
                     <Image Source="Images\fastforward_button.png"/>
                 </StackPanel>
             </Button>
-            <ProgressBar x:Name="workProgressBar" Background="{Binding Path=LightButtonSolidColorBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="62,65,0,0" VerticalAlignment="Top" Width="387" Visibility="Visible"/>
+            
+            <ProgressBar x:Name="xworkProgressBar" Background="{Binding Path=LightButtonSolidColorBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="62,65,0,0" VerticalAlignment="Top" Width="387" Visibility="Hidden"/>
+            
+            <Slider x:Name="workProgressBar" Background="{Binding Path=LightButtonSolidColorBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="62,65,0,0" VerticalAlignment="Top" Width="387" Visibility="Visible" TickFrequency="10" Maximum="100" Thumb.DragCompleted="Slider_DragCompleted" />
             <Label x:Name="lblTotalTime" Content="0:00:00" HorizontalAlignment="Left" Margin="462,57,-1,0" VerticalAlignment="Top" AllowDrop="True"/>
             <Label x:Name="lblPlayTime" Content="0:00:00" HorizontalAlignment="Left" Margin="1,58,0,0" VerticalAlignment="Top" AllowDrop="True"/>
             <Button x:Name="Media_Button" Content="Find Media" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="250,91,0,0" VerticalAlignment="Top" Width="75" Click="Media_Button_Click"/>
