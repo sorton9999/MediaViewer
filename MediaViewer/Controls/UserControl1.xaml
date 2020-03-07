@@ -25,9 +25,15 @@
         <TextBox x:Name="commentTextBox" Text ="{Binding Comment, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,186,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
         <TextBox x:Name="genreTextBox" Text ="{Binding Genre, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,217,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
         <Button x:Name="browseButton" Content="Browse..." Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Width="75" Click="browse_ButtonClick"/>
-        <Image HorizontalAlignment="Left" Height="160" Margin="355,113,0,0" VerticalAlignment="Top" Width="130" Source="{Binding AlbumArt, Mode=OneWay}"/>
+        <Image HorizontalAlignment="Left" Height="130" Margin="355,142,0,0" VerticalAlignment="Top" Width="130" Source="{Binding AlbumArt, Mode=OneWay}"/>
         <TextBox x:Name="lengthtextBox" Text="{Binding Length, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,250,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
         <Label x:Name="label" Content="Length" HorizontalAlignment="Left" Margin="10,247,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.018,0.084"/>
+        <Button x:Name="nowPlayingBtn" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Margin="365,78,0,0" VerticalAlignment="Top" Width="75" Height="37" Click="NowPlayingBtn_Click">
+            <StackPanel>
+                <TextBlock Text="Now" HorizontalAlignment="Center"/>
+                <TextBlock Text="Playing" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Button>
 
     </Grid>
 </UserControl>

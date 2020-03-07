@@ -180,6 +180,7 @@ namespace MediaViewer
             mediaPlay.PositionChangeEvent += MediaPlay_PositionChangeEvent;
             mediaPlay.MediaChangeEvent += MediaPlay_MediaChangeEvent;
 
+            mediaDetailsControl.NowPlayingEvent += MediaDetailsControl_NowPlayingEvent;
 
             volumeImage.DataContext = mediaViewerViewModel;
             volumeControl.Volume = 25;
@@ -1320,6 +1321,19 @@ namespace MediaViewer
         {
             mediaViewerViewModel.FlyoutContract = !mediaViewerViewModel.FlyoutContract;
             mediaViewerViewModel.FlyoutExpand = true;
+        }
+
+        /// <summary>
+        /// The event handler for the Now Playing button click on the details control
+        /// </summary>
+        private void MediaDetailsControl_NowPlayingEvent()
+        {
+            if (isPlaying)
+            {
+                PlayListViewModel item = PlayListItems.First((i) => i.NowPlaying == true);
+                string title = item.Path + "\\" + item.File;
+                mediaDetailsControl.LoadViewModel(title);
+            }
         }
 
         #endregion
