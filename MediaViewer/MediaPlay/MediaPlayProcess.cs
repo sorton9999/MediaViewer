@@ -21,11 +21,19 @@ namespace MediaViewer
         public delegate bool Seeker(float value);
         public delegate void AdvancePlayLabel(string e);
         public delegate void MediaAction(object sender, EventArgs e);
+        public delegate void MediaTimeChangeAction(MediaPlayTimeChangeEventArgs e);
+        public delegate void MediaPositionChangeAction(MediaPlayPositionChangeEventArgs e);
         public event MediaAction PlayEvent;
         public event MediaAction StopEvent;
         public event MediaAction RewindEvent;
         public event MediaAction FastForwardEvent;
         public event MediaAction PauseEvent;
+        public event MediaAction MediaChangeEvent;
+        public event MediaTimeChangeAction TimeChangeEvent;
+        public event MediaPositionChangeAction PositionChangeEvent;
+
+        private MediaPlayTimeChangeEventArgs timeEventArgs = new MediaPlayTimeChangeEventArgs();
+        private MediaPlayPositionChangeEventArgs posEventArgs = new MediaPlayPositionChangeEventArgs();
 
         public Action playAction;
         private Process playProcess = new Process();
@@ -38,13 +46,11 @@ namespace MediaViewer
         MediaList _mediaList;
         const long OFFSET = 5000;
 
-        private MainWindow _parent = null;
         private List<string> titlesToPlay = new List<string>();
 
-        public MediaPlayProcess(MainWindow parent)
+        public MediaPlayProcess()
         {
             Core.Initialize();
-            _parent = parent;
 
             _libVLC = new LibVLC(new string[] { "--one-instance-when-started-from-file" });
             _mediaPlayer = new MediaPlayer(_libVLC);
@@ -55,11 +61,9 @@ namespace MediaViewer
             Initialize();
         }
 
-        public MediaPlayProcess(MainWindow parent, List<string> items)
+        public MediaPlayProcess(List<string> items)
         {
             Core.Initialize();
-
-            _parent = parent;
 
             _libVLC = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVLC);
@@ -80,14 +84,6 @@ namespace MediaViewer
 
         public void Initialize()
         {
-            //playProcess.StartInfo.FileName = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
-            //playProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
-
-            //_mediaPlayer.Media = new Media(_libVLC, "C:\\Users\\Orton\\Music\\05 Fly By Night.wav", Media.FromType.FromPath);
-            //AddTrack("F:\\Music Archive\\Genesis\\Duke\\05 Misunderstanding.flac");
-            //AddTrack("F:\\Music Archive\\Genesis\\Abacab\\07 Man on the corner.flac");
-
-
             _mediaPlayer.TimeChanged += _mediaPlayer_TimeChanged;
             _mediaPlayer.PositionChanged += _mediaPlayer_PositionChanged;
             _mediaPlayer.LengthChanged += _mediaPlayer_LengthChanged;
@@ -111,11 +107,7 @@ namespace MediaViewer
         private void _mediaPlayer_Stopped(object sender, EventArgs e)
         {
             Debug.WriteLine("Title Stopped");
-            Action reset = () =>
-            {
-                _parent.workProgressBar.Value = 0;
-            };
-            _parent.CheckAndInvoke(reset);
+            StopEvent?.Invoke(this, new EventArgs());
         }
 
         private void _mediaPlayer_TitleChanged(object sender, MediaPlayerTitleChangedEventArgs e)
@@ -434,11 +426,8 @@ namespace MediaViewer
         private void _mediaPlayer_PositionChanged(object sender, MediaPlayerPositionChangedEventArgs e)
         {
             Debug.WriteLine("Position Changed {0}", e.Position);
-            Action adv = () =>
-            {
-                _parent.workProgressBar.Value = e.Position * 100;
-            };
-            _parent.CheckAndInvoke(adv);
+            posEventArgs.Position = e.Position;
+            PositionChangeEvent?.Invoke(posEventArgs);
         }
 
         private void _mediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
@@ -459,31 +448,50 @@ namespace MediaViewer
             double totalMins = ((totalDuration / 1000) / 60) % 60;
             double totalHours = (((totalDuration / 1000) / 60) / 60) % 60;
             string dur = String.Format("{0}:{1:00}:{2:00}", totalHours, totalMins, totalSecs);
-            AdvancePlayLabel adv = (s) =>
-            {
-                _parent.lblTotalTime.Content = dur;
-                _parent.lblPlayTime.Content = s;
-            };
-            if (!_parent.Dispatcher.CheckAccess())
-            {
-                _parent.Dispatcher.Invoke(adv, str);
-            }
-            else
-            {
-                adv.Invoke(str);
-            }
+
+            timeEventArgs.TotalTime = e.Time;
+            timeEventArgs.PlayTimeString = str;
+            timeEventArgs.TotalPlayTimeString = dur;
+            TimeChangeEvent?.Invoke(timeEventArgs);
         }
 
         private void _mediaPlayer_MediaChanged(object sender, MediaPlayerMediaChangedEventArgs e)
         {
             Debug.WriteLine("Media Changed");
-            Action reset = () =>
-            {
-                _parent.workProgressBar.Value = 0;
-            };
-            _parent.CheckAndInvoke(reset);
+            MediaChangeEvent?.Invoke(this, new EventArgs());
         }
 
 
+    }
+
+    public class MediaPlayTimeChangeEventArgs : EventArgs
+    {
+        public double TotalTime
+        {
+            get;
+            set;
+        }
+
+        public string PlayTimeString
+        {
+            get;
+            set;
+        }
+
+        public string TotalPlayTimeString
+        {
+            get;
+            set;
+        }
+
+    }
+
+    public class MediaPlayPositionChangeEventArgs : EventArgs
+    {
+        public float Position
+        {
+            get;
+            set;
+        }
     }
 }

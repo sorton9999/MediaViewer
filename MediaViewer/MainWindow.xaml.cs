@@ -36,6 +36,12 @@ namespace MediaViewer
                         };
 
         /// <summary>
+        /// A delegate that allows actions with an argument
+        /// </summary>
+        /// <param name="args"></param>
+        public delegate void ActionArgs(object args);
+
+        /// <summary>
         /// The view model for the main application
         /// </summary>
         private MediaViewerViewModel mediaViewerViewModel = new MediaViewerViewModel();
@@ -139,7 +145,7 @@ namespace MediaViewer
         /// <summary>
         /// Hold song details for various controls
         /// </summary>
-        private ViewModel songDetails = new ViewModel();
+        private readonly ViewModel songDetails = new ViewModel();
 
 
         /// <summary>
@@ -167,8 +173,15 @@ namespace MediaViewer
                 }
             }
 
+            // The player object.  This is where the action happens.
+            mediaPlay = new MediaPlayProcess();
+            mediaPlay.StopEvent += MediaPlay_StopEvent;
+            mediaPlay.TimeChangeEvent += MediaPlay_TimeChangeEvent;
+            mediaPlay.PositionChangeEvent += MediaPlay_PositionChangeEvent;
+            mediaPlay.MediaChangeEvent += MediaPlay_MediaChangeEvent;
+
+
             volumeImage.DataContext = mediaViewerViewModel;
-            mediaPlay = new MediaPlayProcess(this);
             volumeControl.Volume = 25;
             SetVolumeControlImage();
 
@@ -190,6 +203,7 @@ namespace MediaViewer
 
             this.DataContext = UserControl1.ColorLoader.ColorView;
             flyoutBtnGrid.DataContext = UserControl1.ColorLoader.ColorView;
+
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
 
@@ -436,6 +450,23 @@ namespace MediaViewer
         }
 
         /// <summary>
+        /// A thread safe means to calling the given action with an argument
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="args"></param>
+        public void CheckAndInvoke(ActionArgs action, object args)
+        {
+            if (!this.Dispatcher.CheckAccess())
+            {
+                this.Dispatcher.Invoke(action, args);
+            }
+            else
+            {
+                action.Invoke(args);
+            }
+        }
+
+        /// <summary>
         /// Sets the image on the volume button to match the
         /// volume setting in the Volume Control.  The image
         /// is dynamically changed as the volume slider in
@@ -625,6 +656,10 @@ namespace MediaViewer
             }
         }
 
+        /// <summary>
+        /// Check the version of the DB to make sure it is an expected value.
+        /// </summary>
+        /// <returns>Whether or not it is the expected value</returns>
         private bool CheckDbVersion()
         {
             bool retVal = false;
@@ -633,6 +668,72 @@ namespace MediaViewer
             retVal = DBVersionUtility.IsDbVersion(dbVersion);
 
             return retVal;
+        }
+
+        /// <summary>
+        /// Reset the controls that keep track of the song position and time
+        /// </summary>
+        private void ResetSong()
+        {
+            workProgressBar.Value = 0;
+            MediaPlay_TimeChangeEvent(new MediaPlayTimeChangeEventArgs() { PlayTimeString = "0:00:00", TotalPlayTimeString = "0:00:00" });
+        }
+
+        #endregion
+
+        #region Player Event Handlers
+
+        /// <summary>
+        /// The media change event handler emited from the player
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MediaPlay_MediaChangeEvent(object sender, EventArgs e)
+        {
+            CheckAndInvoke(new Action(ResetSong));
+        }
+
+        /// <summary>
+        /// The position of the media emited from the player
+        /// </summary>
+        /// <param name="e"></param>
+        private void MediaPlay_PositionChangeEvent(MediaPlayPositionChangeEventArgs e)
+        {
+            ActionArgs pos = (s) =>
+            {
+                if (s is MediaPlayPositionChangeEventArgs args)
+                {
+                    workProgressBar.Value = args.Position * 100;
+                }
+            };
+            CheckAndInvoke(pos, e);
+        }
+
+        /// <summary>
+        /// The media player stop event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MediaPlay_StopEvent(object sender, EventArgs e)
+        {
+            CheckAndInvoke(new Action(ResetSong));
+        }
+
+        /// <summary>
+        /// The time of the media emited from the player
+        /// </summary>
+        /// <param name="e"></param>
+        private void MediaPlay_TimeChangeEvent(MediaPlayTimeChangeEventArgs e)
+        {
+            ActionArgs change = (s) =>
+            {
+                if (s is MediaPlayTimeChangeEventArgs args)
+                {
+                    lblTotalTime.Content = args.TotalPlayTimeString;
+                    lblPlayTime.Content = args.PlayTimeString;
+                }
+            };
+            CheckAndInvoke(change, e);
         }
 
         #endregion
@@ -1238,7 +1339,7 @@ namespace MediaViewer
                 {
                     items.Add(title.Path + "\\" + title.Song + ".flac");
                 }
-                mediaPlay = new MediaPlayProcess(this, items);
+                mediaPlay = new MediaPlayProcess(items);
             }
             Debug.WriteLine("Track Count: {0}", mediaPlay.TrackCount());
             if (!mediaPlay.IsFastForward() && !mediaPlay.IsRewind())
