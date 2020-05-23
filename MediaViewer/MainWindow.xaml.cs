@@ -1321,6 +1321,12 @@ namespace MediaViewer
         {
             mediaViewerViewModel.FlyoutContract = !mediaViewerViewModel.FlyoutContract;
             mediaViewerViewModel.FlyoutExpand = true;
+            playListSaveTB.Visibility = Visibility.Collapsed;
+            deletePlayListCB.Visibility = Visibility.Collapsed;
+            savedPlayListsCB.Visibility = Visibility.Collapsed;
+            saveBtnClickNum = 0;
+            numLoadClicks = 0;
+            numDeleteClicks = 0;
         }
 
         /// <summary>
@@ -1346,15 +1352,7 @@ namespace MediaViewer
             //{
             //    RandomPlayListBtn_Click(null, null);
             //}
-            if (mediaPlay == null)
-            {
-                List<string> items = new List<string>();
-                foreach (var title in playListItems)
-                {
-                    items.Add(title.Path + "\\" + title.Song + ".flac");
-                }
-                mediaPlay = new MediaPlayProcess(items);
-            }
+
             Debug.WriteLine("Track Count: {0}", mediaPlay.TrackCount());
             if (!mediaPlay.IsFastForward() && !mediaPlay.IsRewind())
             {
@@ -1372,7 +1370,7 @@ namespace MediaViewer
 
         private void PauseBtn_Click(object sender, RoutedEventArgs e)
         {
-            isPlaying = false;
+            isPlaying = !isPlaying;
             mediaPlay.Play(false);
         }
 

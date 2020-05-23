@@ -405,8 +405,7 @@ namespace MediaViewer
         {
             Debug.WriteLine("End Reached");
             Debug.WriteLine(GetState().ToString());
-            int mediaCount = -1;
-            mediaCount = _mediaList.Count;
+            int mediaCount = _mediaList.Count;
             ++trackIdx;
             if (mediaCount > trackIdx)
             {
@@ -443,6 +442,9 @@ namespace MediaViewer
             double playMins = ((e.Time / 1000) / 60) % 60;
             double playHours = (((e.Time / 1000) / 60) / 60) % 60;
             string str = String.Format("{0}:{1:00}:{2:00}", playHours, playMins, playSecs);
+
+            // TODO -- Look into moving this some where else.  This time doesn't need to be
+            // continuously updated here.
             long totalDuration = _mediaList[trackIdx].Duration;
             double totalSecs = (totalDuration / 1000) % 60;
             double totalMins = ((totalDuration / 1000) / 60) % 60;
@@ -464,9 +466,12 @@ namespace MediaViewer
 
     }
 
+    /// <summary>
+    /// Play time updates go here and sent out in the event handler.
+    /// </summary>
     public class MediaPlayTimeChangeEventArgs : EventArgs
     {
-        public double TotalTime
+        public long TotalTime
         {
             get;
             set;
@@ -486,6 +491,9 @@ namespace MediaViewer
 
     }
 
+    /// <summary>
+    /// Position updates go here and sent out in the event handler.
+    /// </summary>
     public class MediaPlayPositionChangeEventArgs : EventArgs
     {
         public float Position
