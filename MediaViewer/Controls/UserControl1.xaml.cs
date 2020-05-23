@@ -23,6 +23,13 @@ namespace MediaViewer
     public partial class UserControl1 : UserControl
     {
         /// <summary>
+        /// Delegate and event to support sending the NowPlaying
+        /// click event to the registered object.
+        /// </summary>
+        public delegate void NowPlayingDel();
+        public event NowPlayingDel NowPlayingEvent;
+
+        /// <summary>
         /// File Dialog window to choose files
         /// </summary>
         private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -115,6 +122,16 @@ namespace MediaViewer
                 viewModel.LoadFile(fileName);
             }
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// The Now Playing button event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NowPlayingBtn_Click(object sender, RoutedEventArgs e)
+        {
+            NowPlayingEvent?.Invoke();
         }
     }
 }
