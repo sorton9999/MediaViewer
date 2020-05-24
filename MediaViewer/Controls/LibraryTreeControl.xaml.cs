@@ -43,6 +43,12 @@ namespace MediaViewer
         private async void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             List<string> playList = new List<string>();
+            string tag = (string)(sender as MenuItem).Tag;
+            MediaPlayWorker mediaWorker = MediaPlayWorker.Instance();
+
+            // We set some indices where titles will potentially be inserted
+            mediaWorker.SetPlayerIndices(tag);
+
             TitleViewModel vm = (sender as MenuItem).DataContext as TitleViewModel;
             if (vm != null)
             {
@@ -54,12 +60,19 @@ namespace MediaViewer
                 pm.Length = vm.TitleLength;
                 pm.File = vm.FileName;
                 pm.Selected = false;
-                MainWindow.PlayListItems.Add(pm);
+                if (mediaWorker.InsertingTitle)
+                {
+                    mediaWorker.InsertTitleToPlayList(mediaWorker.PlayIndex, pm);
+                }
+                else
+                {
+                    mediaWorker.AddTitleToPlayList(pm);
+                }
                 // Here we have a single song title so a specific title must have been
                 // clicked in the tree.
                 // Play the song.
                 playList.Add(vm.FilePath + "\\" + vm.FileName);
-                await MediaPlayWorker.PlayFileAsync(playList, MainWindow.PlayProcess);
+                await MediaPlayWorker.PlayFileAsync(playList, mediaWorker.PlayIndex, mediaWorker.TitlePlayingNext);
             }
             else
             {
@@ -78,7 +91,15 @@ namespace MediaViewer
                     }
                     // Go through each title and load a list with its path
                     // to get to its file to play
-                    int idx = 0;
+                    int idx = -1;
+                    if (mediaWorker.InsertingTitle)
+                    {
+                        idx = mediaWorker.PlayIndex;
+                    }
+                    else
+                    {
+                        idx = 0;
+                    }
                     foreach (var item in am.Children)
                     {
                         PlayListViewModel pm = new PlayListViewModel();
@@ -93,12 +114,19 @@ namespace MediaViewer
                             pm.Length = tm.TitleLength;
                             pm.File = tm.FileName;
                             pm.Selected = false;
-                            MainWindow.PlayListItems.Add(pm);
+                            if (mediaWorker.InsertingTitle)
+                            {
+                                mediaWorker.InsertTitleToPlayList(idx, pm);
+                            }
+                            else
+                            {
+                                mediaWorker.AddTitleToPlayList(pm);
+                            }
                         }
                         ++idx;
                     }
                     // Send the list to the player
-                    await MediaPlayWorker.PlayFileAsync(playList, MainWindow.PlayProcess);
+                    await MediaPlayWorker.PlayFileAsync(playList, mediaWorker.PlayIndex, mediaWorker.TitlePlayingNext);
                 }
             }
         }
