@@ -138,6 +138,18 @@ namespace MediaViewer
             return retVal;
         }
 
+        public bool AddTrack(string mediaPath, int idx)
+        {
+            bool retVal = false;
+            retVal = _mediaList.InsertMedia(new Media(_libVLC, mediaPath), idx);
+            if (retVal && GetState() != MediaPlayStateEnum.MEDIA_PLAY)
+            {
+                _mediaPlayer.Media = _mediaList[0];
+                _mediaPlayer.Media.AddOption(":no-video");
+            }
+            return retVal;
+        }
+
         public bool RemoveTrack(int idx)
         {
             bool retVal = false;
