@@ -44,7 +44,9 @@
                         <TextBlock Text="{Binding AlbumName}">
                             <TextBlock.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Play" Click="MenuItem_Click"/>
+                                    <MenuItem Header="Play Album" Tag="0" Click="MenuItem_Click"/>
+                                    <MenuItem Header="Play Next" Tag="1" Click="MenuItem_Click"/>
+                                    <MenuItem Header="Add to PlayList" Tag="2" Click="MenuItem_Click"/>
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
                         </TextBlock>
@@ -57,7 +59,9 @@
                         <TextBlock Text="{Binding TitleName}">
                             <TextBlock.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Play" Click="MenuItem_Click"/>
+                                    <MenuItem Header="Play Song" Tag="0" Click="MenuItem_Click"/>
+                                    <MenuItem Header="Play Next" Tag="1" Click="MenuItem_Click"/>
+                                    <MenuItem Header="Add to PlayList" Tag="2" Click="MenuItem_Click"/>
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
                         </TextBlock>
