@@ -350,6 +350,7 @@ namespace MediaViewer
             if (_mediaPlayer.IsPlaying)
             {
                 _mediaPlayer.Stop();
+                MainWindow.SetTrackStop();
             }
         }
 
@@ -423,10 +424,10 @@ namespace MediaViewer
             {
                 Play(true);
             }
-            //else
-            //{
-            //    Play(false);
-            //}
+            else
+            {
+                MainWindow.SetTrackStop();
+            }
         }
 
         private void _mediaPlayer_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)

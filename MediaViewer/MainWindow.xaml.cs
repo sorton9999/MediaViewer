@@ -495,6 +495,11 @@ namespace MediaViewer
             }
         }
 
+        /// <summary>
+        /// Set the NowPlaying and Selected flags of the item at the given playlist
+        /// item index
+        /// </summary>
+        /// <param name="trackIdx">The playlist item index</param>
         public static void SetTrackItems(int trackIdx)
         {
             foreach (var item in playListItems.ToList().Select((e, i) => new { e , i}))
@@ -509,6 +514,18 @@ namespace MediaViewer
                     item.e.NowPlaying = true;
                     item.e.Selected = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Set all the NowPlaying and Selected flags in the playlist
+        /// </summary>
+        public static void SetTrackStop()
+        {
+            foreach (var item in playListItems.ToList())
+            {
+                item.NowPlaying = false;
+                item.Selected = false;
             }
         }
 
@@ -756,12 +773,8 @@ namespace MediaViewer
                 e.Handled = false;
                 return;
             }
-            // Make media search progress bar visible and set progress to zero
-            if (workProgressBar.Visibility != System.Windows.Visibility.Visible)
-            {
-                workProgressBar.Visibility = System.Windows.Visibility.Visible;
-            }
-            workProgressBar.Value = 0.0;
+            // Set media search progress bar progress to zero
+            xworkProgressBar.Value = 0.0;
             // Create the DB insert thread
             insertThread = new Thread(new ThreadStart(InsertThreadHandler));
             // Clear out any old data
