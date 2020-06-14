@@ -212,50 +212,6 @@ namespace MediaViewer
 
         }
 
-        private void PlayerControl_PlayEvent(PlayerControl.PlayerModeEnum playMode, MouseButtonEventArgs e)
-        {
-            switch (playMode)
-            {
-                case PlayerControl.PlayerModeEnum.PLAYER_MODE_FF:
-                    {
-                        //Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-
-                        //MouseDevice mouseDevice = Mouse.PrimaryDevice;
-                        //MouseButtonEventArgs mouseButtonEventArgs = new MouseButtonEventArgs(mouseDevice, 0, MouseButton.Middle);
-                        //mouseButtonEventArgs.RoutedEvent = Mouse.MouseDownEvent;
-                        //mouseButtonEventArgs.Source = UIResult;
-                        //UIEresult.RaiseEvent(mouseButtonEventArgs);
-
-                        //RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
-                        //{
-                        //    RoutedEvent = Mouse.MouseDownEvent,
-                        //    Source = this,
-                        //});
-
-                        FfBtn_PreviewMouseLeftButtonDown(null, e);
-                    }
-                    break;
-                case PlayerControl.PlayerModeEnum.PLAYER_MODE_PAUSE:
-                    PauseBtn_Click(null, null);
-                    break;
-                case PlayerControl.PlayerModeEnum.PLAYER_MODE_PLAY:
-                    PlayBtn_Click(null, null);
-                    break;
-                case PlayerControl.PlayerModeEnum.PLAYER_MODE_RW:
-                    {
-                        //Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                        RwBtn_PreviewMouseLeftButtonDown(null, e);
-                    }
-                    break;
-                case PlayerControl.PlayerModeEnum.PLAYER_MODE_STOP:
-                    StopBtn_Click(null, null);
-                    break;
-                default:
-                    System.Diagnostics.Debug.WriteLine("Unsupported mode: " + playMode.ToString());
-                    break;
-            }
-        }
-
         #region Properties
 
         /// <summary>
@@ -810,6 +766,36 @@ namespace MediaViewer
         #endregion
 
         #region Control Event Handlers
+
+        /// <summary>
+        /// The Play Control event handler called when the play/rw/ff buttons are clicked
+        /// </summary>
+        /// <param name="playMode">The button mode</param>
+        /// <param name="e">The mouse button click event</param>
+        private void PlayerControl_PlayEvent(PlayerControl.PlayerModeEnum playMode, MouseButtonEventArgs e)
+        {
+            switch (playMode)
+            {
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_FF:
+                    FfBtn_PreviewMouseLeftButtonDown(null, e);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_PAUSE:
+                    PauseBtn_Click(null, null);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_PLAY:
+                    PlayBtn_Click(null, null);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_RW:
+                    RwBtn_PreviewMouseLeftButtonDown(null, e);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_STOP:
+                    StopBtn_Click(null, null);
+                    break;
+                default:
+                    System.Diagnostics.Debug.WriteLine("Unsupported mode: " + playMode.ToString());
+                    break;
+            }
+        }
 
         /// <summary>
         /// The handler for button clicks on the "Find Media" button.  The backend

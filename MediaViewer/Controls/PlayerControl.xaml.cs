@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,11 +26,13 @@ namespace MediaViewer.Controls
 
         public enum PlayerModeEnum { PLAYER_MODE_STOP, PLAYER_MODE_PLAY, PLAYER_MODE_PAUSE, PLAYER_MODE_FF, PLAYER_MODE_RW };
 
+        private static PlayerControl _instance;
         PlayerModeEnum _playerMode = PlayerModeEnum.PLAYER_MODE_STOP;
 
         public PlayerControl()
         {
             InitializeComponent();
+            _instance = this;
         }
 
         public PlayerModeEnum PlayerMode
@@ -38,10 +41,20 @@ namespace MediaViewer.Controls
             private set { _playerMode = value; }
         }
 
+        public void SetPlay()
+        {
+            PlayPauseVisible(PlayerModeEnum.PLAYER_MODE_PLAY);
+        }
+
         public void Reset()
         {
             _playerMode = PlayerModeEnum.PLAYER_MODE_STOP;
             PlayPauseVisible(_playerMode);
+        }
+
+        public static PlayerControl PlayControl()
+        {
+            return _instance;
         }
 
         private void RewindBtn_Action(object sender, MouseButtonEventArgs e)
@@ -75,9 +88,10 @@ namespace MediaViewer.Controls
         private void PlayPauseVisible(PlayerModeEnum mode)
         {
             PlayerMode = mode;
-            PauseBtn.Visibility = ((_playerMode == PlayerModeEnum.PLAYER_MODE_PLAY) ? Visibility.Visible : Visibility.Hidden);
-            PlayBtn.Visibility = (((_playerMode == PlayerModeEnum.PLAYER_MODE_PAUSE)
-                                   || (_playerMode == PlayerModeEnum.PLAYER_MODE_STOP)) ? Visibility.Visible : Visibility.Hidden);
+            PauseBtn.Visibility = ((PlayerMode == PlayerModeEnum.PLAYER_MODE_PLAY) ? Visibility.Visible : Visibility.Hidden);
+            PlayBtn.Visibility = (((PlayerMode == PlayerModeEnum.PLAYER_MODE_PAUSE)
+                                   || (PlayerMode == PlayerModeEnum.PLAYER_MODE_STOP)) ? Visibility.Visible : Visibility.Hidden);
         }
+
     }
 }
