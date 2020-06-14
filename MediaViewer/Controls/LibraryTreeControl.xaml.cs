@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 
 using DataAccessLib.DataModel;
+using MediaViewer.Controls;
 using MediaViewer.TreeViewModel;
 
 namespace MediaViewer
@@ -73,6 +74,8 @@ namespace MediaViewer
                 // Play the song.
                 playList.Add(vm.FilePath + "\\" + vm.FileName);
                 await MediaPlayWorker.PlayFileAsync(playList, mediaWorker.PlayIndex, mediaWorker.TitlePlayingNext);
+                // Kludge -- This is to just set the play/pause button on the play control to Play
+                PlayerControl.PlayControl().SetPlay();
             }
             else
             {
@@ -127,6 +130,8 @@ namespace MediaViewer
                     }
                     // Send the list to the player
                     await MediaPlayWorker.PlayFileAsync(playList, mediaWorker.PlayIndex, mediaWorker.TitlePlayingNext);
+                    // Kludge -- This is to just set the play/pause button on the play control to Play
+                    PlayerControl.PlayControl().SetPlay();
                 }
             }
         }
