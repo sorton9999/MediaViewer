@@ -12,13 +12,14 @@ V.2.1 There is now playlist save, delete and load functions. Altering the color 
 There's more to do. The biggest items are:
 
     Reorder tracks in the playlist
-    Randomize tracks in a playlist
     Repeat play tracks
     Double-click a track in the playlist to start playing
     Improve look and feel of the GUI
     Add video playback
 
-A long term goal will be to split the functionality of the player to make it a server-client architecture. Currently it is a single standalone player. The server will provide the search and store of media files and the streaming of files. The server should provide a web interface for clients.
+V.2.2 The GUI has a slightly improved interface for player controls.  The controls are in a round style instead of the old mix of round and blocky buttons.  The progress bar is curved instead of straight to better match the round buttons.  The progress bar design was lifted from the excellent Material Design in XAML Toolkit offered by the design house Material Design In XAML (https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit) with a few tweaks done to make it specific for use in this project.
+
+A long term goal is to split the functionality of this player to make it a server-client architecture. Currently it is a single standalone player. The server will provide the search and store of media files and the streaming of files. This could possibly be a good candidate for a Blazor server which will provide hooks for web-based clients, possibly Electron to keep it looking more desktop looking.
 
 
 

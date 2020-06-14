@@ -69,20 +69,29 @@
         </Style>
     </UserControl.Resources>
     <Grid Background="Transparent">
-        <Border x:Name="outerBorder"  Background="Gray" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="3" Padding="2" MouseMove="OuterBorder_MouseMove">
+        <Border x:Name="outerBorder"  Background="Gray" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="3" Padding="2" MouseMove="OuterBorder_MouseMove" Margin="4,5,4,6" Height="26">
             <Border x:Name="innerBorder" Background="Black" CornerRadius="3">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="muteButton" Content="mute" Style="{DynamicResource RoundCorner}" Foreground="White" VerticalAlignment="Center" Margin="4,1" Width="19" Height="18" Background="DarkGray" Click="MuteButton_Click" FontSize="8"/>
                     <ProgressBar x:Name="volumeBar"  Height="10" 
                     Value="{Binding Volume}" 
                     Width="100"
                     MouseMove="MouseMove" 
                     MouseDown="MouseDown"
-                    MouseUp="MouseUp" Style="{DynamicResource VolumeStyle}" Grid.Column="1"/>
+                    MouseUp="MouseUp" Style="{DynamicResource VolumeStyle}" Grid.Column="0"  Margin="1,5,24,5"/>
+                    <Button x:Name="muteButton" Content="mute" Style="{DynamicResource RoundCorner}" Grid.Column="1" Foreground="White" RenderTransformOrigin="0.0,0.0" VerticalAlignment="Center" Margin="0,1,-17,-1" Width="18" Height="20" Background="DarkGray" Click="MuteButton_Click" FontSize="8">
+                        <Button.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="90"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Button.RenderTransform>
+                    </Button>
                 </Grid>
             </Border>
         </Border>

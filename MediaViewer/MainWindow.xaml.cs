@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using MediaViewer.Utilities;
 using System.Windows.Input;
 using System.Windows.Controls;
+using MediaViewer.Controls;
 
 namespace MediaViewer
 {
@@ -147,7 +148,6 @@ namespace MediaViewer
         /// </summary>
         private readonly ViewModel songDetails = new ViewModel();
 
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -163,7 +163,7 @@ namespace MediaViewer
             // Config View send parent in
             configView = new ConfigView(this);
             // Set the Max value from ProgressBar Maximum value
-            progressBarMax = workProgressBar.Maximum;
+            progressBarMax = xworkProgressBar.Maximum;
 
             if (!CheckDbVersion())
             {
@@ -204,6 +204,8 @@ namespace MediaViewer
 
             this.DataContext = UserControl1.ColorLoader.ColorView;
             flyoutBtnGrid.DataContext = UserControl1.ColorLoader.ColorView;
+
+            PlayerControl.PlayEvent += PlayerControl_PlayEvent;
 
 
             BindingOperations.EnableCollectionSynchronization(errorList, syncLock);
@@ -632,7 +634,7 @@ namespace MediaViewer
         /// </summary>
         private void SetProgressBarVisible()
         {
-            workProgressBar.Visibility = Visibility.Hidden;
+            PlayerProgress.Visibility = Visibility.Hidden;
             xworkProgressBar.Visibility = Visibility.Visible;
         }
 
@@ -642,7 +644,7 @@ namespace MediaViewer
         private void SetProgressBarHidden()
         {
             xworkProgressBar.Visibility = Visibility.Hidden;
-            workProgressBar.Visibility = Visibility.Visible;
+            PlayerProgress.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -693,8 +695,15 @@ namespace MediaViewer
         /// </summary>
         private void ResetSong()
         {
-            workProgressBar.Value = 0;
+            PlayerProgress.CurvedPlayerProgress.Value = 0;
+
             MediaPlay_TimeChangeEvent(new MediaPlayTimeChangeEventArgs() { PlayTimeString = "0:00:00", TotalPlayTimeString = "0:00:00" });
+            MediaPlayProcess.MediaPlayStateEnum state = mediaPlay.GetState();
+            if (state == MediaPlayProcess.MediaPlayStateEnum.MEDIA_STOP || state == MediaPlayProcess.MediaPlayStateEnum.MEDIA_ENDED)
+            {
+                isPlaying = false;
+                PlayerProgress.Reset();
+            }
         }
 
         #endregion
@@ -721,7 +730,7 @@ namespace MediaViewer
             {
                 if (s is MediaPlayPositionChangeEventArgs args)
                 {
-                    workProgressBar.Value = args.Position * 100;
+                    PlayerProgress.CurvedPlayerProgress.Value = args.Position * 100;
                 }
             };
             CheckAndInvoke(pos, e);
@@ -747,8 +756,8 @@ namespace MediaViewer
             {
                 if (s is MediaPlayTimeChangeEventArgs args)
                 {
-                    lblTotalTime.Content = args.TotalPlayTimeString;
-                    lblPlayTime.Content = args.PlayTimeString;
+                    PlayerProgress.lblTotalTimeA.Content = args.TotalPlayTimeString;
+                    PlayerProgress.lblPlayTimeA.Content = args.PlayTimeString;
                 }
             };
             CheckAndInvoke(change, e);
@@ -757,6 +766,36 @@ namespace MediaViewer
         #endregion
 
         #region Control Event Handlers
+
+        /// <summary>
+        /// The Play Control event handler called when the play/rw/ff buttons are clicked
+        /// </summary>
+        /// <param name="playMode">The button mode</param>
+        /// <param name="e">The mouse button click event</param>
+        private void PlayerControl_PlayEvent(PlayerControl.PlayerModeEnum playMode, MouseButtonEventArgs e)
+        {
+            switch (playMode)
+            {
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_FF:
+                    FfBtn_PreviewMouseLeftButtonDown(null, e);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_PAUSE:
+                    PauseBtn_Click(null, null);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_PLAY:
+                    PlayBtn_Click(null, null);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_RW:
+                    RwBtn_PreviewMouseLeftButtonDown(null, e);
+                    break;
+                case PlayerControl.PlayerModeEnum.PLAYER_MODE_STOP:
+                    StopBtn_Click(null, null);
+                    break;
+                default:
+                    System.Diagnostics.Debug.WriteLine("Unsupported mode: " + playMode.ToString());
+                    break;
+            }
+        }
 
         /// <summary>
         /// The handler for button clicks on the "Find Media" button.  The backend
@@ -932,6 +971,11 @@ namespace MediaViewer
             {
                 PlayListItems.Remove(item);
             }
+        }
+
+        private void MenuItemInformation_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Implement Me", "Not Implemented", MessageBoxButton.OK);
         }
 
         /// <summary>
@@ -1367,23 +1411,35 @@ namespace MediaViewer
             //}
 
             Debug.WriteLine("Track Count: {0}", mediaPlay.TrackCount());
-            if (!mediaPlay.IsFastForward() && !mediaPlay.IsRewind())
+
+            if (PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_PLAY
+                || PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_PAUSE)
             {
-                isPlaying = !isPlaying;
+                MediaPlayProcess.MediaPlayStateEnum state = mediaPlay.GetState();
+                isPlaying = true;
+                if (playList.SelectedIndex > -1)// && state != MediaPlayProcess.MediaPlayStateEnum.MEDIA_PAUSE)
+                {
+                    mediaPlay.Play(isPlaying, playList.SelectedIndex);
+                    playList.SelectedIndex = -1;
+                }
+                else
+                {
+                    bool isPaused = ((mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PAUSE) ? false : true);
+                    mediaPlay.Play(isPaused);
+                }
             }
-            if (playList.SelectedIndex > -1)
+            else if (PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_PAUSE
+                     || PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_FF
+                     || PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_RW)
             {
-                mediaPlay.Play(isPlaying, playList.SelectedIndex);
-            }
-            else
-            {
-                mediaPlay.Play(isPlaying);
+                isPlaying = true;
+                mediaPlay.Play(false);
             }
         }
 
         private void PauseBtn_Click(object sender, RoutedEventArgs e)
         {
-            isPlaying = !isPlaying;
+            isPlaying = false;
             mediaPlay.Play(false);
         }
 
@@ -1394,10 +1450,10 @@ namespace MediaViewer
 
         private void RwdBtn_SingleClickAction()
         {
-            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
-            {
-                mediaPlay._mediaPlayer_Backward(rwBtn, new RoutedEventArgs());
-            }
+            //if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            //{
+            //    mediaPlay._mediaPlayer_Backward(rwBtn, new RoutedEventArgs());
+            //}
         }
 
         private void RwdBtn_DoubleClickAction()
@@ -1439,10 +1495,10 @@ namespace MediaViewer
 
         private void FFBtn_SingleClickAction()
         {
-            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
-            {
-                mediaPlay._mediaPlayer_Forward(ffBtn, new RoutedEventArgs());
-            }
+            //if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+            //{
+            //    mediaPlay._mediaPlayer_Forward(ffBtn, new RoutedEventArgs());
+            //}
         }
 
         private void MediaDetailsControl_Loaded(object sender, RoutedEventArgs e)
@@ -1465,7 +1521,7 @@ namespace MediaViewer
 
         private void Slider_DragCompleted(object sender, RoutedEventArgs e)
         {
-            float value = (float)workProgressBar.Value / 100F;
+            float value = (float)PlayerProgress.CurvedPlayerProgress.Value / 100F;
             value = (float)Math.Round(value * 100f) / 100f;
             // Only set the position while the media is playing,
             // otherwise just force to zero.
@@ -1475,7 +1531,7 @@ namespace MediaViewer
             }
             else
             {
-                workProgressBar.Value = 0D;
+                PlayerProgress.CurvedPlayerProgress.Value = 0D;
             }
         }
 

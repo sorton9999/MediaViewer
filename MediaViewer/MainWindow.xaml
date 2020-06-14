@@ -1,17 +1,15 @@
 ﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:MediaViewer" x:Class="MediaViewer.MainWindow"
+        xmlns:local="clr-namespace:MediaViewer" xmlns:Controls="clr-namespace:MediaViewer.Controls" x:Class="MediaViewer.MainWindow"
         Title="Media Viewer" Height="470" Width="950" MinHeight="470" MinWidth="950" Closing="Window_Closing">
     <Window.Resources>
         <local:WindowColorViewModel x:Key="WindowColors" />
     </Window.Resources>
     <Window.Background>
         <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
-            <LinearGradientBrush.GradientStops>
-                <GradientStop Color="{Binding Path=WindowTopBackgroundColor, Mode=TwoWay}" Offset="1"/>
-                <GradientStop Color="{Binding Path=WindowBottomBackgroundColor, Mode=TwoWay}" Offset="0"/>
-            </LinearGradientBrush.GradientStops>
+            <GradientStop Color="{Binding WindowTopBackgroundColor, Mode=TwoWay}" Offset="1"/>
+            <GradientStop Color="{Binding WindowBottomBackgroundColor, Mode=TwoWay}" Offset="0"/>
         </LinearGradientBrush>
     </Window.Background>
     <Grid>
@@ -28,7 +26,7 @@
             <SolidColorBrush x:Key="LightBackgroundBrush" Color="#FFBA96EE" Opacity="1"/>
             <SolidColorBrush x:Key="DarkBackgroundBrush" Color="MediumPurple" Opacity="1"/>
             <Style x:Key="TabControlStyle" TargetType="{x:Type TabControl}">
-                <Setter Property="Background" Value="{Binding Path=LightSolidColorBrush}"/>
+                <Setter Property="Background" Value="{Binding LightSolidColorBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="Padding" Value="5"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -67,7 +65,7 @@
 
                                     </TabPanel>
                                 </Border>
-                                <Border Grid.Row="1" x:Name="ContentPanel" MinHeight="10" MinWidth="10" Background="{Binding Path=DarkSolidColorBrush}" BorderBrush="#FF979AA2" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1">
+                                <Border Grid.Row="1" x:Name="ContentPanel" MinHeight="10" MinWidth="10" Background="{Binding DarkSolidColorBrush}" BorderBrush="#FF979AA2" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1">
                                     <ContentPresenter Margin="4" x:Name="PART_SelectedContentHost" ContentSource="SelectedContent"/>
                                 </Border>
                                 <Border x:Name="DisabledVisualTop" Grid.Row="1" Grid.RowSpan="2" Background="#8CFFFFFF" CornerRadius="1" Panel.ZIndex="1" IsHitTestVisible="False" Opacity="0"/>
@@ -174,7 +172,7 @@
 
                                 <Grid x:Name="TemplateTopSelected" Margin="-2,0,-2,0" Panel.ZIndex="0" Opacity="0">
                                     <Grid>
-                                        <Border x:Name="BackgroundTop" Background="{Binding Path=DarkSolidColorBrush}" BorderBrush="#FF979AA2" BorderThickness="1,1,1,0" />
+                                        <Border x:Name="BackgroundTop" Background="{Binding DarkSolidColorBrush}" BorderBrush="#FF979AA2" BorderThickness="1,1,1,0" />
                                     </Grid>
                                     <Border x:Name="DisabledVisualTopSelected" Background="#8CFFFFFF" IsHitTestVisible="false" Visibility="Collapsed" />
                                 </Grid>
@@ -183,10 +181,8 @@
                                         <Border x:Name="TopUnselected_Background" BorderBrush="#FF94979F" BorderThickness="1,1,1,0">
                                             <Border.Background>
                                                 <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
-                                                    <LinearGradientBrush.GradientStops>
-                                                        <GradientStop Color="{Binding Path=WindowTopBackgroundColor, Mode=TwoWay}" Offset="0"/>
-                                                        <GradientStop Color="{Binding Path=WindowBottomBackgroundColor, Mode=TwoWay}" Offset="1"/>
-                                                    </LinearGradientBrush.GradientStops>
+                                                    <GradientStop Color="{Binding WindowTopBackgroundColor, Mode=TwoWay}" Offset="0"/>
+                                                    <GradientStop Color="{Binding WindowBottomBackgroundColor, Mode=TwoWay}" Offset="1"/>
                                                 </LinearGradientBrush>
                                                 <!--
                                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -199,8 +195,8 @@
                                                 -->
                                             </Border.Background>
                                         </Border>
-                                        <Border x:Name="TopUnselectedOver" Background="{Binding Path=DarkSolidColorBrush}" BorderBrush="Purple" BorderThickness="2,1,2,1" Opacity="0"/>
-                                        <Border x:Name="TopUnselected_Highlight" Margin="1" BorderBrush="{Binding Path=DarkSolidColorBrush}" BorderThickness="1,1,1,0"/>
+                                        <Border x:Name="TopUnselectedOver" Background="{Binding DarkSolidColorBrush}" BorderBrush="Purple" BorderThickness="2,1,2,1" Opacity="0"/>
+                                        <Border x:Name="TopUnselected_Highlight" Margin="1" BorderBrush="{Binding DarkSolidColorBrush}" BorderThickness="1,1,1,0"/>
                                     </Grid>
                                     <Border x:Name="DisabledVisualTopUnSelected" Background="#8CFFFFFF" IsHitTestVisible="false" Visibility="Collapsed"/>
                                 </Grid>
@@ -311,34 +307,33 @@
             </Style>
             <Storyboard x:Key="ExpandGrid">
 
-                <DoubleAnimation Duration="0:0:0.2" From="0" To="160" Storyboard.TargetProperty="(Grid.Height)" Storyboard.TargetName="AnimatedGrid"/>
+                <DoubleAnimation Duration="0:0:0.2" From="0" To="160" Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="AnimatedGrid"/>
 
             </Storyboard>
             <Storyboard x:Key="ContractGrid">
 
-                <DoubleAnimation Duration="0:0:0.2" From="160" To="0" Storyboard.TargetProperty="(Grid.Height)" Storyboard.TargetName="AnimatedGrid"/>
+                <DoubleAnimation Duration="0:0:0.2" From="160" To="0" Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="AnimatedGrid"/>
 
             </Storyboard>
         </Grid.Resources>
         <local:UserControl1 x:Name="mediaDetailsControl" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="290" Width="497" Loaded="MediaDetailsControl_Loaded"/>
         <GridSplitter HorizontalAlignment="Left" Margin="524,0,0,0" Width="8"/>
         <Grid x:Name="flyoutBtnGrid" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="535,0,0,14">
-            <Label x:Name="label" Content="Play  List" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="9,162,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0"/>
-            <Label x:Name="playTimeLabel" Content="{Binding Path=TotalPlayTime}" Background="LightGray" HorizontalAlignment="Left" Margin="9,186,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0" RenderTransformOrigin="0.65,0.053"/>
+            <Label x:Name="label" Content="Play  List" Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="9,162,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0"/>
+            <Label x:Name="playTimeLabel" Content="{Binding TotalPlayTime}" Background="LightGray" HorizontalAlignment="Left" Margin="9,186,0,0" VerticalAlignment="Top" Width="60" Height="19" VerticalContentAlignment="Center" Padding="5,0" RenderTransformOrigin="0.65,0.053"/>
             <Button x:Name="flyoutBtnExpand"
-                        Background="{Binding Path=LightButtonSolidColorBrush}"
+                        Background="{Binding LightButtonSolidColorBrush}"
                         HorizontalAlignment="Left"
                         Margin="7,389,0,0"
                         VerticalAlignment="Top"
                         Width="60"
-                        Visibility="{Binding Path=FlyoutExpand, Converter={StaticResource boolToVisConverter}}"
+                        Visibility="{Binding FlyoutExpand, Converter={StaticResource boolToVisConverter}}"
                         Click="FlyoutButtonExpand_Click"
                         >
 
                 <Button.Triggers>
-                    <EventTrigger RoutedEvent="Button.Click">
-                        <BeginStoryboard Storyboard="{StaticResource ExpandGrid}">
-                        </BeginStoryboard>
+                    <EventTrigger RoutedEvent="ButtonBase.Click">
+                        <BeginStoryboard Storyboard="{StaticResource ExpandGrid}"/>
                     </EventTrigger>
                 </Button.Triggers>
                 <StackPanel>
@@ -347,28 +342,27 @@
 
             </Button>
             <Grid x:Name="AnimatedGrid" HorizontalAlignment="Left" Height="0" Margin="3,0,0,28" VerticalAlignment="Bottom" Width="70">
-                <Border BorderBrush="{Binding Path=LightButtonSolidColorBrush}" BorderThickness="2">
+                <Border BorderBrush="{Binding LightButtonSolidColorBrush}" BorderThickness="2">
                     <StackPanel HorizontalAlignment="Left" Height="152" Margin="3,3,0,0" VerticalAlignment="Top" Width="58">
-                        <Button x:Name="savePlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Save" Click="SavePlayListBtn_Click"/>
-                        <Button x:Name="loadPlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
-                        <Button x:Name="deletePlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
-                        <Button x:Name="randomPlayListBtn" Background="{Binding Path=LightButtonSolidColorBrush}" Content="Random" Margin="0,10,0,0" IsTabStop="False" Click="RandomPlayListBtn_Click"/>
+                        <Button x:Name="savePlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Save" Click="SavePlayListBtn_Click"/>
+                        <Button x:Name="loadPlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
+                        <Button x:Name="deletePlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
+                        <Button x:Name="randomPlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Random" Margin="0,10,0,0" IsTabStop="False" Click="RandomPlayListBtn_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>
             <Button x:Name="flyoutButtonContract"
-                        Background="{Binding Path=LightButtonSolidColorBrush}"
+                        Background="{Binding LightButtonSolidColorBrush}"
                         HorizontalAlignment="Left"
                         Margin="7,389,0,0"
                         VerticalAlignment="Top"
                         Width="60"
                         Click="FlyoutContractButton_Click"
-                        Visibility="{Binding Path=FlyoutContract, Converter={StaticResource boolToVisConverter}}"
+                        Visibility="{Binding FlyoutContract, Converter={StaticResource boolToVisConverter}}"
                         >
                 <Button.Triggers>
-                    <EventTrigger RoutedEvent="Button.Click">
-                        <BeginStoryboard Storyboard="{StaticResource ContractGrid}">
-                        </BeginStoryboard>
+                    <EventTrigger RoutedEvent="ButtonBase.Click">
+                        <BeginStoryboard Storyboard="{StaticResource ContractGrid}"/>
                     </EventTrigger>
                 </Button.Triggers>
                 <StackPanel>
@@ -377,7 +371,7 @@
             </Button>
         </Grid>
         <Grid Height="419" Margin="0,10,5,0" HorizontalAlignment="Left">
-            <TabControl x:Name="tabControl" Style="{StaticResource TabControlStyle}" TabStripPlacement="Left" Margin="590,0,5,5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+            <TabControl x:Name="tabControl" TabStripPlacement="Left" Margin="590,0,5,5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">
                         <Setter Property="HeaderTemplate">
@@ -394,6 +388,9 @@
                         <Setter Property="Padding" Value="3" />
                     </Style>
                 </TabControl.Resources>
+                <TabControl.Style>
+                    <StaticResource ResourceKey="TabControlStyle"/>
+                </TabControl.Style>
                 <TabItem Header="Song Tree" Style="{StaticResource TabItemStyle}"
                          HorizontalContentAlignment="Center"
                          VerticalContentAlignment="Center"
@@ -405,7 +402,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <local:LibraryTreeControl x:Name="libraryTreeControl" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Margin="0"/>
+                        <local:LibraryTreeControl x:Name="libraryTreeControl" Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Margin="0"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Play List" Style="{StaticResource TabItemStyle}"
@@ -426,10 +423,13 @@
                                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                   MouseDown="ListView_MouseDown"
                                   SelectionChanged="ListView_SelectionChanged"
-                                  Background="{Binding Path=LightSolidColorBrush}" Grid.RowSpan="2"
+                                  Background="{Binding LightSolidColorBrush}" Grid.RowSpan="2"
                                   >
                             <ListView.ContextMenu>
                                 <ContextMenu>
+                                    <MenuItem Header="Play" Click="PlayBtn_Click"/>
+                                    <MenuItem Header="Information" Click="MenuItemInformation_Click"/>
+                                    <Separator/>
                                     <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
                                     <MenuItem Header="Delete All" Click="MenuItemDeleteAll_Click"/>
                                 </ContextMenu>
@@ -454,7 +454,7 @@
                                             <Setter Property="FontWeight" Value="Bold"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding NowPlaying}" Value="False">
-                                            <Setter Property="Background" Value="{Binding Path=LightButtonSolidColorBrush}"/>
+                                            <Setter Property="Background" Value="{Binding LightButtonSolidColorBrush}"/>
                                             <Setter Property="Foreground" Value="Black"/>
                                             <Setter Property="FontWeight" Value="Regular"/>
                                         </DataTrigger>
@@ -478,7 +478,7 @@
             <ComboBox x:Name="savedPlayListsCB"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Name"
-                      SelectedValue="{Binding Path=SavedPlayListModel}"
+                      SelectedValue="{Binding SavedPlayListModel}"
                       BorderThickness="3"
                       HorizontalAlignment="Left"
                       Margin="609,250,-4,0"
@@ -495,7 +495,7 @@
             <ComboBox x:Name="deletePlayListCB"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Name"
-                      SelectedValue="{Binding Path=DeletePlayListModel}"
+                      SelectedValue="{Binding DeletePlayListModel}"
                       BorderThickness="3"
                       HorizontalAlignment="Left"
                       Margin="609,277,-4,0"
@@ -509,57 +509,41 @@
                 </ComboBox.Resources>
             </ComboBox>
 
-        </Grid>
-        <Grid HorizontalAlignment="Left" Height="124" Margin="10,295,0,0" VerticalAlignment="Bottom" Width="509">
-            <local:VolumeControl x:Name="volumeControl" HorizontalAlignment="Left" Height="44" Margin="409,10,0,0" VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.5,0.49" PropertyChanged="VolumeControl_PropertyChanged" Visibility="Collapsed" />
-            <Button x:Name="rwBtn" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="81,10,0,0" VerticalAlignment="Top" Width="45" Height="45" PreviewMouseLeftButtonDown="RwBtn_PreviewMouseLeftButtonDown">
-                <StackPanel>
-                    <Image Source="Images\rewind_button.png"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="playBtn" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="148,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="PlayBtn_Click">
-                <StackPanel>
-                    <Image Source="Images\play_button.png"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="pauseBtn" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="217,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="PauseBtn_Click" RenderTransformOrigin="2.2,0.6">
-                <StackPanel>
-                    <Image Source="Images\pause_button.png"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="stopBtn" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="284,11,0,0" VerticalAlignment="Top" Width="45" Height="45" Click="StopBtn_Click">
-                <StackPanel>
-                    <Image Source="Images\stop_button.png"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="ffBtn" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="350,11,0,0" VerticalAlignment="Top" Width="45" Height="45" PreviewMouseLeftButtonDown="FfBtn_PreviewMouseLeftButtonDown">
-                <StackPanel>
-                    <Image Source="Images\fastforward_button.png"/>
-                </StackPanel>
-            </Button>
-            
-            <ProgressBar x:Name="xworkProgressBar" Background="{Binding Path=LightButtonSolidColorBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="62,65,0,0" VerticalAlignment="Top" Width="387" Visibility="Hidden"/>
-            
-            <Slider x:Name="workProgressBar" Background="{Binding Path=LightButtonSolidColorBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="62,65,0,0" VerticalAlignment="Top" Width="387" Visibility="Visible" TickFrequency="10" Maximum="100" Thumb.DragCompleted="Slider_DragCompleted" />
-            <Label x:Name="lblTotalTime" Content="0:00:00" HorizontalAlignment="Left" Margin="462,57,-1,0" VerticalAlignment="Top" AllowDrop="True"/>
-            <Label x:Name="lblPlayTime" Content="0:00:00" HorizontalAlignment="Left" Margin="1,58,0,0" VerticalAlignment="Top" AllowDrop="True"/>
-            <Button x:Name="Media_Button" Content="Find Media" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="250,91,0,0" VerticalAlignment="Top" Width="75" Click="Media_Button_Click"/>
-            <Button x:Name="Exit_Button" Content="Exit" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="350,91,0,0" VerticalAlignment="Top" Width="75" Click="Exit_Button_Click"/>
-            <Button Content="Edit Library ..." Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="142,91,0,0" VerticalAlignment="Top" Width="82" Click="Library_Button_Click"/>
-            <Button x:Name="Config_Button" Content="Config ..." Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="38,91,0,0" VerticalAlignment="Top" Width="75" Click="Config_Button_Click"/>
-            <Button x:Name="volumeButton" Background="{Binding Path=LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="449,88,0,0" VerticalAlignment="Top" Width="27" Height="27" RenderTransformOrigin="0.815,0.5" Click="VolumeButton_Click">
-                <Image x:Name="volumeImage">
-                    <Image.Source>
-                        <MultiBinding Converter="{StaticResource testValueConverter}">
-                            <Binding Path="Volume" />
-                            <Binding Source="{StaticResource LowVolumeImage}" />
-                            <Binding Source="{StaticResource MedVolumeImage}" />
-                            <Binding Source="{StaticResource HighVolumeImage}" />
-                            <Binding Source="{StaticResource NoVolumeImage}" />
-                        </MultiBinding>
-                    </Image.Source>
-                </Image>
-            </Button>
+            <Grid Margin="0,0,-10,0">
+                <Grid Margin="10,0,0,9" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="544">
+                    <Controls:PlayerControl x:Name="PlayerProgress" HorizontalAlignment="Left" Height="100" Margin="100,38,0,0" VerticalAlignment="Top" Width="300"/>
+
+                    <local:VolumeControl x:Name="volumeControl" HorizontalAlignment="Left" Height="44" Margin="423,-2,-19,0" VerticalAlignment="Top" Width="140" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed"  PropertyChanged="VolumeControl_PropertyChanged" >
+                        <local:VolumeControl.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="-90"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </local:VolumeControl.RenderTransform>
+                    </local:VolumeControl>
+
+                    <Button x:Name="Media_Button" Content="Find Media" Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="340,133,0,0" VerticalAlignment="Top" Width="75" Click="Media_Button_Click"/>
+                    <Button x:Name="Exit_Button" Content="Exit" Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="431,133,0,0" VerticalAlignment="Top" Width="75" Click="Exit_Button_Click"/>
+                    <Button Content="Edit Library ..." Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="89,134,0,0" VerticalAlignment="Top" Width="82" Click="Library_Button_Click"/>
+                    <Button x:Name="Config_Button" Content="Config ..." Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="0,134,0,0" VerticalAlignment="Top" Width="75" Click="Config_Button_Click"/>
+                    <Button x:Name="volumeButton" Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" Margin="479,86,0,0" VerticalAlignment="Top" Width="27" Height="27" RenderTransformOrigin="0.815,0.5" Click="VolumeButton_Click">
+                        <Image x:Name="volumeImage">
+                            <Image.Source>
+                                <MultiBinding Converter="{StaticResource testValueConverter}">
+                                    <Binding Path="Volume" />
+                                    <Binding Source="{StaticResource LowVolumeImage}" />
+                                    <Binding Source="{StaticResource MedVolumeImage}" />
+                                    <Binding Source="{StaticResource HighVolumeImage}" />
+                                    <Binding Source="{StaticResource NoVolumeImage}" />
+                                </MultiBinding>
+                            </Image.Source>
+                        </Image>
+                    </Button>
+                </Grid>
+                <ProgressBar x:Name="xworkProgressBar" Background="{Binding LightButtonSolidColorBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="66,338,0,0" VerticalAlignment="Top" Width="387" Visibility="Hidden"/>
+            </Grid>
         </Grid>
 
     </Grid>
