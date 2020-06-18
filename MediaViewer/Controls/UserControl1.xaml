@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="500">
+             d:DesignHeight="300" d:DesignWidth="480">
     <Grid>
         <Grid.Resources>
             <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#FFBA96EE" Opacity="1"/>
@@ -17,18 +17,18 @@
         <Label Content="Year" HorizontalAlignment="Left" Margin="10,153,0,0" VerticalAlignment="Top" Width="87"/>
         <Label Content="Comment" HorizontalAlignment="Left" Margin="10,184,0,0" VerticalAlignment="Top" Width="87"/>
         <Label Content="Genre" HorizontalAlignment="Left" Margin="10,215,0,0" VerticalAlignment="Top" Width="87"/>
-        <TextBox x:Name="fullFileNameTextBox" Text ="{Binding FileName, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,21,0,0" VerticalAlignment="Top" Width="358" IsReadOnly="True"/>
-        <TextBox x:Name="titleTextBox" Text ="{Binding Title, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,62,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="artistTextBox" Text ="{Binding Artist, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,93,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="albumTextBox" Text ="{Binding Album, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,124,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="yearTextBox" Text ="{Binding Year, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,155,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="commentTextBox" Text ="{Binding Comment, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,186,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <TextBox x:Name="genreTextBox" Text ="{Binding Genre, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,217,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
-        <Button x:Name="browseButton" Content="Browse..." Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Width="75" Click="browse_ButtonClick"/>
-        <Image HorizontalAlignment="Left" Height="130" Margin="355,142,0,0" VerticalAlignment="Top" Width="130" Source="{Binding AlbumArt, Mode=OneWay}"/>
-        <TextBox x:Name="lengthtextBox" Text="{Binding Length, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="97,250,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="fullFileNameTextBox" Text ="{Binding FileName, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,21,0,0" VerticalAlignment="Top" Width="358" IsReadOnly="True"/>
+        <TextBox x:Name="titleTextBox" Text ="{Binding Title, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,62,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="artistTextBox" Text ="{Binding Artist, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,93,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="albumTextBox" Text ="{Binding Album, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,124,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="yearTextBox" Text ="{Binding Year, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,155,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="commentTextBox" Text ="{Binding Comment, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,186,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <TextBox x:Name="genreTextBox" Text ="{Binding Genre, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,217,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
+        <Button x:Name="browseButton" Content="Browse..." Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Margin="353,49,0,0" VerticalAlignment="Top" Width="75" Click="browse_ButtonClick"/>
+        <Image HorizontalAlignment="Left" Height="130" Margin="340,142,0,0" VerticalAlignment="Top" Width="130" Source="{Binding AlbumArt, Mode=OneWay}"/>
+        <TextBox x:Name="lengthtextBox" Text="{Binding Length, Mode=TwoWay}" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="85,250,0,0" VerticalAlignment="Top" Width="237" IsReadOnly="True"/>
         <Label x:Name="label" Content="Length" HorizontalAlignment="Left" Margin="10,247,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.018,0.084"/>
-        <Button x:Name="nowPlayingBtn" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Margin="365,78,0,0" VerticalAlignment="Top" Width="75" Height="37" Click="NowPlayingBtn_Click">
+        <Button x:Name="nowPlayingBtn" Background="{Binding Path=ControlBackgroundColor, Mode=TwoWay}" HorizontalAlignment="Left" Margin="353,78,0,0" VerticalAlignment="Top" Width="75" Height="37" Click="NowPlayingBtn_Click">
             <StackPanel>
                 <TextBlock Text="Now" HorizontalAlignment="Center"/>
                 <TextBlock Text="Playing" HorizontalAlignment="Center"/>
