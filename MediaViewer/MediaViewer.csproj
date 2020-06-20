@@ -315,6 +315,18 @@
   <ItemGroup>
     <Resource Include="Images\up-arrows.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Screenshots\MediaViewerv2.1.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Screenshots\MediaViewerv2.2.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Screenshots\MediaViewerv2.2-opentree.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Screenshots\MediaViewv2.2-playlist.PNG" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
