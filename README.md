@@ -9,15 +9,25 @@ V.2.0 This version got away from reusing the main VLC GUI to play audio files. M
 
 V.2.1 There is now playlist save, delete and load functions. Altering the color of the GUI is available now. This is file driven by changing color values in a configuration file. This may be altered slightly by making different color schemes available by choice.
 
+**MediaViewer v2.1**
+![MediaViewerv2 1](https://user-images.githubusercontent.com/8380677/85210193-dc48eb80-b30b-11ea-880c-05e11cb6f696.PNG?raw=true "MediaViewer v2.1")
+
 There's more to do. The biggest items are:
 
     Reorder tracks in the playlist
     Repeat play tracks
     Double-click a track in the playlist to start playing
-    Improve look and feel of the GUI
+    Improve look and feel of the GUI [Started]
     Add video playback
 
 V.2.2 The GUI has a slightly improved interface for player controls.  The controls are in a round style instead of the old mix of round and blocky buttons.  The progress bar is curved instead of straight to better match the round buttons.  The progress bar design was lifted from the excellent Material Design in XAML Toolkit offered by the design house Material Design In XAML (https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit) with a few tweaks done to make it specific for use in this project.
+
+**MediaViewer v2.2 Tree view**
+![MediaViewerv2 2-opentree](https://user-images.githubusercontent.com/8380677/85210266-7f016a00-b30c-11ea-9155-b881de04f779.PNG?raw=true "MediaViewer v2.2 - Tree view")
+
+**MediaViewer v2.2 Playlist view**
+![MediaViewerv2 2-playlistNew](https://user-images.githubusercontent.com/8380677/85210496-3e0a5500-b30e-11ea-94c6-6eb9f4085c7a.PNG?raw=true "MediaViewer v2.2 - Playlist view")
+
 
 A long term goal is to split the functionality of this player to make it a server-client architecture. Currently it is a single standalone player. The server will provide the search and store of media files and the streaming of files. This could possibly be a good candidate for a Blazor server which will provide hooks for web-based clients, possibly Electron to keep it looking more desktop looking.
 
