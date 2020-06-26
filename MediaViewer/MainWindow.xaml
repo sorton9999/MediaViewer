@@ -371,100 +371,6 @@
             </Button>
         </Grid>
         <Grid Height="419" Margin="0,10,5,0" HorizontalAlignment="Left">
-            <TabControl x:Name="tabControl" TabStripPlacement="Left" Margin="590,0,5,5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                <TabControl.Resources>
-                    <Style TargetType="{x:Type TabItem}">
-                        <Setter Property="HeaderTemplate">
-                            <Setter.Value>
-                                <DataTemplate>
-                                    <ContentPresenter Content="{TemplateBinding Content}">
-                                        <ContentPresenter.LayoutTransform>
-                                            <RotateTransform Angle="270" />
-                                        </ContentPresenter.LayoutTransform>
-                                    </ContentPresenter>
-                                </DataTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Setter Property="Padding" Value="3" />
-                    </Style>
-                </TabControl.Resources>
-                <TabControl.Style>
-                    <StaticResource ResourceKey="TabControlStyle"/>
-                </TabControl.Style>
-                <TabItem Header="Song Tree" Style="{StaticResource TabItemStyle}"
-                         HorizontalContentAlignment="Center"
-                         VerticalContentAlignment="Center"
-                         >
-                    <Grid Background="CornflowerBlue">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <local:LibraryTreeControl x:Name="libraryTreeControl" Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Margin="0"/>
-                    </Grid>
-                </TabItem>
-                <TabItem Header="Play List" Style="{StaticResource TabItemStyle}"
-                         VerticalContentAlignment="Center"
-                         HorizontalContentAlignment="Center"
-                         >
-                    <Grid Background="CornflowerBlue">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="6*"/>
-                            <RowDefinition Height="95*"/>
-                        </Grid.RowDefinitions>
-                        <ListView x:Name="playList" Height="393" Margin="1,1,0,0" Width="300"
-                                  SelectionMode="Single"
-                                  HorizontalContentAlignment="Center"
-                                  VerticalContentAlignment="Center"
-                                  HorizontalAlignment="Left"
-                                  VerticalAlignment="Top"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                                  MouseDown="ListView_MouseDown"
-                                  SelectionChanged="ListView_SelectionChanged"
-                                  Background="{Binding LightSolidColorBrush}" Grid.RowSpan="2"
-                                  >
-                            <ListView.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Play" Click="PlayBtn_Click"/>
-                                    <MenuItem Header="Information" Click="MenuItemInformation_Click"/>
-                                    <Separator/>
-                                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
-                                    <MenuItem Header="Delete All" Click="MenuItemDeleteAll_Click"/>
-                                </ContextMenu>
-                            </ListView.ContextMenu>
-                            <ListView.View>
-                                <GridView ColumnHeaderContainerStyle="{StaticResource GridViewColumnHeaderStyle1}">
-                                    <GridViewColumn Header="Song" Width="200" DisplayMemberBinding="{Binding Song}"/>
-                                    <GridViewColumn Header="PlayTime" Width="60" DisplayMemberBinding="{Binding Length}"/>
-                                    <GridViewColumn Header="Artist" Width="auto" DisplayMemberBinding="{Binding ArtistName}"/>
-                                </GridView>
-                            </ListView.View>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="AliceBlue"/>
-                                            <Setter Property="FontStyle" Value="Italic"/>
-                                        </Trigger>
-                                        <DataTrigger Binding="{Binding NowPlaying}" Value="True">
-                                            <Setter Property="Background" Value="MediumPurple"/>
-                                            <Setter Property="Foreground" Value="DarkBlue"/>
-                                            <Setter Property="FontWeight" Value="Bold"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding NowPlaying}" Value="False">
-                                            <Setter Property="Background" Value="{Binding LightButtonSolidColorBrush}"/>
-                                            <Setter Property="Foreground" Value="Black"/>
-                                            <Setter Property="FontWeight" Value="Regular"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
-                    </Grid>
-                </TabItem>
-            </TabControl>
             <TextBox x:Name="playListSaveTB"
                      HorizontalAlignment="Left"
                      Height="23"
@@ -544,6 +450,105 @@
                 </Grid>
                 <ProgressBar x:Name="xworkProgressBar" Background="{Binding LightButtonSolidColorBrush}" Foreground="DarkCyan" HorizontalAlignment="Left" Height="12" Margin="66,338,0,0" VerticalAlignment="Top" Width="387" Visibility="Hidden"/>
             </Grid>
+        </Grid>
+        <Grid HorizontalAlignment="Left" Margin="646,15,0,0" VerticalAlignment="Top">
+            <TabControl x:Name="tabControl" TabStripPlacement="Left" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type TabItem}">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <ContentPresenter Content="{TemplateBinding Content}">
+                                        <ContentPresenter.LayoutTransform>
+                                            <RotateTransform Angle="270" />
+                                        </ContentPresenter.LayoutTransform>
+                                    </ContentPresenter>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Padding" Value="3" />
+                    </Style>
+                </TabControl.Resources>
+                <TabControl.Style>
+                    <StaticResource ResourceKey="TabControlStyle"/>
+                </TabControl.Style>
+                <TabItem Header="Song Tree" Style="{StaticResource TabItemStyle}"
+                         HorizontalContentAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         HorizontalAlignment="Left"
+                         VerticalAlignment="Top">
+                    <Grid Background="CornflowerBlue">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <local:LibraryTreeControl x:Name="libraryTreeControl" Background="{Binding LightButtonSolidColorBrush}" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Margin="0"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Play List" Style="{StaticResource TabItemStyle}"
+                         VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
+                         HorizontalAlignment="Left"
+                         VerticalAlignment="Top">
+                    <Grid Background="CornflowerBlue">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="6*"/>
+                            <RowDefinition Height="95*"/>
+                        </Grid.RowDefinitions>
+                        <ListView x:Name="playList" Margin="1,1,0,0"
+                                  SelectionMode="Single"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                  MouseDown="ListView_MouseDown"
+                                  SelectionChanged="ListView_SelectionChanged"
+                                  Background="{Binding LightSolidColorBrush}" Grid.RowSpan="2"
+                                  >
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Play" Click="PlayBtn_Click"/>
+                                    <MenuItem Header="Information" Click="MenuItemInformation_Click"/>
+                                    <Separator/>
+                                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
+                                    <MenuItem Header="Delete All" Click="MenuItemDeleteAll_Click"/>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                            <ListView.View>
+                                <GridView ColumnHeaderContainerStyle="{StaticResource GridViewColumnHeaderStyle1}">
+                                    <GridViewColumn Header="Song" Width="200" DisplayMemberBinding="{Binding Song}"/>
+                                    <GridViewColumn Header="PlayTime" Width="60" DisplayMemberBinding="{Binding Length}"/>
+                                    <GridViewColumn Header="Artist" Width="auto" DisplayMemberBinding="{Binding ArtistName}"/>
+                                </GridView>
+                            </ListView.View>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="AliceBlue"/>
+                                            <Setter Property="FontStyle" Value="Italic"/>
+                                        </Trigger>
+                                        <DataTrigger Binding="{Binding NowPlaying}" Value="True">
+                                            <Setter Property="Background" Value="MediumPurple"/>
+                                            <Setter Property="Foreground" Value="DarkBlue"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding NowPlaying}" Value="False">
+                                            <Setter Property="Background" Value="{Binding LightButtonSolidColorBrush}"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                            <Setter Property="FontWeight" Value="Regular"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
         </Grid>
 
     </Grid>
