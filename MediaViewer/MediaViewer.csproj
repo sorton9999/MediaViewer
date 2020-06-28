@@ -330,6 +330,9 @@
   <ItemGroup>
     <Resource Include="Screenshots\MediaViewerv2.2-playlistNew.PNG" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Screenshots\MediaViewv2.2-playlist-2.PNG" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
