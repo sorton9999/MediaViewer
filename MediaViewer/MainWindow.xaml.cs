@@ -378,7 +378,15 @@ namespace MediaViewer
                                     ++runningFileCount;
 
                                     // Advance progress bar a bit after processing this file
-                                    progressBarStep = (runningFileCount % (maxFileCount / 100) == 0) ? 1 : 0;
+                                    try
+                                    {
+                                        progressBarStep = (runningFileCount % (maxFileCount / 100) <= 0) ? 1 : 0;
+                                    }
+                                    catch (DivideByZeroException e)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Divide By Zero: ", e.Message);
+                                        progressBarStep = 0;
+                                    }
                                     CheckAndInvoke(new Action(AdvanceProgressBar));
                                 }
                                 else
