@@ -452,7 +452,7 @@
             </Grid>
         </Grid>
         <Grid HorizontalAlignment="Left" Margin="646,15,0,0" VerticalAlignment="Top">
-            <TabControl x:Name="tabControl" TabStripPlacement="Left" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <TabControl x:Name="tabControl" TabStripPlacement="Left" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinHeight="407" MinWidth="275">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">
                         <Setter Property="HeaderTemplate">
@@ -474,7 +474,7 @@
                 </TabControl.Style>
                 <TabItem Header="Song Tree" Style="{StaticResource TabItemStyle}"
                          HorizontalContentAlignment="Center"
-                         VerticalContentAlignment="Center"
+                         VerticalContentAlignment="Top"
                          HorizontalAlignment="Left"
                          VerticalAlignment="Top">
                     <Grid Background="CornflowerBlue">
@@ -488,7 +488,7 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Play List" Style="{StaticResource TabItemStyle}"
-                         VerticalContentAlignment="Center"
+                         VerticalContentAlignment="Top"
                          HorizontalContentAlignment="Center"
                          HorizontalAlignment="Left"
                          VerticalAlignment="Top">
