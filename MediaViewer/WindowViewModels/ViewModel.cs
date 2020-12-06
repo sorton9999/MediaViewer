@@ -174,17 +174,32 @@ namespace MediaViewer
 
             if (pictures.Length > 0)
             {
-                TagLib.IPicture pic = pictures[0];
-                using (MemoryStream ms = new MemoryStream(pic.Data.Data))
+
+                TagLib.IPicture pic = null;
+                int idx = 0;
+                while (pic == null)
                 {
-                    if (ms != null && ms.Length > 4096)
+                    pic = pictures[idx];
+                    ++idx;
+                }
+                using (MemoryStream ms = new MemoryStream(pic.Data?.Data))
+                {
+                    try
                     {
-                        image = new BitmapImage();
-                        image.BeginInit();
-                        image.StreamSource = ms;
-                        image.CacheOption = BitmapCacheOption.OnLoad;
-                        image.EndInit();
-                        image.Freeze();
+                        if (ms != null && ms.Length > 4096)
+                        {
+                            image = new BitmapImage();
+                            image.BeginInit();
+                            image.StreamSource = ms;
+                            image.CacheOption = BitmapCacheOption.OnLoad;
+                            image.EndInit();
+                            image.Freeze();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Art Exception: " + e.Message);
+                        image = null;
                     }
                 }
             }

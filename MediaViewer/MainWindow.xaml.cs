@@ -355,13 +355,17 @@ namespace MediaViewer
                                     // the database.
                                     if (mediaInfo != null)
                                     {
+                                        // Strip off file extension
+                                        string titleName = file.Name.Substring(0, (file.Name.Length - 4));
+
                                         // File location info
                                         rs.FilePath = dirStr;
                                         rs.FileName = file.Name;
                                         // Media file info.  This is a small subset of the total available
-                                        rs.Artist = mediaInfo.Tag.FirstPerformer;
-                                        rs.Title = mediaInfo.Tag.Title;
-                                        rs.Album = mediaInfo.Tag.Album;
+                                        //rs.Artist = mediaInfo.Tag.FirstAlbumArtist ?? dirName;
+                                        rs.Artist = FindArtist(mediaInfo, dirStr);
+                                        rs.Title = mediaInfo.Tag.Title ?? titleName;
+                                        rs.Album = mediaInfo.Tag.Album ?? FindArtist(mediaInfo, dirStr);
                                         rs.SongLength = ComputeSongLength(mediaInfo);
                                         // Database table foreign key
                                         rs.FilePathID = dir.ID;
@@ -373,6 +377,10 @@ namespace MediaViewer
                                         {
                                             CheckAndInvoke(new Action(MakeErrorViewVisible));
                                         }
+                                    }
+                                    else
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("!! No Tag Info !! {0}", file);
                                     }
 
                                     ++runningFileCount;
@@ -424,6 +432,33 @@ namespace MediaViewer
 
             // Reload the tree once all work has finished and the above dialog has been acknowledged.
             CheckAndInvoke(libraryTreeControl.libraryTreeUpdateAction);
+        }
+
+        /// <summary>
+        /// Returns the artist as a string from the given tag data
+        /// </summary>
+        /// <param name="titleData"></param>
+        /// <param name="pathName"></param>
+        /// <returns></returns>
+        private string FindArtist(File titleData, string pathName)
+        {
+            string artist = "Unknown";
+            //int idx = pathName.LastIndexOf("\\") + 1;
+            //int endI = pathName.Length - 1;
+            //string dirName = pathName.Substring(idx, (pathName.Length - idx));
+
+            string[] dirs = pathName.Split('\\');
+            int dLen = dirs.Length;
+
+            try
+            {
+                artist = dirs[dLen - 2];
+            }
+            catch (Exception)
+            { 
+            }
+
+            return artist;
         }
 
         #endregion
