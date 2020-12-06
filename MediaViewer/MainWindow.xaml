@@ -491,7 +491,7 @@
                          VerticalContentAlignment="Top"
                          HorizontalContentAlignment="Center"
                          HorizontalAlignment="Left"
-                         VerticalAlignment="Top">
+                         VerticalAlignment="Top" MinHeight="5">
                     <Grid Background="CornflowerBlue">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="6*"/>
@@ -506,7 +506,7 @@
                                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                   MouseDown="ListView_MouseDown"
                                   SelectionChanged="ListView_SelectionChanged"
-                                  Background="{Binding LightSolidColorBrush}" Grid.RowSpan="2"
+                                  Background="{Binding LightSolidColorBrush}" Grid.RowSpan="2" MinHeight="400"
                                   >
                             <ListView.ContextMenu>
                                 <ContextMenu>
