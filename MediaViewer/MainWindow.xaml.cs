@@ -109,11 +109,6 @@ namespace MediaViewer
         static MediaPlayProcess mediaPlay = null;
 
         /// <summary>
-        /// The media is currently playing
-        /// </summary>
-        bool isPlaying = false;
-
-        /// <summary>
         /// The random play mode is active when TRUE
         /// </summary>
         bool randomPlay = false;
@@ -744,7 +739,6 @@ namespace MediaViewer
             MediaPlayProcess.MediaPlayStateEnum state = mediaPlay.GetState();
             if (state == MediaPlayProcess.MediaPlayStateEnum.MEDIA_STOP || state == MediaPlayProcess.MediaPlayStateEnum.MEDIA_ENDED)
             {
-                isPlaying = false;
                 PlayerProgress.Reset();
             }
         }
@@ -1283,7 +1277,7 @@ namespace MediaViewer
                 rndBtn.Background = (randomPlay ? mediaViewerViewModel.ColorModel.ActiveButtonSolidColorBrush : mediaViewerViewModel.ColorModel.LightButtonSolidColorBrush);
             }
 
-            if (randomPlay && !isPlaying)
+            if (randomPlay && mediaPlay.GetState() != MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
             {
                 int count = playListItems.Count;
                 int iTemp = 0;
@@ -1434,7 +1428,8 @@ namespace MediaViewer
         /// </summary>
         private void MediaDetailsControl_NowPlayingEvent()
         {
-            if (isPlaying)
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY ||
+                mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PAUSE)
             {
                 PlayListViewModel item = PlayListItems.First((i) => i.NowPlaying == true);
                 string title = item.Path + "\\" + item.File;
@@ -1459,10 +1454,9 @@ namespace MediaViewer
                 || PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_PAUSE)
             {
                 MediaPlayProcess.MediaPlayStateEnum state = mediaPlay.GetState();
-                isPlaying = true;
                 if (playList.SelectedIndex > -1)// && state != MediaPlayProcess.MediaPlayStateEnum.MEDIA_PAUSE)
                 {
-                    mediaPlay.Play(isPlaying, playList.SelectedIndex);
+                    mediaPlay.Play(true, playList.SelectedIndex);
                     playList.SelectedIndex = -1;
                 }
                 else
@@ -1475,14 +1469,12 @@ namespace MediaViewer
                      || PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_FF
                      || PlayerProgress.PlayerMode == PlayerControl.PlayerModeEnum.PLAYER_MODE_RW)
             {
-                isPlaying = true;
                 mediaPlay.Play(false);
             }
         }
 
         private void PauseBtn_Click(object sender, RoutedEventArgs e)
         {
-            isPlaying = false;
             mediaPlay.Play(false);
         }
 
@@ -1509,7 +1501,6 @@ namespace MediaViewer
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
         {
-            isPlaying = false;
             mediaPlay.Stop();
         }
 
@@ -1568,7 +1559,7 @@ namespace MediaViewer
             value = (float)Math.Round(value * 100f) / 100f;
             // Only set the position while the media is playing,
             // otherwise just force to zero.
-            if (isPlaying)
+            if (mediaPlay.GetState() == MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
             {
                 mediaPlay.InvokeSeeker(value);
             }
