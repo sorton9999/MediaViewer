@@ -53,14 +53,16 @@ namespace MediaViewer
             TitleViewModel vm = (sender as MenuItem).DataContext as TitleViewModel;
             if (vm != null)
             {
-                PlayListViewModel pm = new PlayListViewModel();
-                pm.OrderId = 1;
-                pm.ArtistName = vm.Album.Artist.ArtistName;
-                pm.Song = vm.TitleName;
-                pm.Path = vm.FilePath;
-                pm.Length = vm.TitleLength;
-                pm.File = vm.FileName;
-                pm.Selected = false;
+                PlayListViewModel pm = new PlayListViewModel
+                {
+                    OrderId = 1,
+                    ArtistName = vm.Album.Artist.ArtistName,
+                    Song = vm.TitleName,
+                    Path = vm.FilePath,
+                    Length = vm.TitleLength,
+                    File = vm.FileName,
+                    Selected = false
+                };
                 if (mediaWorker.InsertingTitle)
                 {
                     mediaWorker.InsertTitleToPlayList(mediaWorker.PlayIndex, pm);
