@@ -978,6 +978,16 @@ namespace MediaViewer
             songDetails.TotalPlayTime = "[" + SecondsToString(totalSecs) + "]";
         }
 
+        /// <summary>
+        /// Handles a double-click on the playlist item.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandlePlayListDoubleClick(object sender, EventArgs e)
+        {
+            PlayerControl_PlayEvent(PlayerControl.PlayerModeEnum.PLAYER_MODE_PLAY, null);
+        }
+
         long totalSecs = 0;
 
         /// <summary>
@@ -1325,6 +1335,7 @@ namespace MediaViewer
         }
 
         bool fromSavedPlayList = false;
+
         /// <summary>
         /// Event handler which responds to making selections in the Save PlayList combobox.
         /// </summary>

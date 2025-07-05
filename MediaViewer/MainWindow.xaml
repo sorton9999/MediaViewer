@@ -324,7 +324,7 @@
             <Button x:Name="flyoutBtnExpand"
                         Background="{Binding LightButtonSolidColorBrush}"
                         HorizontalAlignment="Left"
-                        Margin="7,389,0,0"
+                        Margin="7,389,0,-3"
                         VerticalAlignment="Top"
                         Width="60"
                         Visibility="{Binding FlyoutExpand, Converter={StaticResource boolToVisConverter}}"
@@ -354,7 +354,7 @@
             <Button x:Name="flyoutButtonContract"
                         Background="{Binding LightButtonSolidColorBrush}"
                         HorizontalAlignment="Left"
-                        Margin="7,389,0,0"
+                        Margin="7,389,0,-3"
                         VerticalAlignment="Top"
                         Width="60"
                         Click="FlyoutContractButton_Click"
@@ -542,6 +542,7 @@
                                             <Setter Property="FontWeight" Value="Regular"/>
                                         </DataTrigger>
                                     </Style.Triggers>
+                                    <EventSetter  Event="MouseDoubleClick" Handler="HandlePlayListDoubleClick" />
                                 </Style>
                             </ListView.ItemContainerStyle>
                         </ListView>
