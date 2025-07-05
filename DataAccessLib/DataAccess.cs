@@ -23,7 +23,7 @@ namespace DataAccessLib
         /// </summary>
         public DataAccess()
         {
-            dbConnectionStr = "Data Source=MediaDB;Pooling=true;FailIfMissing=false";
+            dbConnectionStr = "Data Source=MediaDB;Version=3;Pooling=true;FailIfMissing=false";
         }
 
         /// <summary>
