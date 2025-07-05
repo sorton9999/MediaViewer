@@ -138,7 +138,7 @@ namespace DataAccessLib
                     try
                     {
                         column.ColumnName = prop.Name;
-                        column.IsKey = keyInfo[item.i];
+                        column.IsKey = (keyInfo == null) ? false : keyInfo[item.i];
                         columns.Add(column);
                     }
                     catch (Exception)
