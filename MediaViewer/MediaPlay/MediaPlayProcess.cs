@@ -357,6 +357,67 @@ namespace MediaViewer
             }), playAction);
         }
 
+        public void PlayNextTrack()
+        {
+            int mediaCount = _mediaList.Count;
+            ++trackIdx;
+            bool keepPlaying = (mediaCount > trackIdx);
+            switch (playMode & (MediaPlayModeEnum.MODE_RANDOM | MediaPlayModeEnum.MODE_REPEAT))
+            {
+                case MediaPlayModeEnum.MODE_NORMAL:
+                    if (keepPlaying)
+                    {
+                        Play(true);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_RANDOM:
+                    if (keepPlaying)
+                    {
+                        Play(true, randomSongArray[trackIdx]);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_REPEAT:
+                    if (mediaCount > 0)
+                    {
+                        if (!keepPlaying)
+                        {
+                            trackIdx = 0;
+                            keepPlaying = true;
+                        }
+                        Play(true);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_RANDOM | MediaPlayModeEnum.MODE_REPEAT:
+                    if (mediaCount > 0)
+                    {
+                        if (!keepPlaying)
+                        {
+                            trackIdx = 0;
+                            randomSongArray = GetRandomSongArray();
+                            Shuffle(ref randomSongArray);
+                            keepPlaying = true;
+                        }
+                        Play(true, randomSongArray[trackIdx]);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_FAST:
+                    _mediaPlayer_Forward(null, null);
+                    break;
+
+                default:
+                    MainWindow.SetTrackStop();
+                    break;
+            }
+            if (!keepPlaying)
+            {
+                MainWindow.SetTrackStop();
+            }
+        }
+
         public void Play(bool play)
         {
             if (play)
@@ -481,36 +542,7 @@ namespace MediaViewer
         {
             Debug.WriteLine("End Reached");
             Debug.WriteLine(GetState().ToString());
-            int mediaCount = _mediaList.Count;
-            ++trackIdx;
-            if (mediaCount > trackIdx)
-            {
-                if ((playMode & MediaPlayModeEnum.MODE_RANDOM) == MediaPlayModeEnum.MODE_RANDOM)
-                {
-                    Play(true, randomSongArray[trackIdx]);
-                }
-                else
-                {
-                    Play(true);
-                }
-            }
-            else if ((playMode & MediaPlayModeEnum.MODE_REPEAT) == MediaPlayModeEnum.MODE_REPEAT && (mediaCount > 0))
-            {
-                trackIdx = 0;
-                if ((playMode & MediaPlayModeEnum.MODE_RANDOM) == MediaPlayModeEnum.MODE_RANDOM)
-                {
-                    Shuffle(ref randomSongArray);
-                    Play(true, randomSongArray[trackIdx]);
-                }
-                else
-                {
-                    Play(true);
-                }
-            }
-            else
-            {
-                MainWindow.SetTrackStop();
-            }
+            PlayNextTrack();
         }
 
         private void _mediaPlayer_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
