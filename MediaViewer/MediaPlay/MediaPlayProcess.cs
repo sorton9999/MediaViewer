@@ -1,10 +1,12 @@
-﻿using System;
+﻿using LibVLCSharp.Shared;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using LibVLCSharp.Shared;
+using System.Windows.Controls;
+
 
 namespace MediaViewer
 {
@@ -15,6 +17,11 @@ namespace MediaViewer
             MEDIA_BUFFERING, MEDIA_OPENING, MEDIA_ENDED, MEDIA_STOP,
             MEDIA_PLAY, MEDIA_PAUSE, MEDIA_FASTFWD, MEDIA_REWIND
         };
+
+        public enum MediaPlayModeEnum
+        {
+            MODE_NORMAL = 0x0, MODE_REPEAT = 0x1, MODE_RANDOM = 0x2, MODE_FAST = 0x4
+        }
 
         public delegate bool Adder(string file);
         public delegate bool Remover(int idx);
@@ -38,6 +45,8 @@ namespace MediaViewer
         public Action playAction;
         private Process playProcess = new Process();
         private bool isInitialized = false;
+        private MediaPlayModeEnum playMode = MediaPlayModeEnum.MODE_NORMAL;
+        private int[] randomSongArray = null;
         int trackIdx = 0;
         MediaPlayStateEnum _state = MediaPlayStateEnum.MEDIA_UNINIT;
 
@@ -187,6 +196,37 @@ namespace MediaViewer
             _mediaPlayer.SetRate(rate);
         }
 
+        public void SetRepeat(bool repeat)
+        {
+            if (repeat)
+            {
+                playMode |= MediaPlayModeEnum.MODE_REPEAT;
+            }
+            else
+            {
+                playMode &= ~MediaPlayModeEnum.MODE_REPEAT;
+            }
+        }
+
+        internal void SetRandom(bool random)
+        {
+            if (random)
+            {
+                playMode |= MediaPlayModeEnum.MODE_RANDOM;
+                randomSongArray = GetRandomSongArray();
+                if (randomSongArray != null && randomSongArray.Length > 0)
+                {
+                    Shuffle(ref randomSongArray);
+                    Play(true, randomSongArray[0]);
+                }
+            }
+            else
+            {
+                playMode &= ~MediaPlayModeEnum.MODE_RANDOM;
+                randomSongArray = null;
+            }
+        }
+
         public MediaPlayStateEnum GetState()
         {
             MediaPlayStateEnum state = MediaPlayStateEnum.MEDIA_UNINIT;
@@ -221,6 +261,29 @@ namespace MediaViewer
                     break;
             }
             return state;
+        }
+
+        public int[] GetRandomSongArray()
+        {
+            int count = _mediaList.Count;
+            int [] randomArray = new int[count];
+            foreach (var item in _mediaList.ToList().Select((e, i) => new { e, i }))
+            {
+                randomArray[item.i] = item.i;
+            }
+            return randomArray;
+        }
+
+        public static void Shuffle(ref int[] array)
+        {
+            Random rnd = new Random();
+            int n = array.Length;
+            while (n > 1)
+            {
+                n--;
+                int k = rnd.Next(n + 1);
+                (array[k], array[n]) = (array[n], array[k]);
+            }
         }
 
         private void MediaPlayerAdd(string file)
@@ -422,7 +485,27 @@ namespace MediaViewer
             ++trackIdx;
             if (mediaCount > trackIdx)
             {
-                Play(true);
+                if ((playMode & MediaPlayModeEnum.MODE_RANDOM) == MediaPlayModeEnum.MODE_RANDOM)
+                {
+                    Play(true, randomSongArray[trackIdx]);
+                }
+                else
+                {
+                    Play(true);
+                }
+            }
+            else if ((playMode & MediaPlayModeEnum.MODE_REPEAT) == MediaPlayModeEnum.MODE_REPEAT && (mediaCount > 0))
+            {
+                trackIdx = 0;
+                if ((playMode & MediaPlayModeEnum.MODE_RANDOM) == MediaPlayModeEnum.MODE_RANDOM)
+                {
+                    Shuffle(ref randomSongArray);
+                    Play(true, randomSongArray[trackIdx]);
+                }
+                else
+                {
+                    Play(true);
+                }
             }
             else
             {
@@ -475,8 +558,6 @@ namespace MediaViewer
             Debug.WriteLine("Media Changed");
             MediaChangeEvent?.Invoke(this, new EventArgs());
         }
-
-
     }
 
     /// <summary>

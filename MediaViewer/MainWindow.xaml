@@ -347,7 +347,18 @@
                         <Button x:Name="savePlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Save" Click="SavePlayListBtn_Click"/>
                         <Button x:Name="loadPlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Load" Margin="0,7,0,0" Click="LoadBtn_Click"/>
                         <Button x:Name="deletePlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Delete" Margin="0,7,0,0" IsTabStop="False" Click="DeletePlayListBtn_Click"/>
-                        <Button x:Name="randomPlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Content="Random" Margin="0,10,0,0" IsTabStop="False" Click="RandomPlayListBtn_Click"/>
+                        <Button x:Name="randomPlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Margin="0,7,0,0" IsTabStop="False" Click="RandomPlayListBtn_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Images\shuffle-transparent.png" Width="20" Height="20" VerticalAlignment="Center"  HorizontalAlignment="Center"/>
+                                <TextBlock Text="Rndm" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="repeatPlayListBtn" Background="{Binding LightButtonSolidColorBrush}" Margin="0,7,0,0" IsTabStop="False" Click="RepeatPlayListBtn_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Images\repeat.png" Width="20" Height="20" VerticalAlignment="Center"  HorizontalAlignment="Center" Margin="-4,0,3,0"/>
+                                <TextBlock Text="Rept" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-2,0,0,0"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
             </Grid>

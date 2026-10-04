@@ -114,6 +114,11 @@ namespace MediaViewer
         bool randomPlay = false;
 
         /// <summary>
+        /// The repeat play mode is active when TRUE
+        /// </summary>
+        private bool repeatPlay = false;
+
+        /// <summary>
         /// The volume control visibility flag
         /// </summary>
         bool isVolumeControlVisible = false;
@@ -1286,53 +1291,25 @@ namespace MediaViewer
                 randomPlay = !randomPlay;
                 rndBtn.Background = (randomPlay ? mediaViewerViewModel.ColorModel.ActiveButtonSolidColorBrush : mediaViewerViewModel.ColorModel.LightButtonSolidColorBrush);
             }
+            mediaPlay.SetRandom(randomPlay);               
+        }
 
-            if (randomPlay && mediaPlay.GetState() != MediaPlayProcess.MediaPlayStateEnum.MEDIA_PLAY)
+        private void RepeatPlayListBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button rptBtn = sender as Button;
+            if (rptBtn != null)
             {
-                int count = playListItems.Count;
-                int iTemp = 0;
+                repeatPlay = !repeatPlay;
+                rptBtn.Background = (repeatPlay ? mediaViewerViewModel.ColorModel.ActiveButtonSolidColorBrush : mediaViewerViewModel.ColorModel.LightButtonSolidColorBrush);
+            }
 
-                // Set flag to change the contents of the player's media playlist
-                fromSavedPlayList = true;
-
-                PlayListViewModel temp = new PlayListViewModel();
-                var rnd = new Random();
-                var idxArr = new int[count];
-                var playArr = playListItems.ToArray();
-
-                // 
-                for (int i = 0; i < count; ++i)
-                {
-                    idxArr[i] = i;
-                    playListItems.RemoveAt((count - 1) - i);
-                }
-
-                for (int i = 0; i < count; ++i)
-                {
-                    int idx1 = 0;
-                    int idx2 = 0;
-                    while (idx1 == idx2)
-                    {
-                        idx1 = rnd.Next(count);
-                        idx2 = rnd.Next(count);
-                    }
-
-                    iTemp = idxArr[idx2];
-                    idxArr[idx2] = idxArr[idx1];
-                    idxArr[idx1] = iTemp;
-                }
-
-                for (int i = 0; i < count; ++i)
-                {
-                    int idx = idxArr[i];
-                    playListItems.Add(playArr[idx]);
-                }
-
-                playList.ItemsSource = playListItems;
-
-                fromSavedPlayList = false;
+            int totalSongs = playListItems.Count;
+            if (totalSongs > 0)
+            {
+                mediaPlay.SetRepeat(repeatPlay);
             }
         }
+
 
         bool fromSavedPlayList = false;
 

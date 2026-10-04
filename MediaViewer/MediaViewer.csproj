@@ -331,6 +331,12 @@
       <Name>DataAccessLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\shuffle-transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\repeat.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
