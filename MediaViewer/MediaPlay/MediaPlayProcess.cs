@@ -1,10 +1,12 @@
-﻿using System;
+﻿using LibVLCSharp.Shared;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using LibVLCSharp.Shared;
+using System.Windows.Controls;
+
 
 namespace MediaViewer
 {
@@ -15,6 +17,16 @@ namespace MediaViewer
             MEDIA_BUFFERING, MEDIA_OPENING, MEDIA_ENDED, MEDIA_STOP,
             MEDIA_PLAY, MEDIA_PAUSE, MEDIA_FASTFWD, MEDIA_REWIND
         };
+
+        public enum MediaPlayModeEnum
+        {
+            MODE_NORMAL = 0x0, MODE_REPEAT = 0x1, MODE_RANDOM = 0x2, MODE_FAST = 0x4
+        }
+
+        public enum RepeatModeEnum
+        {
+            REPEAT_NONE, REPEAT_SINGLE, REPEAT_ALL
+        }
 
         public delegate bool Adder(string file);
         public delegate bool Remover(int idx);
@@ -38,6 +50,9 @@ namespace MediaViewer
         public Action playAction;
         private Process playProcess = new Process();
         private bool isInitialized = false;
+        private MediaPlayModeEnum playMode = MediaPlayModeEnum.MODE_NORMAL;
+        private RepeatModeEnum repeatMode = RepeatModeEnum.REPEAT_NONE;
+        private int[] randomSongArray = null;
         int trackIdx = 0;
         MediaPlayStateEnum _state = MediaPlayStateEnum.MEDIA_UNINIT;
 
@@ -187,6 +202,43 @@ namespace MediaViewer
             _mediaPlayer.SetRate(rate);
         }
 
+        public void SetRepeat(RepeatModeEnum repeat)
+        {
+            repeatMode = repeat;
+            switch (repeat)
+            {
+                case RepeatModeEnum.REPEAT_NONE:
+                    playMode &= ~MediaPlayModeEnum.MODE_REPEAT;
+                    break;
+                case RepeatModeEnum.REPEAT_SINGLE:
+                case RepeatModeEnum.REPEAT_ALL:
+                    playMode |= MediaPlayModeEnum.MODE_REPEAT;
+                    break;
+                default:
+                    playMode &= ~MediaPlayModeEnum.MODE_REPEAT;
+                    break;
+            }
+        }
+
+        internal void SetRandom(bool random)
+        {
+            if (random)
+            {
+                playMode |= MediaPlayModeEnum.MODE_RANDOM;
+                randomSongArray = GetRandomSongArray();
+                if (randomSongArray != null && randomSongArray.Length > 0)
+                {
+                    Shuffle(ref randomSongArray);
+                    Play(true, randomSongArray[0]);
+                }
+            }
+            else
+            {
+                playMode &= ~MediaPlayModeEnum.MODE_RANDOM;
+                randomSongArray = null;
+            }
+        }
+
         public MediaPlayStateEnum GetState()
         {
             MediaPlayStateEnum state = MediaPlayStateEnum.MEDIA_UNINIT;
@@ -221,6 +273,29 @@ namespace MediaViewer
                     break;
             }
             return state;
+        }
+
+        public int[] GetRandomSongArray()
+        {
+            int count = _mediaList.Count;
+            int [] randomArray = new int[count];
+            foreach (var item in _mediaList.ToList().Select((e, i) => new { e, i }))
+            {
+                randomArray[item.i] = item.i;
+            }
+            return randomArray;
+        }
+
+        public static void Shuffle(ref int[] array)
+        {
+            Random rnd = new Random();
+            int n = array.Length;
+            while (n > 1)
+            {
+                n--;
+                int k = rnd.Next(n + 1);
+                (array[k], array[n]) = (array[n], array[k]);
+            }
         }
 
         private void MediaPlayerAdd(string file)
@@ -292,6 +367,67 @@ namespace MediaViewer
                 (result.AsyncState as Action).EndInvoke(result);
 
             }), playAction);
+        }
+
+        public void PlayNextTrack()
+        {
+            int mediaCount = _mediaList.Count;
+            if (repeatMode != RepeatModeEnum.REPEAT_SINGLE) { ++trackIdx; }
+            bool keepPlaying = (mediaCount > trackIdx);
+            switch (playMode & (MediaPlayModeEnum.MODE_RANDOM | MediaPlayModeEnum.MODE_REPEAT))
+            {
+                case MediaPlayModeEnum.MODE_NORMAL:
+                    if (keepPlaying)
+                    {
+                        Play(true);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_RANDOM:
+                    if (keepPlaying)
+                    {
+                        Play(true, randomSongArray[trackIdx]);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_REPEAT:
+                    if (mediaCount > 0)
+                    {
+                        if (!keepPlaying)
+                        {
+                            trackIdx = 0;
+                            keepPlaying = true;
+                        }
+                        Play(true);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_RANDOM | MediaPlayModeEnum.MODE_REPEAT:
+                    if (mediaCount > 0)
+                    {
+                        if (!keepPlaying)
+                        {
+                            trackIdx = 0;
+                            randomSongArray = GetRandomSongArray();
+                            Shuffle(ref randomSongArray);
+                            keepPlaying = true;
+                        }
+                        Play(true, randomSongArray[trackIdx]);
+                    }
+                    break;
+
+                case MediaPlayModeEnum.MODE_FAST:
+                    _mediaPlayer_Forward(null, null);
+                    break;
+
+                default:
+                    MainWindow.SetTrackStop();
+                    break;
+            }
+            if (!keepPlaying)
+            {
+                MainWindow.SetTrackStop();
+            }
         }
 
         public void Play(bool play)
@@ -418,16 +554,7 @@ namespace MediaViewer
         {
             Debug.WriteLine("End Reached");
             Debug.WriteLine(GetState().ToString());
-            int mediaCount = _mediaList.Count;
-            ++trackIdx;
-            if (mediaCount > trackIdx)
-            {
-                Play(true);
-            }
-            else
-            {
-                MainWindow.SetTrackStop();
-            }
+            PlayNextTrack();
         }
 
         private void _mediaPlayer_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
@@ -475,8 +602,6 @@ namespace MediaViewer
             Debug.WriteLine("Media Changed");
             MediaChangeEvent?.Invoke(this, new EventArgs());
         }
-
-
     }
 
     /// <summary>
