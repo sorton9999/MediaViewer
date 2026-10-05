@@ -23,6 +23,11 @@ namespace MediaViewer
             MODE_NORMAL = 0x0, MODE_REPEAT = 0x1, MODE_RANDOM = 0x2, MODE_FAST = 0x4
         }
 
+        public enum RepeatModeEnum
+        {
+            REPEAT_NONE, REPEAT_SINGLE, REPEAT_ALL
+        }
+
         public delegate bool Adder(string file);
         public delegate bool Remover(int idx);
         public delegate bool Seeker(float value);
@@ -46,6 +51,7 @@ namespace MediaViewer
         private Process playProcess = new Process();
         private bool isInitialized = false;
         private MediaPlayModeEnum playMode = MediaPlayModeEnum.MODE_NORMAL;
+        private RepeatModeEnum repeatMode = RepeatModeEnum.REPEAT_NONE;
         private int[] randomSongArray = null;
         int trackIdx = 0;
         MediaPlayStateEnum _state = MediaPlayStateEnum.MEDIA_UNINIT;
@@ -196,15 +202,21 @@ namespace MediaViewer
             _mediaPlayer.SetRate(rate);
         }
 
-        public void SetRepeat(bool repeat)
+        public void SetRepeat(RepeatModeEnum repeat)
         {
-            if (repeat)
+            repeatMode = repeat;
+            switch (repeat)
             {
-                playMode |= MediaPlayModeEnum.MODE_REPEAT;
-            }
-            else
-            {
-                playMode &= ~MediaPlayModeEnum.MODE_REPEAT;
+                case RepeatModeEnum.REPEAT_NONE:
+                    playMode &= ~MediaPlayModeEnum.MODE_REPEAT;
+                    break;
+                case RepeatModeEnum.REPEAT_SINGLE:
+                case RepeatModeEnum.REPEAT_ALL:
+                    playMode |= MediaPlayModeEnum.MODE_REPEAT;
+                    break;
+                default:
+                    playMode &= ~MediaPlayModeEnum.MODE_REPEAT;
+                    break;
             }
         }
 
@@ -360,7 +372,7 @@ namespace MediaViewer
         public void PlayNextTrack()
         {
             int mediaCount = _mediaList.Count;
-            ++trackIdx;
+            if (repeatMode != RepeatModeEnum.REPEAT_SINGLE) { ++trackIdx; }
             bool keepPlaying = (mediaCount > trackIdx);
             switch (playMode & (MediaPlayModeEnum.MODE_RANDOM | MediaPlayModeEnum.MODE_REPEAT))
             {

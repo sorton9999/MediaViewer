@@ -114,9 +114,9 @@ namespace MediaViewer
         bool randomPlay = false;
 
         /// <summary>
-        /// The repeat play mode is active when TRUE
+        /// The repeat play mode when selecting the Repeat button (None, Single, All).
         /// </summary>
-        private bool repeatPlay = false;
+        private MediaPlayProcess.RepeatModeEnum repeatPlay = MediaPlayProcess.RepeatModeEnum.REPEAT_NONE;
 
         /// <summary>
         /// The volume control visibility flag
@@ -1299,8 +1299,11 @@ namespace MediaViewer
             Button rptBtn = sender as Button;
             if (rptBtn != null)
             {
-                repeatPlay = !repeatPlay;
-                rptBtn.Background = (repeatPlay ? mediaViewerViewModel.ColorModel.ActiveButtonSolidColorBrush : mediaViewerViewModel.ColorModel.LightButtonSolidColorBrush);
+                repeatPlay = repeatPlay == MediaPlayProcess.RepeatModeEnum.REPEAT_NONE ? 
+                    MediaPlayProcess.RepeatModeEnum.REPEAT_ALL : repeatPlay == MediaPlayProcess.RepeatModeEnum.REPEAT_SINGLE ? 
+                    MediaPlayProcess.RepeatModeEnum.REPEAT_NONE : MediaPlayProcess.RepeatModeEnum.REPEAT_SINGLE;
+                rptBtn.Background = (repeatPlay != MediaPlayProcess.RepeatModeEnum.REPEAT_NONE ? mediaViewerViewModel.ColorModel.ActiveButtonSolidColorBrush : mediaViewerViewModel.ColorModel.LightButtonSolidColorBrush);
+                repeatSingleText.Visibility = (repeatPlay == MediaPlayProcess.RepeatModeEnum.REPEAT_SINGLE ? Visibility.Visible : Visibility.Hidden);
             }
 
             int totalSongs = playListItems.Count;
